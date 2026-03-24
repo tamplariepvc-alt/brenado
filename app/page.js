@@ -67,13 +67,11 @@ const demoTasks = [
     description: "Montaj 4 ferestre PVC si 1 usa balcon.",
     notes: "Clientul a confirmat programarea pentru ora 10:00.",
     photo_url: "",
+    final_photo_urls: [],
     status: "Noua",
     deadline: "2026-03-24",
     assigned_name: "Andrei",
     profiles: { full_name: "Administrator" },
-	photo_url: "",
-final_photo_urls: [],
-status: "Noua",
   },
   {
     id: 2,
@@ -81,13 +79,11 @@ status: "Noua",
     description: "Masuratori pentru oferta tamplarie PVC.",
     notes: "Se verifica si balconul inchis.",
     photo_url: "",
+    final_photo_urls: [],
     status: "In lucru",
     deadline: "2026-03-25",
     assigned_name: "Mihai",
     profiles: { full_name: "Administrator" },
-	photo_url: "",
-final_photo_urls: [],
-status: "Noua",
   },
 ];
 
@@ -317,41 +313,20 @@ function TaskForm({ onCreate, creating }) {
 }
 
 function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
-	const galleryImages = [
-  ...(task.photo_url
-    ? [{ url: task.photo_url, label: "Poza principala" }]
-    : []),
-  ...((Array.isArray(task.final_photo_urls) ? task.final_photo_urls : []).map(
-    (url, index) => ({
-      url,
-      label: `Poza finalizare ${index + 1}`,
-    })
-  )),
-];
+  const galleryImages = [
+    ...(task.photo_url
+      ? [{ url: task.photo_url, label: "Poza principala" }]
+      : []),
+    ...((Array.isArray(task.final_photo_urls) ? task.final_photo_urls : []).map(
+      (url, index) => ({
+        url,
+        label: `Poza finalizare ${index + 1}`,
+      })
+    )),
+  ];
 
-const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-const [galleryIndex, setGalleryIndex] = useState(0);
-
-function openGallery(startIndex = 0) {
-  setGalleryIndex(startIndex);
-  setIsGalleryOpen(true);
-}
-
-function closeGallery() {
-  setIsGalleryOpen(false);
-}
-
-function showPrevImage() {
-  setGalleryIndex((prev) =>
-    prev === 0 ? galleryImages.length - 1 : prev - 1
-  );
-}
-
-function showNextImage() {
-  setGalleryIndex((prev) =>
-    prev === galleryImages.length - 1 ? 0 : prev + 1
-  );
-}
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [notes, setNotes] = useState(task.notes || "");
   const [photoUrl, setPhotoUrl] = useState(task.photo_url || "");
@@ -363,6 +338,27 @@ function showNextImage() {
   const [completionFiles, setCompletionFiles] = useState([]);
   const [completionNames, setCompletionNames] = useState([]);
   const [uploadingCompletion, setUploadingCompletion] = useState(false);
+
+  function openGallery(startIndex = 0) {
+    setGalleryIndex(startIndex);
+    setIsGalleryOpen(true);
+  }
+
+  function closeGallery() {
+    setIsGalleryOpen(false);
+  }
+
+  function showPrevImage() {
+    setGalleryIndex((prev) =>
+      prev === 0 ? galleryImages.length - 1 : prev - 1
+    );
+  }
+
+  function showNextImage() {
+    setGalleryIndex((prev) =>
+      prev === galleryImages.length - 1 ? 0 : prev + 1
+    );
+  }
 
   useEffect(() => {
     setNotes(task.notes || "");
@@ -424,6 +420,11 @@ function showNextImage() {
     }
   }
 
+  const shouldShowFinalPhotos =
+    task.status === "Finalizata" &&
+    Array.isArray(task.final_photo_urls) &&
+    task.final_photo_urls.length > 0;
+
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -441,19 +442,19 @@ function showNextImage() {
         {task.description || "Fara descriere"}
       </p>
 
-{task.photo_url && (
-  <button
-    type="button"
-    onClick={() => openGallery(0)}
-    className="mt-4 block w-full overflow-hidden rounded-2xl border border-slate-200 text-left"
-  >
-    <img
-      src={task.photo_url}
-      alt="Poza sarcina"
-      className="h-48 w-full object-cover"
-    />
-  </button>
-)}
+      {task.photo_url && (
+        <button
+          type="button"
+          onClick={() => openGallery(0)}
+          className="mt-4 block w-full overflow-hidden rounded-2xl border border-slate-200 text-left"
+        >
+          <img
+            src={task.photo_url}
+            alt="Poza sarcina"
+            className="h-48 w-full object-cover"
+          />
+        </button>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div className="rounded-2xl bg-slate-50 p-3">
@@ -477,56 +478,72 @@ function showNextImage() {
         Creat de: {task.profiles?.full_name || "Necunoscut"}
       </div>
 
-{task.status === "Finalizata" &&
-  Array.isArray(task.final_photo_urls) &&
-  task.final_photo_urls.length > 0 && (
-    <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-      <div className="mb-2 text-sm font-semibold text-slate-900">
-        Poze lucrare finalizata
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        {task.final_photo_urls.map((url, index) => (
-          <div
-            key={`${url}-${index}`}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
-          >
-            <img
-              src={url}
-              alt={`Finalizare ${index + 1}`}
-              className="h-28 w-full object-cover"
-            />
+      {shouldShowFinalPhotos && (
+        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+          <div className="mb-2 text-sm font-semibold text-slate-900">
+            Poze lucrare finalizata
           </div>
-        ))}
-      </div>
-    </div>
-  )}
-{Array.isArray(task.final_photo_urls) && task.final_photo_urls.length > 0 ? (
-  <div className="grid grid-cols-2 gap-2">
-    {task.final_photo_urls.map((url, index) => {
-      const startIndex = task.photo_url ? index + 1 : index;
 
-      return (
-        <button
-          key={`${url}-${index}`}
-          type="button"
-          onClick={() => openGallery(startIndex)}
-          className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
-        >
-          <img
-            src={url}
-            alt={`Finalizare ${index + 1}`}
-            className="h-28 w-full object-cover"
-          />
-        </button>
-      );
-    })}
-  </div>
-) : (
-  <div className="text-sm text-slate-500">
-    Nu exista poze incarcate pentru finalizare.
-  </div>
-)}
+          <div className="grid grid-cols-2 gap-2">
+            {task.final_photo_urls.map((url, index) => {
+              const startIndex = task.photo_url ? index + 1 : index;
+
+              return (
+                <button
+                  key={`${url}-${index}`}
+                  type="button"
+                  onClick={() => openGallery(startIndex)}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+                >
+                  <img
+                    src={url}
+                    alt={`Finalizare ${index + 1}`}
+                    className="h-28 w-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {task.status === "Noua" && (
+          <button
+            type="button"
+            onClick={() => onUpdateStatus(task.id, "In lucru")}
+            className="col-span-3 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"
+          >
+            Trece in lucru
+          </button>
+        )}
+
+        {task.status === "In lucru" && (
+          <button
+            type="button"
+            onClick={() => onUpdateStatus(task.id, "Finalizata")}
+            className="col-span-3 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white"
+          >
+            Inchide sarcina
+          </button>
+        )}
+
+        {task.status === "Finalizata" && (
+          <button
+            type="button"
+            onClick={() => onUpdateStatus(task.id, "In lucru")}
+            className="col-span-3 rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
+          >
+            Redeschide sarcina
+          </button>
+        )}
+      </div>
+
+      {!shouldShowFinalPhotos && (
+        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+          <div className="mb-2 text-sm font-semibold text-slate-900">
+            Poze lucrare finalizata
+          </div>
 
           <div className="mt-3 space-y-3">
             <input
@@ -553,9 +570,7 @@ function showNextImage() {
             <button
               type="button"
               onClick={handleUploadCompletionPhotos}
-              disabled={
-                uploadingCompletion || completionFiles.length === 0
-              }
+              disabled={uploadingCompletion || completionFiles.length === 0}
               className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               {uploadingCompletion
@@ -566,44 +581,19 @@ function showNextImage() {
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {task.status === "Noua" && (
+      {!shouldShowFinalPhotos && (
+        <div className="mt-3 grid grid-cols-1 gap-2">
           <button
             type="button"
-            onClick={() => onUpdateStatus(task.id, "In lucru")}
-            className="col-span-3 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"
+            onClick={() => setIsEditing((prev) => !prev)}
+            className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
           >
-            Trece in lucru
+            {isEditing ? "Ascunde editare" : "Editeaza notite"}
           </button>
-        )}
+        </div>
+      )}
 
-        {task.status === "In lucru" && (
-          <button
-            type="button"
-            onClick={() => onUpdateStatus(task.id, "Finalizata")}
-            className="col-span-3 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white"
-          >
-            Inchide sarcina
-          </button>
-        )}
-
-      </div>
-
-{!(task.status === "Finalizata" &&
-  Array.isArray(task.final_photo_urls) &&
-  task.final_photo_urls.length > 0) && (
-  <div className="mt-3 grid grid-cols-1 gap-2">
-    <button
-      type="button"
-      onClick={() => setIsEditing((prev) => !prev)}
-      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
-    >
-      {isEditing ? "Ascunde editare" : "Editeaza notite"}
-    </button>
-  </div>
-)}
-
-{isEditing && (
+      {isEditing && (
         <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 p-3">
           <textarea
             value={notes}
@@ -644,55 +634,56 @@ function showNextImage() {
           </button>
         </div>
       )}
-	  {isGalleryOpen && galleryImages.length > 0 && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-    <button
-      type="button"
-      onClick={closeGallery}
-      className="absolute right-4 top-4 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-    >
-      Inchide
-    </button>
 
-    {galleryImages.length > 1 && (
-      <>
-        <button
-          type="button"
-          onClick={showPrevImage}
-          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-4 py-3 text-xl font-bold text-white"
-        >
-          ‹
-        </button>
-        <button
-          type="button"
-          onClick={showNextImage}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-4 py-3 text-xl font-bold text-white"
-        >
-          ›
-        </button>
-      </>
-    )}
+      {isGalleryOpen && galleryImages.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <button
+            type="button"
+            onClick={closeGallery}
+            className="absolute right-4 top-4 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+          >
+            Inchide
+          </button>
 
-    <div className="w-full max-w-3xl text-center">
-      <div className="mb-3 text-sm font-medium text-white">
-        {galleryImages[galleryIndex]?.label} · {galleryIndex + 1}/
-        {galleryImages.length}
-      </div>
+          {galleryImages.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={showPrevImage}
+                className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-4 py-3 text-xl font-bold text-white"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={showNextImage}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-4 py-3 text-xl font-bold text-white"
+              >
+                ›
+              </button>
+            </>
+          )}
 
-      <div className="overflow-auto rounded-3xl bg-black/20 p-2">
-        <img
-          src={galleryImages[galleryIndex]?.url}
-          alt={galleryImages[galleryIndex]?.label || "Poza"}
-          className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl object-contain"
-        />
-      </div>
+          <div className="w-full max-w-3xl text-center">
+            <div className="mb-3 text-sm font-medium text-white">
+              {galleryImages[galleryIndex]?.label} · {galleryIndex + 1}/
+              {galleryImages.length}
+            </div>
 
-      <p className="mt-3 text-xs text-slate-300">
-        Pe telefon poti face zoom cu gestul de apropiere/departare.
-      </p>
-    </div>
-  </div>
-)}
+            <div className="overflow-auto rounded-3xl bg-black/20 p-2">
+              <img
+                src={galleryImages[galleryIndex]?.url}
+                alt={galleryImages[galleryIndex]?.label || "Poza"}
+                className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl object-contain"
+              />
+            </div>
+
+            <p className="mt-3 text-xs text-slate-300">
+              Pe telefon poti face zoom cu gestul de apropiere/departare.
+            </p>
+          </div>
+        </div>
+      )}
     </article>
   );
 }
