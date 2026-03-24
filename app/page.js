@@ -3,9 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const SUPABASE_URL = "https://zpbqzncjemxiwjznbmhh.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vfx0GioJTLboYLFfcC24Q_cqHVyRnh";
 
 const isSupabaseConfigured = Boolean(
   SUPABASE_URL &&
@@ -405,6 +404,8 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
+  const [users, setUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState("taskuri");
   const [statusFilter, setStatusFilter] = useState("Toate");
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
@@ -420,52 +421,159 @@ function Dashboard({ session }) {
     setProfile(data || null);
   }
 
-async function loadTasks() {
-  if (!supabase) return;
+  async function loadUsers() {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, role")
+      .order("full_name", { ascending: true });
 
-  setLoading(true);
-
-const { data, error } = await supabase
-  .from("tasks")
-  .select(`
-    *,
-    profiles:created_by (
-      full_name
-    )
-  `)
-  .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Eroare loadTasks:", error);
-    alert(error.message);
-  } else {
-    setTasks(data || []);
+    if (!error) setUsers(data || []);
   }
 
-  setLoading(false);
-}
+  async function loadTasks() {
+    if (!supabase) return;
 
-useEffect(() => {
-  if (!supabase) return;
+    setLoading(true);
 
-  loadProfile();
-  loadTasks();
+    const { data, error } = await supabase
+      .from("tasks")
+      .select(`
+        *,
+        profiles:created_by (
+          full_name
+        )
+      `)
+      .order("created_at", { ascending: false });
 
-  const channel = supabase
-    .channel("taskuri-live")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "tasks" },
-      () => {
-        loadTasks();
-      }
-    )
-    .subscribe();
+    if (error) {
+      console.error("Eroare loadTasks:", error);
+      alert(error.message);
+    } else {
+      setTasks(data || []);
+    }
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    loadProfile();
+    loadTasks();
+    loadUsers();
+
+    const channel = supabase
+      .channel("taskuri-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks" },
+        () => {
+          loadTasks();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        () => {
+          loadUsers();
+          loadProfile();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id]);
+
+  async function createTask(payload) {
+    if (profile?.role !== "admin") {
+      alert("Doar administratorul poate crea sarcini.");
+      return;
+    }
+    if (!supabase) {
+      setTasks((prev) => [{ id: Date.now(), ...payload, profiles: { full_name: "Demo" } }, ...prev]);
+      return;
+    }
+
+    setCreating(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const { error } = await supabase.from("tasks").insert({
+      ...payload,
+      created_by: user?.id || null,
+    });
+
+    if (error) {
+      alert(error.message);
+      console.error(error);
+    }
+
+    setCreating(false);
+  }
+
+  async function updateStatus(taskId, nextStatus) {
+    if (!supabase) {
+      setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, status: nextStatus } : task)));
+      return;
+    }
+
+    const { error } = await supabase.from("tasks").update({ status: nextStatus }).eq("id", taskId);
+    if (error) {
+      alert(error.message);
+      console.error(error);
+    }
+  }
+
+  async function saveTaskDetails(taskId, details) {
+    if (!supabase) {
+      setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...details } : task)));
+      return;
+    }
+
+    const { error } = await supabase.from("tasks").update(details).eq("id", taskId);
+    if (error) {
+      alert(error.message);
+      console.error(error);
+    }
+  }
+
+  async function updateUserRole(userId, nextRole) {
+    if (profile?.role !== "admin") return;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: nextRole })
+      .eq("id", userId);
+
+    if (error) {
+      alert(error.message);
+      console.error(error);
+    }
+  }
+
+  async function signOut() {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const matchesStatus = statusFilter === "Toate" || task.status === statusFilter;
+      const haystack = `${task.title || ""} ${task.description || ""} ${task.assigned_name || ""} ${task.notes || ""}`.toLowerCase();
+      const matchesSearch = haystack.includes(search.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+  }, [tasks, search, statusFilter]);
 
   return () => {
-    supabase.removeChannel(channel);
-  };
-}, [session?.user?.id]);
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   async function createTask(payload) {
     if (profile?.role !== "admin") {
@@ -562,8 +670,8 @@ useEffect(() => {
           <h2 className="text-2xl font-bold">Taskuri in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
-              ? "Adauga sarcini, urmareste progresul si sincronizeaza echipa instant."
-              : "Vezi si gestioneaza sarcinile tale in timp real."}
+              ? "Gestioneaza sarcinile si utilizatorii dintr-un panou curat si usor de folosit."
+              : "Vezi si gestioneaza sarcinile in timp real."}
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-2xl bg-white/10 p-3">
@@ -582,9 +690,76 @@ useEffect(() => {
         </section>
 
         {profile?.role === "admin" && (
+          <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab("taskuri")}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${activeTab === "taskuri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+              >
+                Taskuri
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("adauga")}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${activeTab === "adauga" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+              >
+                Adauga
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("useri")}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${activeTab === "useri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+              >
+                Useri
+              </button>
+            </div>
+          </section>
+        )}
+
+        {profile?.role === "admin" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} />
           </div>
+        )}
+
+        {profile?.role === "admin" && activeTab === "useri" && (
+          {!(profile?.role === "admin" && activeTab === "useri") && (
+        <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+            <div className="mb-3">
+              <h3 className="text-base font-semibold text-slate-900">Panou control utilizatori</h3>
+              <p className="mt-1 text-sm text-slate-500">Schimba rolul fiecarui utilizator direct din aplicatie.</p>
+            </div>
+
+            <div className="space-y-3">
+              {users.map((userItem) => (
+                <div key={userItem.id} className="rounded-2xl border border-slate-200 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="font-medium text-slate-900">{userItem.full_name || "Fara nume"}</div>
+                      <div className="text-xs uppercase tracking-wide text-slate-500">Rol curent: {userItem.role === "admin" ? "Admin" : "User"}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => updateUserRole(userItem.id, "admin")}
+                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${userItem.role === "admin" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                      >
+                        Admin
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateUserRole(userItem.id, "user")}
+                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${userItem.role === "user" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                      >
+                        User
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
@@ -612,7 +787,9 @@ useEffect(() => {
             ))}
           </div>
         </section>
+        )}
 
+        {!(profile?.role === "admin" && activeTab === "useri") && (
         <section className="space-y-3">
           {loading && <div className="rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm">Se incarca taskurile...</div>}
 
@@ -629,6 +806,7 @@ useEffect(() => {
             />
           ))}
         </section>
+        )}
       </div>
     </div>
   );
