@@ -3,8 +3,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
 
 const isSupabaseConfigured = Boolean(
   SUPABASE_URL &&
@@ -402,19 +403,36 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
 }
 
 function Dashboard({ session }) {
+  const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
   const [statusFilter, setStatusFilter] = useState("Toate");
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
 
+  async function loadProfile() {
+    if (!supabase || !session?.user?.id) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name, role")
+      .eq("id", session.user.id)
+      .maybeSingle();
+    setProfile(data || null);
+  }
+
   async function loadTasks() {
     if (!supabase) return;
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("tasks")
       .select("*, profiles(full_name)")
       .order("created_at", { ascending: false });
+
+    if (profile?.role !== "admin") {
+      query = query.eq("assigned_name", profile?.full_name || "");
+    }
+
+    const { data, error } = await query;
 
     if (!error) setTasks(data || []);
     setLoading(false);
@@ -423,6 +441,7 @@ function Dashboard({ session }) {
   useEffect(() => {
     if (!supabase) return;
 
+    loadProfile();
     loadTasks();
 
     const channel = supabase
@@ -438,6 +457,10 @@ function Dashboard({ session }) {
   }, []);
 
   async function createTask(payload) {
+    if (profile?.role !== "admin") {
+      alert("Doar administratorul poate crea sarcini.");
+      return;
+    }
     if (!supabase) {
       setTasks((prev) => [{ id: Date.now(), ...payload, profiles: { full_name: "Demo" } }, ...prev]);
       return;
@@ -505,12 +528,15 @@ function Dashboard({ session }) {
   return (
     <div className="min-h-screen bg-slate-100 pb-24 text-slate-900">
       <div className="mx-auto max-w-md px-4 pt-4">
-        <header className="sticky top-0 z-10 mb-4 rounded-[2rem] border border-slate-200 bg-white/95 p-4 backdrop-blur">
+        <header className="sticky top-0 z-20 mb-4 border-b border-slate-200 bg-white/95 p-4 backdrop-blur">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-500">Panou echipa</p>
               <h1 className="text-xl font-bold">Task Manager PVC</h1>
               <p className="mt-1 text-sm text-slate-600">{session?.user?.email || "Mod demo"}</p>
+              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">
+                Rol: {profile?.role === "admin" ? "Admin" : "User"}
+              </p>
             </div>
             <button
               onClick={signOut}
@@ -524,7 +550,9 @@ function Dashboard({ session }) {
         <section className="mb-4 rounded-[2rem] bg-slate-900 p-4 text-white shadow-sm">
           <h2 className="text-2xl font-bold">Taskuri in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
-            Adauga sarcini, urmareste progresul si sincronizeaza echipa instant.
+            {profile?.role === "admin"
+              ? "Adauga sarcini, urmareste progresul si sincronizeaza echipa instant."
+              : "Vezi si gestioneaza sarcinile tale in timp real."}
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-2xl bg-white/10 p-3">
@@ -542,9 +570,11 @@ function Dashboard({ session }) {
           </div>
         </section>
 
-        <div className="mb-4">
-          <TaskForm onCreate={createTask} creating={creating} />
-        </div>
+        {profile?.role === "admin" && (
+          <div className="mb-4">
+            <TaskForm onCreate={createTask} creating={creating} />
+          </div>
+        )}
 
         <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
           <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
