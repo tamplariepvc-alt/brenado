@@ -397,7 +397,7 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
     }
   }
 
-async function handleUploadCompletionPhotos() {
+  async function handleUploadCompletionPhotos() {
   if (!completionFiles.length) return;
 
   setUploadingCompletion(true);
