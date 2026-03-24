@@ -622,7 +622,7 @@ function Dashboard({ session }) {
           </div>
         </header>
 
-        <section className="mb-4 rounded-[2rem] bg-slate-900 p-4 text-white shadow-sm">
+        <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
           <h2 className="text-2xl font-bold">Taskuri in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
