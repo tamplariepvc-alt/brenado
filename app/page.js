@@ -333,38 +333,38 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
       <div className="mt-3 text-xs text-slate-500">Creat de: {task.profiles?.full_name || "Necunoscut"}</div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
-        {statusOptions.map((status) => (
-          <button
-            key={status}
-            type="button"
-            onClick={() => onUpdateStatus(task.id, status)}
-            className={`rounded-2xl px-3 py-2 text-xs font-semibold ${
-              task.status === status ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-            }`}
-          >
-            {status}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {task.status === "Finalizata" ? (
+        {task.status === "Noua" && (
           <button
             type="button"
             onClick={() => onUpdateStatus(task.id, "In lucru")}
-            className="rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
+            className="col-span-3 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"
           >
-            Redeschide sarcina
+            Trece in lucru
           </button>
-        ) : (
+        )}
+
+        {task.status === "In lucru" && (
           <button
             type="button"
             onClick={() => onUpdateStatus(task.id, "Finalizata")}
-            className="rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white"
+            className="col-span-3 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white"
           >
-            Inchide taskul
+            Inchide sarcina
           </button>
         )}
+
+        {task.status === "Finalizata" && (
+          <button
+            type="button"
+            onClick={() => onUpdateStatus(task.id, "In lucru")}
+            className="col-span-3 rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
+          >
+            Redeschide sarcina
+          </button>
+        )}
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-2">
         <button
           type="button"
           onClick={() => setIsEditing((prev) => !prev)}
@@ -420,47 +420,41 @@ function Dashboard({ session }) {
     setProfile(data || null);
   }
 
-async function loadTasks() {
-  if (!supabase) return;
+  async function loadTasks() {
+    if (!supabase) return;
+    setLoading(true);
+    let query = supabase
+      .from("tasks")
+      .select("*, profiles(full_name)")
+      .order("created_at", { ascending: false });
 
-  setLoading(true);
+    if (profile?.role !== "admin") {
+      query = query.eq("assigned_name", profile?.full_name || "");
+    }
 
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("*, profiles(full_name)")
-    .order("created_at", { ascending: false });
+    const { data, error } = await query;
 
-  if (error) {
-    console.error(error);
-    alert(error.message);
-  } else {
-    setTasks(data || []);
+    if (!error) setTasks(data || []);
+    setLoading(false);
   }
 
-  setLoading(false);
-}
+  useEffect(() => {
+    if (!supabase) return;
 
-useEffect(() => {
-  if (!supabase) return;
+    loadProfile();
+    loadTasks();
 
-  loadProfile();
-  loadTasks();
-
-  const channel = supabase
-    .channel("taskuri-live")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "tasks" },
-      () => {
+    const channel = supabase
+      .channel("taskuri-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () => {
         loadTasks();
-      }
-    )
-    .subscribe();
+      })
+      .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [session?.user?.id]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   async function createTask(payload) {
     if (profile?.role !== "admin") {
@@ -538,7 +532,7 @@ useEffect(() => {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-500">Panou echipa</p>
-              <h1 className="text-xl font-bold">Gestionare sarcini tamplarie PVC</h1>
+              <h1 className="text-xl font-bold">Task Manager PVC</h1>
               <p className="mt-1 text-sm text-slate-600">{session?.user?.email || "Mod demo"}</p>
               <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">
                 Rol: {profile?.role === "admin" ? "Admin" : "User"}
@@ -554,7 +548,7 @@ useEffect(() => {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-slate-900 p-4 text-white shadow-sm">
-          <h2 className="text-2xl font-bold">SARCINI ÎN TIMP REAL</h2>
+          <h2 className="text-2xl font-bold">Taskuri in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
               ? "Adauga sarcini, urmareste progresul si sincronizeaza echipa instant."
