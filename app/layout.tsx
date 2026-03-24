@@ -31,3 +31,17 @@ export default function RootLayout({
     </html>
   );
 }
+
+export const metadata = {
+  title: "Brenado Task Manager",
+  description: "Gestiune sarcini tamplarie PVC",
+  applicationName: "Brenado",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Brenado",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
