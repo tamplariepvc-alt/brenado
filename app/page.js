@@ -579,17 +579,21 @@ function showNextImage() {
         )}
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-2">
-        <button
-          type="button"
-          onClick={() => setIsEditing((prev) => !prev)}
-          className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
-        >
-          {isEditing ? "Ascunde editare" : "Editeaza notite"}
-        </button>
-      </div>
+{!(task.status === "Finalizata" &&
+  Array.isArray(task.final_photo_urls) &&
+  task.final_photo_urls.length > 0) && (
+  <div className="mt-3 grid grid-cols-1 gap-2">
+    <button
+      type="button"
+      onClick={() => setIsEditing((prev) => !prev)}
+      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+    >
+      {isEditing ? "Ascunde editare" : "Editeaza notite"}
+    </button>
+  </div>
+)}
 
-      {isEditing && (
+{isEditing && (
         <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 p-3">
           <textarea
             value={notes}
