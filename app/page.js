@@ -606,8 +606,13 @@ function Dashboard({ session }) {
         <header className="mb-4 border-b border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">Panou echipa</p>
-              <h1 className="text-xl font-bold">Task Manager PVC</h1>
+<div className="flex items-center gap-3">
+  <img
+    src="/logo.png"
+    alt="Logo"
+    className="h-10 w-auto object-contain"
+  />
+</div>
 <p className="mt-1 text-sm text-slate-600">
   {profile?.full_name || session?.user?.email || "Mod demo"}
 </p>
