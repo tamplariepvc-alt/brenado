@@ -608,7 +608,9 @@ function Dashboard({ session }) {
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-500">Panou echipa</p>
               <h1 className="text-xl font-bold">Task Manager PVC</h1>
-              <p className="mt-1 text-sm text-slate-600">{session?.user?.email || "Mod demo"}</p>
+<p className="mt-1 text-sm text-slate-600">
+  {profile?.full_name || session?.user?.email || "Mod demo"}
+</p>
               <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">
                 Rol: {profile?.role === "admin" ? "Admin" : "User"}
               </p>
