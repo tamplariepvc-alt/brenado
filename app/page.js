@@ -605,27 +605,32 @@ function Dashboard({ session }) {
       <div className="mx-auto max-w-md px-4 pt-4">
         <header className="mb-4 border-b border-slate-200 bg-white p-4">
 <div className="flex items-center justify-between gap-3">
-  
+
+  {/* STANGA */}
   <div className="flex items-center gap-3">
+
     <img
       src="/logo.png"
       alt="Logo"
-      className="h-12 w-auto object-contain"
+      className="h-10 w-auto object-contain"
     />
 
     <div className="flex flex-col justify-center">
-      <p className="text-sm font-semibold text-slate-800">
+      <p className="text-base font-semibold text-slate-900 leading-tight">
         {profile?.full_name || "Utilizator"}
       </p>
-      <p className="text-xs uppercase tracking-wide text-slate-500">
-        Rol: {profile?.role === "admin" ? "Admin" : "User"}
+
+      <p className="text-xs text-slate-500">
+        {profile?.role === "admin" ? "Administrator" : "Utilizator"}
       </p>
     </div>
+
   </div>
 
+  {/* DREAPTA */}
   <button
     onClick={signOut}
-    className="rounded-2xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+    className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700"
   >
     Iesire
   </button>
