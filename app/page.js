@@ -413,11 +413,17 @@ function Dashboard({ session }) {
 
   async function loadProfile() {
     if (!supabase || !session?.user?.id) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("id, full_name, role")
       .eq("id", session.user.id)
       .maybeSingle();
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
     setProfile(data || null);
   }
 
@@ -428,7 +434,12 @@ function Dashboard({ session }) {
       .select("id, full_name, role")
       .order("full_name", { ascending: true });
 
-    if (!error) setUsers(data || []);
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setUsers(data || []);
   }
 
   async function loadTasks() {
@@ -492,8 +503,12 @@ function Dashboard({ session }) {
       alert("Doar administratorul poate crea sarcini.");
       return;
     }
+
     if (!supabase) {
-      setTasks((prev) => [{ id: Date.now(), ...payload, profiles: { full_name: "Demo" } }, ...prev]);
+      setTasks((prev) => [
+        { id: Date.now(), ...payload, profiles: { full_name: "Demo" } },
+        ...prev,
+      ]);
       return;
     }
 
@@ -517,11 +532,19 @@ function Dashboard({ session }) {
 
   async function updateStatus(taskId, nextStatus) {
     if (!supabase) {
-      setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, status: nextStatus } : task)));
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId ? { ...task, status: nextStatus } : task
+        )
+      );
       return;
     }
 
-    const { error } = await supabase.from("tasks").update({ status: nextStatus }).eq("id", taskId);
+    const { error } = await supabase
+      .from("tasks")
+      .update({ status: nextStatus })
+      .eq("id", taskId);
+
     if (error) {
       alert(error.message);
       console.error(error);
@@ -530,11 +553,14 @@ function Dashboard({ session }) {
 
   async function saveTaskDetails(taskId, details) {
     if (!supabase) {
-      setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...details } : task)));
+      setTasks((prev) =>
+        prev.map((task) => (task.id === taskId ? { ...task, ...details } : task))
+      );
       return;
     }
 
     const { error } = await supabase.from("tasks").update(details).eq("id", taskId);
+
     if (error) {
       alert(error.message);
       console.error(error);
@@ -563,86 +589,15 @@ function Dashboard({ session }) {
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      const matchesStatus = statusFilter === "Toate" || task.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "Toate" || task.status === statusFilter;
       const haystack = `${task.title || ""} ${task.description || ""} ${task.assigned_name || ""} ${task.notes || ""}`.toLowerCase();
       const matchesSearch = haystack.includes(search.toLowerCase());
       return matchesStatus && matchesSearch;
     });
   }, [tasks, search, statusFilter]);
 
-  return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  async function createTask(payload) {
-    if (profile?.role !== "admin") {
-      alert("Doar administratorul poate crea sarcini.");
-      return;
-    }
-    if (!supabase) {
-      setTasks((prev) => [{ id: Date.now(), ...payload, profiles: { full_name: "Demo" } }, ...prev]);
-      return;
-    }
-
-    setCreating(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { error } = await supabase.from("tasks").insert({
-      ...payload,
-      created_by: user?.id || null,
-    });
-
-    if (error) {
-      alert(error.message);
-      console.error(error);
-    }
-
-    setCreating(false);
-  }
-
-  async function updateStatus(taskId, nextStatus) {
-    if (!supabase) {
-      setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, status: nextStatus } : task)));
-      return;
-    }
-
-    const { error } = await supabase.from("tasks").update({ status: nextStatus }).eq("id", taskId);
-    if (error) {
-      alert(error.message);
-      console.error(error);
-    }
-  }
-
-  async function saveTaskDetails(taskId, details) {
-    if (!supabase) {
-      setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...details } : task)));
-      return;
-    }
-
-    const { error } = await supabase.from("tasks").update(details).eq("id", taskId);
-    if (error) {
-      alert(error.message);
-      console.error(error);
-    }
-  }
-
-  async function signOut() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
-    window.location.reload();
-  }
-
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesStatus = statusFilter === "Toate" || task.status === statusFilter;
-      const haystack = `${task.title || ""} ${task.description || ""} ${task.assigned_name || ""} ${task.notes || ""}`.toLowerCase();
-      const matchesSearch = haystack.includes(search.toLowerCase());
-      return matchesStatus && matchesSearch;
-    });
-  }, [tasks, search, statusFilter]);
+  const showTaskArea = !(profile?.role === "admin" && activeTab === "useri");
 
   return (
     <div className="min-h-screen bg-slate-100 pb-24 text-slate-900">
@@ -695,21 +650,27 @@ function Dashboard({ session }) {
               <button
                 type="button"
                 onClick={() => setActiveTab("taskuri")}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${activeTab === "taskuri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+                  activeTab === "taskuri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                }`}
               >
                 Taskuri
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("adauga")}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${activeTab === "adauga" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+                  activeTab === "adauga" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                }`}
               >
                 Adauga
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("useri")}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${activeTab === "useri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+                  activeTab === "useri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                }`}
               >
                 Useri
               </button>
@@ -724,11 +685,12 @@ function Dashboard({ session }) {
         )}
 
         {profile?.role === "admin" && activeTab === "useri" && (
-          {!(profile?.role === "admin" && activeTab === "useri") && (
-        <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+          <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Panou control utilizatori</h3>
-              <p className="mt-1 text-sm text-slate-500">Schimba rolul fiecarui utilizator direct din aplicatie.</p>
+              <p className="mt-1 text-sm text-slate-500">
+                Schimba rolul fiecarui utilizator direct din aplicatie.
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -737,20 +699,26 @@ function Dashboard({ session }) {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <div className="font-medium text-slate-900">{userItem.full_name || "Fara nume"}</div>
-                      <div className="text-xs uppercase tracking-wide text-slate-500">Rol curent: {userItem.role === "admin" ? "Admin" : "User"}</div>
+                      <div className="text-xs uppercase tracking-wide text-slate-500">
+                        Rol curent: {userItem.role === "admin" ? "Admin" : "User"}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => updateUserRole(userItem.id, "admin")}
-                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${userItem.role === "admin" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${
+                          userItem.role === "admin" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                        }`}
                       >
                         Admin
                       </button>
                       <button
                         type="button"
                         onClick={() => updateUserRole(userItem.id, "user")}
-                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${userItem.role === "user" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
+                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${
+                          userItem.role === "user" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                        }`}
                       >
                         User
                       </button>
@@ -762,50 +730,57 @@ function Dashboard({ session }) {
           </section>
         )}
 
-        <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
-            <span className="text-slate-400">🔎</span>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none"
-              placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
-            />
-          </div>
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-            {["Toate", ...statusOptions].map((status) => (
-              <button
-                key={status}
-                type="button"
-                onClick={() => setStatusFilter(status)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium ${
-                  statusFilter === status ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-                }`}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
-        </section>
-        )}
+        {showTaskArea && (
+          <>
+            <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
+                <span className="text-slate-400">🔎</span>
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none"
+                  placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
+                />
+              </div>
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {["Toate", ...statusOptions].map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setStatusFilter(status)}
+                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium ${
+                      statusFilter === status ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </section>
 
-        {!(profile?.role === "admin" && activeTab === "useri") && (
-        <section className="space-y-3">
-          {loading && <div className="rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm">Se incarca taskurile...</div>}
+            <section className="space-y-3">
+              {loading && (
+                <div className="rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm">
+                  Se incarca taskurile...
+                </div>
+              )}
 
-          {!loading && filteredTasks.length === 0 && (
-            <div className="rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm">Nu exista taskuri pentru filtrul selectat.</div>
-          )}
+              {!loading && filteredTasks.length === 0 && (
+                <div className="rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm">
+                  Nu exista taskuri pentru filtrul selectat.
+                </div>
+              )}
 
-          {filteredTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onUpdateStatus={updateStatus}
-              onSaveDetails={saveTaskDetails}
-            />
-          ))}
-        </section>
+              {filteredTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onUpdateStatus={updateStatus}
+                  onSaveDetails={saveTaskDetails}
+                />
+              ))}
+            </section>
+          </>
         )}
       </div>
     </div>
