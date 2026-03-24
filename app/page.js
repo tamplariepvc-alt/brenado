@@ -317,6 +317,41 @@ function TaskForm({ onCreate, creating }) {
 }
 
 function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
+	const galleryImages = [
+  ...(task.photo_url
+    ? [{ url: task.photo_url, label: "Poza principala" }]
+    : []),
+  ...((Array.isArray(task.final_photo_urls) ? task.final_photo_urls : []).map(
+    (url, index) => ({
+      url,
+      label: `Poza finalizare ${index + 1}`,
+    })
+  )),
+];
+
+const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+const [galleryIndex, setGalleryIndex] = useState(0);
+
+function openGallery(startIndex = 0) {
+  setGalleryIndex(startIndex);
+  setIsGalleryOpen(true);
+}
+
+function closeGallery() {
+  setIsGalleryOpen(false);
+}
+
+function showPrevImage() {
+  setGalleryIndex((prev) =>
+    prev === 0 ? galleryImages.length - 1 : prev - 1
+  );
+}
+
+function showNextImage() {
+  setGalleryIndex((prev) =>
+    prev === galleryImages.length - 1 ? 0 : prev + 1
+  );
+}
   const [isEditing, setIsEditing] = useState(false);
   const [notes, setNotes] = useState(task.notes || "");
   const [photoUrl, setPhotoUrl] = useState(task.photo_url || "");
@@ -406,15 +441,19 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         {task.description || "Fara descriere"}
       </p>
 
-      {task.photo_url && (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
-          <img
-            src={task.photo_url}
-            alt="Poza sarcina"
-            className="h-48 w-full object-cover"
-          />
-        </div>
-      )}
+{task.photo_url && (
+  <button
+    type="button"
+    onClick={() => openGallery(0)}
+    className="mt-4 block w-full overflow-hidden rounded-2xl border border-slate-200 text-left"
+  >
+    <img
+      src={task.photo_url}
+      alt="Poza sarcina"
+      className="h-48 w-full object-cover"
+    />
+  </button>
+)}
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div className="rounded-2xl bg-slate-50 p-3">
@@ -443,28 +482,32 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
           <div className="mb-2 text-sm font-semibold text-slate-900">
             Poze lucrare finalizata
           </div>
+{Array.isArray(task.final_photo_urls) && task.final_photo_urls.length > 0 ? (
+  <div className="grid grid-cols-2 gap-2">
+    {task.final_photo_urls.map((url, index) => {
+      const startIndex = task.photo_url ? index + 1 : index;
 
-          {Array.isArray(task.final_photo_urls) &&
-          task.final_photo_urls.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2">
-              {task.final_photo_urls.map((url, index) => (
-                <div
-                  key={`${url}-${index}`}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
-                >
-                  <img
-                    src={url}
-                    alt={`Finalizare ${index + 1}`}
-                    className="h-28 w-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-slate-500">
-              Nu exista poze incarcate pentru finalizare.
-            </div>
-          )}
+      return (
+        <button
+          key={`${url}-${index}`}
+          type="button"
+          onClick={() => openGallery(startIndex)}
+          className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+        >
+          <img
+            src={url}
+            alt={`Finalizare ${index + 1}`}
+            className="h-28 w-full object-cover"
+          />
+        </button>
+      );
+    })}
+  </div>
+) : (
+  <div className="text-sm text-slate-500">
+    Nu exista poze incarcate pentru finalizare.
+  </div>
+)}
 
           <div className="mt-3 space-y-3">
             <input
@@ -587,6 +630,55 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
           </button>
         </div>
       )}
+	  {isGalleryOpen && galleryImages.length > 0 && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+    <button
+      type="button"
+      onClick={closeGallery}
+      className="absolute right-4 top-4 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+    >
+      Inchide
+    </button>
+
+    {galleryImages.length > 1 && (
+      <>
+        <button
+          type="button"
+          onClick={showPrevImage}
+          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-4 py-3 text-xl font-bold text-white"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          onClick={showNextImage}
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-4 py-3 text-xl font-bold text-white"
+        >
+          ›
+        </button>
+      </>
+    )}
+
+    <div className="w-full max-w-3xl text-center">
+      <div className="mb-3 text-sm font-medium text-white">
+        {galleryImages[galleryIndex]?.label} · {galleryIndex + 1}/
+        {galleryImages.length}
+      </div>
+
+      <div className="overflow-auto rounded-3xl bg-black/20 p-2">
+        <img
+          src={galleryImages[galleryIndex]?.url}
+          alt={galleryImages[galleryIndex]?.label || "Poza"}
+          className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl object-contain"
+        />
+      </div>
+
+      <p className="mt-3 text-xs text-slate-300">
+        Pe telefon poti face zoom cu gestul de apropiere/departare.
+      </p>
+    </div>
+  </div>
+)}
     </article>
   );
 }
