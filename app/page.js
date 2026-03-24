@@ -612,7 +612,7 @@ function Dashboard({ session }) {
     <img
       src="/logo.png"
       alt="Logo"
-      className="h-10 w-auto object-contain"
+      className="h-7 w-auto object-contain"
     />
 
     <div className="flex flex-col justify-center">
