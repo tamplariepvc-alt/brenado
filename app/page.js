@@ -549,7 +549,6 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
             <input
               type="file"
               accept="image/*"
-              capture="environment"
               multiple
               onChange={(e) => {
                 const files = Array.from(e.target.files || []);
@@ -609,7 +608,6 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
             <input
               type="file"
               accept="image/*"
-              capture="environment"
               onChange={(e) => {
                 const file = e.target.files?.[0] || null;
                 setNewPhotoFile(file);
