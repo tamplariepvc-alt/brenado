@@ -17,6 +17,7 @@ const isSupabaseConfigured = Boolean(
 const supabase = isSupabaseConfigured
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
+  
 const TASK_PHOTOS_BUCKET = "task-photos";
 
 async function uploadTaskPhoto(file) {
@@ -320,71 +321,107 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
   const [notes, setNotes] = useState(task.notes || "");
   const [photoUrl, setPhotoUrl] = useState(task.photo_url || "");
   const [saving, setSaving] = useState(false);
+
+  const [newPhotoFile, setNewPhotoFile] = useState(null);
+  const [newPhotoName, setNewPhotoName] = useState("");
+
   const [completionFiles, setCompletionFiles] = useState([]);
   const [completionNames, setCompletionNames] = useState([]);
   const [uploadingCompletion, setUploadingCompletion] = useState(false);
 
-useEffect(() => {
-  setNotes(task.notes || "");
-  setPhotoUrl(task.photo_url || "");
-  setCompletionFiles([]);
-  setCompletionNames([]);
-}, [task.notes, task.photo_url, task.final_photo_urls]);
+  useEffect(() => {
+    setNotes(task.notes || "");
+    setPhotoUrl(task.photo_url || "");
+    setNewPhotoFile(null);
+    setNewPhotoName("");
+    setCompletionFiles([]);
+    setCompletionNames([]);
+  }, [task.notes, task.photo_url, task.final_photo_urls]);
 
   async function handleSave() {
     setSaving(true);
-    await onSaveDetails(task.id, {
-      notes,
-      photo_url: photoUrl,
-    });
-    setSaving(false);
-    setIsEditing(false);
+
+    let finalPhotoUrl = photoUrl;
+
+    try {
+      if (newPhotoFile) {
+        finalPhotoUrl = await uploadTaskPhoto(newPhotoFile);
+      }
+
+      await onSaveDetails(task.id, {
+        notes,
+        photo_url: finalPhotoUrl,
+      });
+
+      setIsEditing(false);
+      setNewPhotoFile(null);
+      setNewPhotoName("");
+    } catch (error) {
+      alert(error.message || "Modificarile nu au putut fi salvate.");
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
   }
+
   async function handleUploadCompletionPhotos() {
-  if (!completionFiles.length) return;
+    if (!completionFiles.length) return;
 
-  setUploadingCompletion(true);
-  try {
-    const uploadedUrls = await uploadTaskPhotos(completionFiles);
-    const existingUrls = Array.isArray(task.final_photo_urls)
-      ? task.final_photo_urls
-      : [];
+    setUploadingCompletion(true);
 
-    await onSaveDetails(task.id, {
-      final_photo_urls: [...existingUrls, ...uploadedUrls],
-    });
+    try {
+      const uploadedUrls = await uploadTaskPhotos(completionFiles);
+      const existingUrls = Array.isArray(task.final_photo_urls)
+        ? task.final_photo_urls
+        : [];
 
-    setCompletionFiles([]);
-    setCompletionNames([]);
-  } catch (error) {
-    alert(error.message || "Pozele nu au putut fi incarcate.");
-    console.error(error);
-  } finally {
-    setUploadingCompletion(false);
+      await onSaveDetails(task.id, {
+        final_photo_urls: [...existingUrls, ...uploadedUrls],
+      });
+
+      setCompletionFiles([]);
+      setCompletionNames([]);
+    } catch (error) {
+      alert(error.message || "Pozele nu au putut fi incarcate.");
+      console.error(error);
+    } finally {
+      setUploadingCompletion(false);
+    }
   }
-}
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-base font-semibold leading-snug">{task.title}</h3>
-        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[task.status] || statusStyles.Noua}`}>
+        <span
+          className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+            statusStyles[task.status] || statusStyles.Noua
+          }`}
+        >
           {task.status}
         </span>
       </div>
 
-      <p className="mt-2 text-sm text-slate-600">{task.description || "Fara descriere"}</p>
+      <p className="mt-2 text-sm text-slate-600">
+        {task.description || "Fara descriere"}
+      </p>
 
       {task.photo_url && (
         <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
-          <img src={task.photo_url} alt="Poza sarcina" className="h-48 w-full object-cover" />
+          <img
+            src={task.photo_url}
+            alt="Poza sarcina"
+            className="h-48 w-full object-cover"
+          />
         </div>
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div className="rounded-2xl bg-slate-50 p-3">
           <div className="text-xs text-slate-500">Responsabil</div>
-          <div className="mt-1 font-medium">{task.assigned_name || "Neatribuit"}</div>
+          <div className="mt-1 font-medium">
+            {task.assigned_name || "Neatribuit"}
+          </div>
         </div>
         <div className="rounded-2xl bg-slate-50 p-3">
           <div className="text-xs text-slate-500">Termen</div>
@@ -397,67 +434,75 @@ useEffect(() => {
         <div>{task.notes || "Nu exista notite."}</div>
       </div>
 
-      <div className="mt-3 text-xs text-slate-500">Creat de: {task.profiles?.full_name || "Necunoscut"}</div>
-	  {task.status === "Finalizata" && (
-  <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-    <div className="mb-2 text-sm font-semibold text-slate-900">
-      Poze lucrare finalizata
-    </div>
+      <div className="mt-3 text-xs text-slate-500">
+        Creat de: {task.profiles?.full_name || "Necunoscut"}
+      </div>
 
-    {Array.isArray(task.final_photo_urls) && task.final_photo_urls.length > 0 ? (
-      <div className="grid grid-cols-2 gap-2">
-        {task.final_photo_urls.map((url, index) => (
-          <div
-            key={`${url}-${index}`}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
-          >
-            <img
-              src={url}
-              alt={`Finalizare ${index + 1}`}
-              className="h-28 w-full object-cover"
-            />
+      {task.status === "Finalizata" && (
+        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+          <div className="mb-2 text-sm font-semibold text-slate-900">
+            Poze lucrare finalizata
           </div>
-        ))}
-      </div>
-    ) : (
-      <div className="text-sm text-slate-500">
-        Nu exista poze incarcate pentru finalizare.
-      </div>
-    )}
 
-    <div className="mt-3 space-y-3">
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          setCompletionFiles(files);
-          setCompletionNames(files.map((file) => file.name));
-        }}
-        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none file:mr-3 file:rounded-xl file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium"
-      />
+          {Array.isArray(task.final_photo_urls) &&
+          task.final_photo_urls.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {task.final_photo_urls.map((url, index) => (
+                <div
+                  key={`${url}-${index}`}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+                >
+                  <img
+                    src={url}
+                    alt={`Finalizare ${index + 1}`}
+                    className="h-28 w-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">
+              Nu exista poze incarcate pentru finalizare.
+            </div>
+          )}
 
-      {completionNames.length > 0 && (
-        <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
-          {completionNames.map((name) => (
-            <div key={name}>{name}</div>
-          ))}
+          <div className="mt-3 space-y-3">
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              multiple
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                setCompletionFiles(files);
+                setCompletionNames(files.map((file) => file.name));
+              }}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none file:mr-3 file:rounded-xl file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium"
+            />
+
+            {completionNames.length > 0 && (
+              <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
+                {completionNames.map((name) => (
+                  <div key={name}>{name}</div>
+                ))}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleUploadCompletionPhotos}
+              disabled={
+                uploadingCompletion || completionFiles.length === 0
+              }
+              className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {uploadingCompletion
+                ? "Se incarca pozele..."
+                : "Incarca poze finalizare"}
+            </button>
+          </div>
         </div>
       )}
-
-      <button
-        type="button"
-        onClick={handleUploadCompletionPhotos}
-        disabled={uploadingCompletion || completionFiles.length === 0}
-        className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-      >
-        {uploadingCompletion ? "Se incarca pozele..." : "Incarca poze finalizare"}
-      </button>
-    </div>
-  </div>
-)}
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         {task.status === "Noua" && (
@@ -509,12 +554,29 @@ useEffect(() => {
             className="min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
             placeholder="Scrie notite despre lucrare"
           />
-          <input
-            value={photoUrl}
-            onChange={(e) => setPhotoUrl(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Link poza"
-          />
+
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">
+              Schimba poza principala
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setNewPhotoFile(file);
+                setNewPhotoName(file?.name || "");
+              }}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none file:mr-3 file:rounded-xl file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium"
+            />
+            {newPhotoName && (
+              <p className="mt-2 text-xs text-slate-500">
+                Selectata: {newPhotoName}
+              </p>
+            )}
+          </label>
+
           <button
             type="button"
             onClick={handleSave}
