@@ -119,7 +119,7 @@ function LoginScreen({ onAuth }) {
             <div className="mb-4 flex justify-center">
               <img src={LOGO_URL} alt="Logo" className="h-16 object-contain" />
             </div>
-            <p className="text-sm uppercase tracking-wide text-slate-500">BRENADO TAMPLARIE</p>
+            <p className="text-sm uppercase tracking-wide text-slate-500"></p>
             <h1 className="mt-1 text-2xl font-bold">GESTIUNE SARCINI TAMPLARIE</h1>
             <p className="mt-2 text-sm text-slate-600">
               Administrare si vizualizare sarcini in timp real
@@ -639,7 +639,7 @@ function Dashboard({ session }) {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
-          <h2 className="text-2xl font-bold">Taskuri in timp real</h2>
+          <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
               ? "Gestioneaza sarcinile si utilizatorii dintr-un panou curat si usor de folosit."
@@ -666,7 +666,7 @@ function Dashboard({ session }) {
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setActiveTab("taskuri")}
+                onClick={() => setActiveTab("sarcini")}
                 className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
                   activeTab === "taskuri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
