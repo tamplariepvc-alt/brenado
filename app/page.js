@@ -330,7 +330,7 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         <div>{task.notes || "Nu exista notite."}</div>
       </div>
 
-      <div className="mt-3 text-xs text-slate-500">Creat de: {task.created_by || "Necunoscut"}</div>
+      <div className="mt-3 text-xs text-slate-500">Creat de: {task.profiles?.full_name || "Necunoscut"}</div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         {task.status === "Noua" && (
@@ -425,10 +425,15 @@ async function loadTasks() {
 
   setLoading(true);
 
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("*")
-    .order("created_at", { ascending: false });
+const { data, error } = await supabase
+  .from("tasks")
+  .select(`
+    *,
+    profiles:created_by (
+      full_name
+    )
+  `)
+  .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Eroare loadTasks:", error);
