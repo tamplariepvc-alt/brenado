@@ -17,6 +17,39 @@ const isSupabaseConfigured = Boolean(
 const supabase = isSupabaseConfigured
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
+const TASK_PHOTOS_BUCKET = "task-photos";
+
+async function uploadTaskPhoto(file) {
+  if (!supabase || !file) return "";
+
+  const extension = file.name.split(".").pop() || "jpg";
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+  const filePath = `tasks/${fileName}`;
+
+  const { error } = await supabase.storage
+    .from(TASK_PHOTOS_BUCKET)
+    .upload(filePath, file);
+
+  if (error) throw error;
+
+  const { data } = supabase.storage
+    .from(TASK_PHOTOS_BUCKET)
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
+
+async function uploadTaskPhotos(files) {
+  if (!files || files.length === 0) return [];
+  const uploaded = [];
+
+  for (const file of files) {
+    const url = await uploadTaskPhoto(file);
+    if (url) uploaded.push(url);
+  }
+
+  return uploaded;
+}
 
 const statusStyles = {
   Noua: "bg-blue-100 text-blue-700 border-blue-200",
@@ -37,6 +70,9 @@ const demoTasks = [
     deadline: "2026-03-24",
     assigned_name: "Andrei",
     profiles: { full_name: "Administrator" },
+	photo_url: "",
+final_photo_urls: [],
+status: "Noua",
   },
   {
     id: 2,
@@ -48,6 +84,9 @@ const demoTasks = [
     deadline: "2026-03-25",
     assigned_name: "Mihai",
     profiles: { full_name: "Administrator" },
+	photo_url: "",
+final_photo_urls: [],
+status: "Noua",
   },
 ];
 
@@ -281,11 +320,16 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
   const [notes, setNotes] = useState(task.notes || "");
   const [photoUrl, setPhotoUrl] = useState(task.photo_url || "");
   const [saving, setSaving] = useState(false);
+  const [completionFiles, setCompletionFiles] = useState([]);
+  const [completionNames, setCompletionNames] = useState([]);
+  const [uploadingCompletion, setUploadingCompletion] = useState(false);
 
-  useEffect(() => {
-    setNotes(task.notes || "");
-    setPhotoUrl(task.photo_url || "");
-  }, [task.notes, task.photo_url]);
+useEffect(() => {
+  setNotes(task.notes || "");
+  setPhotoUrl(task.photo_url || "");
+  setCompletionFiles([]);
+  setCompletionNames([]);
+}, [task.notes, task.photo_url, task.final_photo_urls]);
 
   async function handleSave() {
     setSaving(true);
@@ -296,6 +340,29 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
     setSaving(false);
     setIsEditing(false);
   }
+  async function handleUploadCompletionPhotos() {
+  if (!completionFiles.length) return;
+
+  setUploadingCompletion(true);
+  try {
+    const uploadedUrls = await uploadTaskPhotos(completionFiles);
+    const existingUrls = Array.isArray(task.final_photo_urls)
+      ? task.final_photo_urls
+      : [];
+
+    await onSaveDetails(task.id, {
+      final_photo_urls: [...existingUrls, ...uploadedUrls],
+    });
+
+    setCompletionFiles([]);
+    setCompletionNames([]);
+  } catch (error) {
+    alert(error.message || "Pozele nu au putut fi incarcate.");
+    console.error(error);
+  } finally {
+    setUploadingCompletion(false);
+  }
+}
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
@@ -331,6 +398,66 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
       </div>
 
       <div className="mt-3 text-xs text-slate-500">Creat de: {task.profiles?.full_name || "Necunoscut"}</div>
+	  {task.status === "Finalizata" && (
+  <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+    <div className="mb-2 text-sm font-semibold text-slate-900">
+      Poze lucrare finalizata
+    </div>
+
+    {Array.isArray(task.final_photo_urls) && task.final_photo_urls.length > 0 ? (
+      <div className="grid grid-cols-2 gap-2">
+        {task.final_photo_urls.map((url, index) => (
+          <div
+            key={`${url}-${index}`}
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+          >
+            <img
+              src={url}
+              alt={`Finalizare ${index + 1}`}
+              className="h-28 w-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="text-sm text-slate-500">
+        Nu exista poze incarcate pentru finalizare.
+      </div>
+    )}
+
+    <div className="mt-3 space-y-3">
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          setCompletionFiles(files);
+          setCompletionNames(files.map((file) => file.name));
+        }}
+        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none file:mr-3 file:rounded-xl file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium"
+      />
+
+      {completionNames.length > 0 && (
+        <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
+          {completionNames.map((name) => (
+            <div key={name}>{name}</div>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={handleUploadCompletionPhotos}
+        disabled={uploadingCompletion || completionFiles.length === 0}
+        className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+      >
+        {uploadingCompletion ? "Se incarca pozele..." : "Incarca poze finalizare"}
+      </button>
+    </div>
+  </div>
+)}
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         {task.status === "Noua" && (
@@ -518,10 +645,11 @@ function Dashboard({ session }) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const { error } = await supabase.from("tasks").insert({
-      ...payload,
-      created_by: user?.id || null,
-    });
+const { error } = await supabase.from("tasks").insert({
+  ...payload,
+  final_photo_urls: [],
+  created_by: user?.id || null,
+});
 
     if (error) {
       alert(error.message);
