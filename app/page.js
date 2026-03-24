@@ -420,41 +420,47 @@ function Dashboard({ session }) {
     setProfile(data || null);
   }
 
-  async function loadTasks() {
-    if (!supabase) return;
-    setLoading(true);
-    let query = supabase
-      .from("tasks")
-      .select("*, profiles(full_name)")
-      .order("created_at", { ascending: false });
+async function loadTasks() {
+  if (!supabase) return;
 
-    if (profile?.role !== "admin") {
-      query = query.eq("assigned_name", profile?.full_name || "");
-    }
+  setLoading(true);
 
-    const { data, error } = await query;
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*, profiles(full_name)")
+    .order("created_at", { ascending: false });
 
-    if (!error) setTasks(data || []);
-    setLoading(false);
+  if (error) {
+    console.error(error);
+    alert(error.message);
+  } else {
+    setTasks(data || []);
   }
 
-  useEffect(() => {
-    if (!supabase) return;
+  setLoading(false);
+}
 
-    loadProfile();
-    loadTasks();
+useEffect(() => {
+  if (!supabase) return;
 
-    const channel = supabase
-      .channel("taskuri-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () => {
+  loadProfile();
+  loadTasks();
+
+  const channel = supabase
+    .channel("taskuri-live")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "tasks" },
+      () => {
         loadTasks();
-      })
-      .subscribe();
+      }
+    )
+    .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [session?.user?.id]);
 
   async function createTask(payload) {
     if (profile?.role !== "admin") {
@@ -532,7 +538,7 @@ function Dashboard({ session }) {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-500">Panou echipa</p>
-              <h1 className="text-xl font-bold">Task Manager PVC</h1>
+              <h1 className="text-xl font-bold">Gestionare sarcini tamplarie PVC</h1>
               <p className="mt-1 text-sm text-slate-600">{session?.user?.email || "Mod demo"}</p>
               <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">
                 Rol: {profile?.role === "admin" ? "Admin" : "User"}
@@ -548,7 +554,7 @@ function Dashboard({ session }) {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-slate-900 p-4 text-white shadow-sm">
-          <h2 className="text-2xl font-bold">Taskuri in timp real</h2>
+          <h2 className="text-2xl font-bold">SARCINI ÎN TIMP REAL</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
               ? "Adauga sarcini, urmareste progresul si sincronizeaza echipa instant."
