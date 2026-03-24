@@ -587,15 +587,6 @@ function showNextImage() {
           </button>
         )}
 
-        {task.status === "Finalizata" && (
-          <button
-            type="button"
-            onClick={() => onUpdateStatus(task.id, "In lucru")}
-            className="col-span-3 rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
-          >
-            Redeschide sarcina
-          </button>
-        )}
       </div>
 
 {!(task.status === "Finalizata" &&
