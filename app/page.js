@@ -666,12 +666,12 @@ function Dashboard({ session }) {
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setActiveTab("sarcini")}
+                onClick={() => setActiveTab("taskuri")}
                 className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
                   activeTab === "taskuri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
-                Taskuri
+                Sarcini
               </button>
               <button
                 type="button"
@@ -689,7 +689,7 @@ function Dashboard({ session }) {
                   activeTab === "useri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
-                Useri
+                Utilizatori
               </button>
             </div>
           </section>
