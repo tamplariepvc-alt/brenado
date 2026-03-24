@@ -477,11 +477,30 @@ function showNextImage() {
         Creat de: {task.profiles?.full_name || "Necunoscut"}
       </div>
 
-      {task.status === "Finalizata" && (
-        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-          <div className="mb-2 text-sm font-semibold text-slate-900">
-            Poze lucrare finalizata
+{task.status === "Finalizata" &&
+  Array.isArray(task.final_photo_urls) &&
+  task.final_photo_urls.length > 0 && (
+    <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+      <div className="mb-2 text-sm font-semibold text-slate-900">
+        Poze lucrare finalizata
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {task.final_photo_urls.map((url, index) => (
+          <div
+            key={`${url}-${index}`}
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+          >
+            <img
+              src={url}
+              alt={`Finalizare ${index + 1}`}
+              className="h-28 w-full object-cover"
+            />
           </div>
+        ))}
+      </div>
+    </div>
+  )}
 {Array.isArray(task.final_photo_urls) && task.final_photo_urls.length > 0 ? (
   <div className="grid grid-cols-2 gap-2">
     {task.final_photo_urls.map((url, index) => {
