@@ -330,7 +330,7 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         <div>{task.notes || "Nu exista notite."}</div>
       </div>
 
-      <div className="mt-3 text-xs text-slate-500">Creat de: {task.profiles?.full_name || "Necunoscut"}</div>
+      <div className="mt-3 text-xs text-slate-500">Creat de: {task.created_by || "Necunoscut"}</div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         {task.status === "Noua" && (
@@ -420,41 +420,47 @@ function Dashboard({ session }) {
     setProfile(data || null);
   }
 
-  async function loadTasks() {
-    if (!supabase) return;
-    setLoading(true);
-    let query = supabase
-      .from("tasks")
-      .select("*, profiles(full_name)")
-      .order("created_at", { ascending: false });
+async function loadTasks() {
+  if (!supabase) return;
 
-    if (profile?.role !== "admin") {
-      query = query.eq("assigned_name", profile?.full_name || "");
-    }
+  setLoading(true);
 
-    const { data, error } = await query;
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    if (!error) setTasks(data || []);
-    setLoading(false);
+  if (error) {
+    console.error("Eroare loadTasks:", error);
+    alert(error.message);
+  } else {
+    setTasks(data || []);
   }
 
-  useEffect(() => {
-    if (!supabase) return;
+  setLoading(false);
+}
 
-    loadProfile();
-    loadTasks();
+useEffect(() => {
+  if (!supabase) return;
 
-    const channel = supabase
-      .channel("taskuri-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () => {
+  loadProfile();
+  loadTasks();
+
+  const channel = supabase
+    .channel("taskuri-live")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "tasks" },
+      () => {
         loadTasks();
-      })
-      .subscribe();
+      }
+    )
+    .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [session?.user?.id]);
 
   async function createTask(payload) {
     if (profile?.role !== "admin") {
