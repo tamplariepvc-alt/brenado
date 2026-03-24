@@ -603,7 +603,7 @@ function Dashboard({ session }) {
   return (
     <div className="min-h-screen bg-slate-100 pb-24 text-slate-900">
       <div className="mx-auto max-w-md px-4 pt-4">
-        <header className="sticky top-0 z-20 mb-4 border-b border-slate-200 bg-white/95 p-4 backdrop-blur">
+        <header className="mb-4 border-b border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-500">Panou echipa</p>
