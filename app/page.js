@@ -604,29 +604,33 @@ function Dashboard({ session }) {
     <div className="min-h-screen bg-slate-100 pb-24 text-slate-900">
       <div className="mx-auto max-w-md px-4 pt-4">
         <header className="mb-4 border-b border-slate-200 bg-white p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-<div className="flex items-center gap-3">
-  <img
-    src="/logo.png"
-    alt="Logo"
-    className="h-10 w-auto object-contain"
-  />
+<div className="flex items-center justify-between gap-3">
+  
+  <div className="flex items-center gap-3">
+    <img
+      src="/logo.png"
+      alt="Logo"
+      className="h-12 w-auto object-contain"
+    />
+
+    <div className="flex flex-col justify-center">
+      <p className="text-sm font-semibold text-slate-800">
+        {profile?.full_name || "Utilizator"}
+      </p>
+      <p className="text-xs uppercase tracking-wide text-slate-500">
+        Rol: {profile?.role === "admin" ? "Admin" : "User"}
+      </p>
+    </div>
+  </div>
+
+  <button
+    onClick={signOut}
+    className="rounded-2xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
+  >
+    Iesire
+  </button>
+
 </div>
-<p className="mt-1 text-sm text-slate-600">
-  {profile?.full_name || session?.user?.email || "Mod demo"}
-</p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">
-                Rol: {profile?.role === "admin" ? "Admin" : "User"}
-              </p>
-            </div>
-            <button
-              onClick={signOut}
-              className="rounded-2xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700"
-            >
-              Iesire
-            </button>
-          </div>
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
