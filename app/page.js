@@ -423,7 +423,7 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
       setUploadingCompletion(false);
     }
   }
-  async function handleDeleteFinalPhoto(indexToDelete) {
+async function handleDeleteFinalPhoto(indexToDelete) {
   try {
     const updatedUrls = (task.final_photo_urls || []).filter(
       (_, index) => index !== indexToDelete
@@ -911,21 +911,29 @@ const { error } = await supabase.from("tasks").insert({
     }
   }
 
-  async function saveTaskDetails(taskId, details) {
-    if (!supabase) {
-      setTasks((prev) =>
-        prev.map((task) => (task.id === taskId ? { ...task, ...details } : task))
-      );
-      return;
-    }
-
-    const { error } = await supabase.from("tasks").update(details).eq("id", taskId);
-
-    if (error) {
-      alert(error.message);
-      console.error(error);
-    }
+async function saveTaskDetails(taskId, details) {
+  if (!supabase) {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === taskId ? { ...task, ...details } : task))
+    );
+    return;
   }
+
+  const { error } = await supabase
+    .from("tasks")
+    .update(details)
+    .eq("id", taskId);
+
+  if (error) {
+    alert(error.message);
+    console.error(error);
+    return;
+  }
+
+  setTasks((prev) =>
+    prev.map((task) => (task.id === taskId ? { ...task, ...details } : task))
+  );
+}
 
   async function updateUserRole(userId, nextRole) {
     if (profile?.role !== "admin") return;
