@@ -368,7 +368,7 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
     setNewPhotoName("");
     setCompletionFiles([]);
     setCompletionNames([]);
-	setUploadSuccess("");
+    setUploadSuccess("");
   }, [task.notes, task.photo_url, task.final_photo_urls]);
 
   async function handleSave() {
@@ -398,42 +398,10 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
   }
 
   async function handleUploadCompletionPhotos() {
-  if (!completionFiles.length) return;
-
-  setUploadingCompletion(true);
-  setUploadSuccess("");
-
-  try {
-    const uploadedUrls = await uploadTaskPhotos(completionFiles);
-    const existingUrls = Array.isArray(task.final_photo_urls)
-      ? task.final_photo_urls
-      : [];
-
-    await onSaveDetails(task.id, {
-      final_photo_urls: [...existingUrls, ...uploadedUrls],
-    });
-
-    setCompletionFiles([]);
-    setCompletionNames([]);
-    setUploadSuccess("Incarcat cu succes");
-  } catch (error) {
-    alert(error.message || "Pozele nu au putut fi incarcate.");
-    console.error(error);
-  } finally {
-    setUploadingCompletion(false);
-  }
-}
-function removeCompletionFile(indexToRemove) {
-  setCompletionFiles((prev) =>
-    prev.filter((_, index) => index !== indexToRemove)
-  );
-  setCompletionNames((prev) =>
-    prev.filter((_, index) => index !== indexToRemove)
-  );
-}
     if (!completionFiles.length) return;
 
     setUploadingCompletion(true);
+    setUploadSuccess("");
 
     try {
       const uploadedUrls = await uploadTaskPhotos(completionFiles);
@@ -447,12 +415,22 @@ function removeCompletionFile(indexToRemove) {
 
       setCompletionFiles([]);
       setCompletionNames([]);
+      setUploadSuccess("Incarcat cu succes");
     } catch (error) {
       alert(error.message || "Pozele nu au putut fi incarcate.");
       console.error(error);
     } finally {
       setUploadingCompletion(false);
     }
+  }
+
+  function removeCompletionFile(indexToRemove) {
+    setCompletionFiles((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
+    );
+    setCompletionNames((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
+    );
   }
 
   const shouldShowFinalPhotos =
@@ -585,43 +563,45 @@ function removeCompletionFile(indexToRemove) {
               type="file"
               accept="image/*"
               multiple
-onChange={(e) => {
-  const files = Array.from(e.target.files || []);
-  setCompletionFiles(files);
-  setCompletionNames(files.map((file) => file.name));
-  setUploadSuccess("");
-}}
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                setCompletionFiles(files);
+                setCompletionNames(files.map((file) => file.name));
+                setUploadSuccess("");
+              }}
               className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none file:mr-3 file:rounded-xl file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium"
             />
 
-{completionFiles.length > 0 && (
-  <div className="space-y-3">
-    <div className="grid grid-cols-2 gap-2">
-      {completionFiles.map((file, index) => (
-        <div
-          key={`${file.name}-${index}`}
-          className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
-        >
-          <img
-            src={URL.createObjectURL(file)}
-            alt={file.name}
-            className="h-28 w-full object-cover"
-          />
-          <div className="flex items-center justify-between gap-2 p-2">
-            <p className="truncate text-xs text-slate-500">{file.name}</p>
-            <button
-              type="button"
-              onClick={() => removeCompletionFile(index)}
-              className="rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-600"
-            >
-              Sterge
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+            {completionFiles.length > 0 && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {completionFiles.map((file, index) => (
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+                    >
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={file.name}
+                        className="h-28 w-full object-cover"
+                      />
+                      <div className="flex items-center justify-between gap-2 p-2">
+                        <p className="truncate text-xs text-slate-500">
+                          {file.name}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeCompletionFile(index)}
+                          className="rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-600"
+                        >
+                          Sterge
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <button
               type="button"
@@ -633,11 +613,12 @@ onChange={(e) => {
                 ? "Se incarca pozele..."
                 : "Incarca poze finalizare"}
             </button>
-			{uploadSuccess && (
-  <div className="rounded-2xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-    {uploadSuccess}
-  </div>
-)}
+
+            {uploadSuccess && (
+              <div className="rounded-2xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                {uploadSuccess}
+              </div>
+            )}
           </div>
         </div>
       )}
