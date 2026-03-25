@@ -53,9 +53,9 @@ async function uploadTaskPhotos(files) {
 }
 
 const statusStyles = {
-  Noua: "bg-blue-100 text-blue-700 border-blue-200",
-  "In lucru": "bg-amber-100 text-amber-700 border-amber-200",
-  Finalizata: "bg-green-100 text-green-700 border-green-200",
+  Noua: "border-blue-200 bg-blue-50 text-blue-700",
+  "In lucru": "border-orange-200 bg-orange-50 text-orange-700",
+  Finalizata: "border-green-200 bg-green-50 text-green-700",
 };
 
 const statusOptions = ["Noua", "In lucru", "Finalizata"];
