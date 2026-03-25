@@ -147,26 +147,30 @@ function LoginScreen({ onAuth }) {
 
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName },
-          },
-        });
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { full_name: fullName },
+  },
+});
 
-        if (error) throw error;
+if (error) throw error;
 
-        const userId = data.user?.id;
-        if (userId) {
-          await supabase.from("profiles").upsert({
-            id: userId,
-            full_name: fullName,
-            role: "admin",
-          });
-        }
+const userId = data.user?.id;
+if (userId) {
+  const { error: profileError } = await supabase.from("profiles").upsert({
+    id: userId,
+    full_name: fullName,
+    role: "user",
+  });
 
-        setMessage("Cont creat cu succes. Acum te poti autentifica.");
+  if (profileError) {
+    throw profileError;
+  }
+}
+
+setMessage("Cont creat cu succes. Acum te poti autentifica.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
