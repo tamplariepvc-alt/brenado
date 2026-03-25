@@ -1463,12 +1463,12 @@ const filteredTasks = tasks.filter((task) => {
   </div>
 
   {/* DREAPTA */}
-<button
-  onClick={handleLogout}
-  className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white"
->
-  Iesire
-</button>
+  <button
+    onClick={signOut}
+    className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700"
+  >
+    Iesire
+  </button>
 
 </div>
         </header>
