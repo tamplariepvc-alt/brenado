@@ -92,6 +92,42 @@ function formatDate(value) {
   const date = new Date(value);
   return new Intl.DateTimeFormat("ro-RO").format(date);
 }
+function toISODate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatMonthLabel(date) {
+  return new Intl.DateTimeFormat("ro-RO", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+function getCalendarDays(currentMonth) {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+
+  const startWeekday = (firstDay.getDay() + 6) % 7;
+  const totalDays = lastDay.getDate();
+
+  const days = [];
+
+  for (let i = 0; i < startWeekday; i++) {
+    days.push(null);
+  }
+
+  for (let day = 1; day <= totalDays; day++) {
+    days.push(new Date(year, month, day));
+  }
+
+  return days;
+}
 
 function LoginScreen({ onAuth }) {
   const [mode, setMode] = useState("login");
@@ -868,6 +904,325 @@ const canUploadPhotos =
   );
 }
 
+function MontageCalendar({ profile }) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(toISODate(new Date()));
+  const [entries, setEntries] = useState([]);
+  const [loadingEntries, setLoadingEntries] = useState(false);
+  const [savingEntry, setSavingEntry] = useState(false);
+
+  const [clientName, setClientName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const isAdmin = profile?.role === "admin";
+  const calendarDays = getCalendarDays(currentMonth);
+
+  async function loadEntries() {
+    if (!supabase) return;
+
+    setLoadingEntries(true);
+
+    const startDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      1
+    );
+    const endDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    );
+
+    const { data, error } = await supabase
+      .from("montaj_calendar")
+      .select("*")
+      .gte("event_date", toISODate(startDate))
+      .lte("event_date", toISODate(endDate))
+      .order("event_date", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      alert(error.message);
+    } else {
+      setEntries(data || []);
+    }
+
+    setLoadingEntries(false);
+  }
+
+  useEffect(() => {
+    loadEntries();
+  }, [currentMonth]);
+
+  const selectedEntries = entries.filter(
+    (entry) => entry.event_date === selectedDate
+  );
+
+  function getEntriesForDay(date) {
+    if (!date) return [];
+    const iso = toISODate(date);
+    return entries.filter((entry) => entry.event_date === iso);
+  }
+
+  async function handleCreateEntry(e) {
+    e.preventDefault();
+    if (!clientName.trim()) return;
+
+    setSavingEntry(true);
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { error } = await supabase.from("montaj_calendar").insert({
+        event_date: selectedDate,
+        client_name: clientName,
+        phone,
+        address,
+        notes,
+        created_by: user?.id || null,
+      });
+
+      if (error) throw error;
+
+      setClientName("");
+      setPhone("");
+      setAddress("");
+      setNotes("");
+      await loadEntries();
+    } catch (error) {
+      alert(error.message || "Montajul nu a putut fi salvat.");
+      console.error(error);
+    } finally {
+      setSavingEntry(false);
+    }
+  }
+
+  async function handleDeleteEntry(entryId) {
+    if (!isAdmin) return;
+
+    const confirmDelete = window.confirm("Stergi acest montaj?");
+    if (!confirmDelete) return;
+
+    const { error } = await supabase
+      .from("montaj_calendar")
+      .delete()
+      .eq("id", entryId);
+
+    if (error) {
+      alert(error.message);
+      console.error(error);
+      return;
+    }
+
+    await loadEntries();
+  }
+
+  return (
+    <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">
+            Calendar montaj
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            {isAdmin
+              ? "Adminul poate adauga si sterge montajele din calendar."
+              : "Poti vizualiza montajele planificate, fara editare."}
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={() =>
+            setCurrentMonth(
+              new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
+            )
+          }
+          className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+        >
+          Luna anterioara
+        </button>
+
+        <div className="text-center text-sm font-semibold capitalize text-slate-900">
+          {formatMonthLabel(currentMonth)}
+        </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            setCurrentMonth(
+              new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
+            )
+          }
+          className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+        >
+          Luna urmatoare
+        </button>
+      </div>
+
+      <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase text-slate-500">
+        {["Lu", "Ma", "Mi", "Jo", "Vi", "Sa", "Du"].map((day) => (
+          <div key={day}>{day}</div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-2">
+        {calendarDays.map((date, index) => {
+          if (!date) {
+            return <div key={`empty-${index}`} className="h-20 rounded-2xl bg-slate-50" />;
+          }
+
+          const iso = toISODate(date);
+          const isSelected = iso === selectedDate;
+          const dayEntries = getEntriesForDay(date);
+
+          return (
+            <button
+              key={iso}
+              type="button"
+              onClick={() => setSelectedDate(iso)}
+              className={`min-h-[82px] rounded-2xl border p-2 text-left ${
+                isSelected
+                  ? "border-[#009c5b] bg-green-50"
+                  : "border-slate-200 bg-white"
+              }`}
+            >
+              <div className="text-xs font-semibold text-slate-900">
+                {date.getDate()}
+              </div>
+
+              <div className="mt-2 space-y-1">
+                {dayEntries.slice(0, 2).map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="truncate rounded-lg bg-[#009c5b]/10 px-2 py-1 text-[10px] font-medium text-[#009c5b]"
+                  >
+                    {entry.client_name}
+                  </div>
+                ))}
+
+                {dayEntries.length > 2 && (
+                  <div className="text-[10px] font-medium text-slate-500">
+                    +{dayEntries.length - 2} mai multe
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-slate-200 p-4">
+        <div className="mb-3 text-sm font-semibold text-slate-900">
+          Detalii pentru data: {formatDate(selectedDate)}
+        </div>
+
+        {loadingEntries ? (
+          <div className="text-sm text-slate-500">Se incarca montajele...</div>
+        ) : selectedEntries.length > 0 ? (
+          <div className="space-y-3">
+            {selectedEntries.map((entry) => (
+              <div
+                key={entry.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
+              >
+                <div className="font-semibold text-slate-900">
+                  {entry.client_name}
+                </div>
+
+                {entry.phone && (
+                  <div className="mt-1 text-sm text-slate-600">
+                    Telefon: {entry.phone}
+                  </div>
+                )}
+
+                {entry.address && (
+                  <div className="mt-1 text-sm text-slate-600">
+                    Adresa: {entry.address}
+                  </div>
+                )}
+
+                {entry.notes && (
+                  <div className="mt-2 text-sm text-slate-600">
+                    Notite: {entry.notes}
+                  </div>
+                )}
+
+                {isAdmin && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteEntry(entry.id)}
+                      className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-600"
+                    >
+                      Sterge
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-slate-500">
+            Nu exista montaj planificat pentru aceasta data.
+          </div>
+        )}
+
+        {isAdmin && (
+          <form onSubmit={handleCreateEntry} className="mt-4 space-y-3 border-t border-slate-200 pt-4">
+            <h4 className="text-sm font-semibold text-slate-900">
+              Adauga montaj
+            </h4>
+
+            <input
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              placeholder="Nume client"
+            />
+
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              placeholder="Nr telefon"
+            />
+
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              placeholder="Adresa"
+            />
+
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[90px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              placeholder="Notite"
+            />
+
+            <button
+              type="submit"
+              disabled={savingEntry}
+              className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {savingEntry ? "Se salveaza..." : "Salveaza montaj"}
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
@@ -1120,6 +1475,7 @@ const filteredTasks = tasks.filter((task) => {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
+		<MontageCalendar profile={profile} />
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
