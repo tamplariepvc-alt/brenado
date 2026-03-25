@@ -508,9 +508,9 @@ const hasFinalPhotos =
 
 {hasFinalPhotos && (
   <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-    <div className="mb-2 text-sm font-semibold text-slate-900">
-      Poze lucrare finalizata
-    </div>
+<div className="mb-2 text-sm font-semibold text-slate-900">
+  {task.status === "Noua" ? "Poze situatie" : "Poze lucrare finalizata"}
+</div>
 
     <div className="grid grid-cols-2 gap-2">
       {task.final_photo_urls.map((url, index) => {
@@ -640,9 +640,11 @@ const hasFinalPhotos =
               disabled={uploadingCompletion || completionFiles.length === 0}
               className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
-              {uploadingCompletion
-                ? "Se incarca pozele..."
-                : "Incarca poze finalizare"}
+{uploadingCompletion
+  ? "Se incarca pozele..."
+  : task.status === "Noua"
+  ? "Incarca poze"
+  : "Incarca poze finalizare"}
             </button>
 
             {uploadSuccess && (
