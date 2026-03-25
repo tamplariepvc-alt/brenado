@@ -1022,8 +1022,8 @@ function MontageCalendar({ profile }) {
     await loadEntries();
   }
 
-  return (
-    <section className="rounded-3xl bg-white">
+return (
+  <section className="w-full bg-white">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
 <h3 className="text-base font-semibold text-slate-900">
@@ -1672,15 +1672,20 @@ const filteredTasks = tasks.filter((task) => {
           </>
         )}
 {showCalendarModal && (
-  <div className="fixed inset-0 z-50 bg-black/50 p-2">
-<div className="relative mx-auto h-[96vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white pt-10 px-3 pb-4 shadow-2xl">
-<button
-  type="button"
-  onClick={() => setShowCalendarModal(false)}
-  className="absolute right-4 top-3 z-50 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow"
->
-  ✕
-</button>
+  <div className="fixed inset-0 z-50 bg-black/50">
+    <button
+      type="button"
+      onClick={() => setShowCalendarModal(false)}
+      className="absolute right-3 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-red-500 text-2xl font-bold text-white shadow-lg"
+    >
+      ×
+    </button>
+
+    <div className="mx-auto h-[100vh] w-full max-w-md overflow-y-auto rounded-none bg-white px-3 pb-4 pt-6 shadow-2xl">
+      <MontageCalendar profile={profile} />
+    </div>
+  </div>
+)}
 
       <div className="pr-20">
         <MontageCalendar profile={profile} />
