@@ -283,35 +283,56 @@ function TaskForm({ onCreate, creating, users }) {
   <span className="mb-1 block text-sm font-medium text-slate-700">
     Responsabili
   </span>
-  <div className="space-y-2 rounded-2xl border border-slate-200 p-3">
-    {users?.length > 0 ? (
-      users.map((userItem) => (
-        <label
-          key={userItem.id}
-          className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50"
-        >
-          <input
-            type="checkbox"
-            checked={assignedNames.includes(userItem.full_name)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setAssignedNames((prev) => [...prev, userItem.full_name]);
-              } else {
-                setAssignedNames((prev) =>
-                  prev.filter((name) => name !== userItem.full_name)
-                );
-              }
-            }}
-          />
-          <span className="text-sm text-slate-700">
-            {userItem.full_name || "Fara nume"}
-          </span>
-        </label>
-      ))
-    ) : (
-      <div className="text-sm text-slate-500">Nu exista utilizatori disponibili.</div>
-    )}
-  </div>
+  <label className="block">
+  <span className="mb-1 block text-sm font-medium text-slate-700">
+    Responsabili
+  </span>
+
+  {/* BUTON */}
+  <button
+    type="button"
+    onClick={() => setShowUserSelect((prev) => !prev)}
+    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-700"
+  >
+    {assignedNames.length > 0
+      ? assignedNames.join(", ")
+      : "Selecteaza responsabili"}
+  </button>
+
+  {/* DROPDOWN */}
+  {showUserSelect && (
+    <div className="mt-2 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow">
+      {users?.length > 0 ? (
+        users.map((userItem) => (
+          <label
+            key={userItem.id}
+            className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50"
+          >
+            <input
+              type="checkbox"
+              checked={assignedNames.includes(userItem.full_name)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setAssignedNames((prev) => [...prev, userItem.full_name]);
+                } else {
+                  setAssignedNames((prev) =>
+                    prev.filter((name) => name !== userItem.full_name)
+                  );
+                }
+              }}
+            />
+            <span className="text-sm text-slate-700">
+              {userItem.full_name || "Fara nume"}
+            </span>
+          </label>
+        ))
+      ) : (
+        <div className="text-sm text-slate-500">
+          Nu exista utilizatori disponibili.
+        </div>
+      )}
+    </div>
+  )}
 </label>
         <input
           type="date"
