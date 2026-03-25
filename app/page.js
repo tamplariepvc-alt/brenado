@@ -873,7 +873,7 @@ function Dashboard({ session }) {
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("taskuri");
-  const [statusFilter, setStatusFilter] = useState("Toate");
+  const [statusFilter, setStatusFilter] = useState("Noua");
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
@@ -1066,7 +1066,9 @@ async function saveTaskDetails(taskId, details) {
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const matchesStatus =
-        statusFilter === "Toate" || task.status === statusFilter;
+const filteredTasks = tasks.filter(
+  (task) => task.status === statusFilter
+);
       const haystack = `${task.title || ""} ${task.description || ""} ${task.assigned_name || ""} ${task.notes || ""}`.toLowerCase();
       const matchesSearch = haystack.includes(search.toLowerCase());
       return matchesStatus && matchesSearch;
@@ -1235,7 +1237,7 @@ async function saveTaskDetails(taskId, details) {
                 />
               </div>
 <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
-  {["Noua", "In lucru", "Finalizata", "Toate"].map((status) => {
+ {["Noua", "In lucru", "Finalizata"].map((status) => {
     const isActive = statusFilter === status;
 
     let activeClass = "bg-slate-900 text-white";
