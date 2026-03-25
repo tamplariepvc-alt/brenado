@@ -258,82 +258,89 @@ function TaskForm({ onCreate, creating, users }) {
     setTitle("");
     setDescription("");
     setAssignedNames([]);
+    setShowUserSelect(false);
     setDeadline("");
     setNotes("");
     setPhotoUrl("");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-3xl bg-white p-4 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-3 rounded-3xl bg-white p-4 shadow-sm"
+    >
       <h3 className="text-base font-semibold">Adauga sarcina</h3>
+
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         placeholder="Titlu sarcina"
       />
+
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         className="min-h-[96px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         placeholder="Descriere"
       />
-      <div className="grid grid-cols-2 gap-3">
-<label className="block">
-  <span className="mb-1 block text-sm font-medium text-slate-700">
-    Responsabili
-  </span>
-  <label className="block">
-  <span className="mb-1 block text-sm font-medium text-slate-700">
-    Responsabili
-  </span>
 
-  {/* BUTON */}
-  <button
-    type="button"
-    onClick={() => setShowUserSelect((prev) => !prev)}
-    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-700"
-  >
-    {assignedNames.length > 0
-      ? assignedNames.join(", ")
-      : "Selecteaza responsabili"}
-  </button>
+      <div className="grid grid-cols-1 gap-3">
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-slate-700">
+            Responsabili
+          </span>
 
-  {/* DROPDOWN */}
-  {showUserSelect && (
-    <div className="mt-2 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow">
-      {users?.length > 0 ? (
-        users.map((userItem) => (
-          <label
-            key={userItem.id}
-            className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50"
+          <button
+            type="button"
+            onClick={() => setShowUserSelect((prev) => !prev)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-700"
           >
-            <input
-              type="checkbox"
-              checked={assignedNames.includes(userItem.full_name)}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setAssignedNames((prev) => [...prev, userItem.full_name]);
-                } else {
-                  setAssignedNames((prev) =>
-                    prev.filter((name) => name !== userItem.full_name)
-                  );
-                }
-              }}
-            />
-            <span className="text-sm text-slate-700">
-              {userItem.full_name || "Fara nume"}
-            </span>
-          </label>
-        ))
-      ) : (
-        <div className="text-sm text-slate-500">
-          Nu exista utilizatori disponibili.
-        </div>
-      )}
-    </div>
-  )}
-</label>
+            {assignedNames.length > 0
+              ? assignedNames.join(", ")
+              : "Selecteaza responsabili"}
+          </button>
+
+          {showUserSelect && (
+            <div className="mt-2 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow">
+              {users?.length > 0 ? (
+                users.map((userItem) => (
+                  <label
+                    key={userItem.id}
+                    className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={assignedNames.includes(userItem.full_name)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAssignedNames((prev) => [
+                            ...prev,
+                            userItem.full_name,
+                          ]);
+                        } else {
+                          setAssignedNames((prev) =>
+                            prev.filter(
+                              (name) => name !== userItem.full_name
+                            )
+                          );
+                        }
+                      }}
+                    />
+                    <span className="text-sm text-slate-700">
+                      {userItem.full_name || "Fara nume"}
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <div className="text-sm text-slate-500">
+                  Nu exista utilizatori disponibili.
+                </div>
+              )}
+            </div>
+          )}
+        </label>
+
         <input
           type="date"
           value={deadline}
@@ -341,18 +348,21 @@ function TaskForm({ onCreate, creating, users }) {
           className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         />
       </div>
+
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-[80px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         placeholder="Notite initiale"
       />
+
       <input
         value={photoUrl}
         onChange={(e) => setPhotoUrl(e.target.value)}
         className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         placeholder="Link poza (optional)"
       />
+
       <button
         disabled={creating}
         className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
