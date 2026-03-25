@@ -423,6 +423,22 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
       setUploadingCompletion(false);
     }
   }
+  async function handleDeleteFinalPhoto(indexToDelete) {
+  try {
+    const updatedUrls = (task.final_photo_urls || []).filter(
+      (_, index) => index !== indexToDelete
+    );
+
+    await onSaveDetails(task.id, {
+      final_photo_urls: updatedUrls,
+    });
+
+    setUploadSuccess("Poza a fost stearsa");
+  } catch (error) {
+    alert("Nu s-a putut sterge poza.");
+    console.error(error);
+  }
+}
 
   function removeCompletionFile(indexToRemove) {
     setCompletionFiles((prev) =>
@@ -433,10 +449,9 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
     );
   }
 
-  const shouldShowFinalPhotos =
-    task.status === "Finalizata" &&
-    Array.isArray(task.final_photo_urls) &&
-    task.final_photo_urls.length > 0;
+const hasFinalPhotos =
+  Array.isArray(task.final_photo_urls) &&
+  task.final_photo_urls.length > 0;
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
@@ -491,34 +506,50 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         Creat de: {task.profiles?.full_name || "Necunoscut"}
       </div>
 
-      {shouldShowFinalPhotos && (
-        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-          <div className="mb-2 text-sm font-semibold text-slate-900">
-            Poze lucrare finalizata
-          </div>
+{hasFinalPhotos && (
+  <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+    <div className="mb-2 text-sm font-semibold text-slate-900">
+      Poze lucrare finalizata
+    </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            {task.final_photo_urls.map((url, index) => {
-              const startIndex = task.photo_url ? index + 1 : index;
+    <div className="grid grid-cols-2 gap-2">
+      {task.final_photo_urls.map((url, index) => {
+        const startIndex = task.photo_url ? index + 1 : index;
 
-              return (
+        return (
+          <div
+            key={`${url}-${index}`}
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+          >
+            <button
+              type="button"
+              onClick={() => openGallery(startIndex)}
+              className="block w-full"
+            >
+              <img
+                src={url}
+                alt={`Finalizare ${index + 1}`}
+                className="h-28 w-full object-cover"
+              />
+            </button>
+
+            {task.status === "In lucru" && (
+              <div className="p-2">
                 <button
-                  key={`${url}-${index}`}
                   type="button"
-                  onClick={() => openGallery(startIndex)}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+                  onClick={() => handleDeleteFinalPhoto(index)}
+                  className="w-full rounded-lg bg-red-100 px-2 py-2 text-xs font-semibold text-red-600"
                 >
-                  <img
-                    src={url}
-                    alt={`Finalizare ${index + 1}`}
-                    className="h-28 w-full object-cover"
-                  />
+                  Sterge poza
                 </button>
-              );
-            })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })}
+    </div>
+  </div>
+)}
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         {task.status === "Noua" && (
@@ -552,8 +583,8 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         )}
       </div>
 
-      {!shouldShowFinalPhotos && (
-        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+{!hasFinalPhotos && (
+  <div className="mt-4 rounded-2xl border border-slate-200 p-3">
           <div className="mb-2 text-sm font-semibold text-slate-900">
             Poze lucrare finalizata
           </div>
@@ -623,8 +654,8 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         </div>
       )}
 
-      {!shouldShowFinalPhotos && (
-        <div className="mt-3 grid grid-cols-1 gap-2">
+{!hasFinalPhotos && (
+  <div className="mt-3 grid grid-cols-1 gap-2">
           <button
             type="button"
             onClick={() => setIsEditing((prev) => !prev)}
