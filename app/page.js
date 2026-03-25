@@ -1037,46 +1037,51 @@ function MontageCalendar({ profile }) {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() =>
-            setCurrentMonth(
-              new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
-            )
-          }
-          className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-        >
-          Luna anterioara
-        </button>
+<div className="mb-5 flex items-center justify-between gap-3">
+  <button
+    type="button"
+    onClick={() =>
+      setCurrentMonth(
+        new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
+      )
+    }
+    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
+  >
+    Luna anterioara
+  </button>
 
-        <div className="text-center text-sm font-semibold capitalize text-slate-900">
-          {formatMonthLabel(currentMonth)}
-        </div>
+  <div className="min-w-[120px] text-center text-lg font-bold capitalize text-slate-900">
+    {formatMonthLabel(currentMonth)}
+  </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            setCurrentMonth(
-              new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
-            )
-          }
-          className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-        >
-          Luna urmatoare
-        </button>
-      </div>
+  <button
+    type="button"
+    onClick={() =>
+      setCurrentMonth(
+        new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
+      )
+    }
+    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
+  >
+    Luna urmatoare
+  </button>
+</div>
 
-      <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase text-slate-500">
+      <div className="mb-3 grid grid-cols-7 gap-3 text-center text-xs font-bold uppercase tracking-wide text-slate-500">
         {["Lu", "Ma", "Mi", "Jo", "Vi", "Sa", "Du"].map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-3">
         {calendarDays.map((date, index) => {
           if (!date) {
-            return <div key={`empty-${index}`} className="h-20 rounded-2xl bg-slate-50" />;
+            return (
+  <div
+    key={`empty-${index}`}
+    className="h-16 rounded-2xl bg-slate-50"
+  />
+);
           }
 
           const iso = toISODate(date);
@@ -1084,37 +1089,28 @@ function MontageCalendar({ profile }) {
           const dayEntries = getEntriesForDay(date);
 
           return (
-            <button
-              key={iso}
-              type="button"
-              onClick={() => setSelectedDate(iso)}
-              className={`min-h-[82px] rounded-2xl border p-2 text-left ${
-                isSelected
-                  ? "border-[#009c5b] bg-green-50"
-                  : "border-slate-200 bg-white"
-              }`}
-            >
-              <div className="text-xs font-semibold text-slate-900">
-                {date.getDate()}
-              </div>
+<button
+  key={iso}
+  type="button"
+  onClick={() => setSelectedDate(iso)}
+  className={`min-h-[72px] rounded-3xl border px-2 py-3 text-center transition ${
+    isSelected
+      ? "border-[#009c5b] bg-green-50 shadow-sm"
+      : "border-slate-200 bg-white"
+  }`}
+>
+  <div className="text-xl font-bold leading-none text-slate-900">
+    {date.getDate()}
+  </div>
 
-              <div className="mt-2 space-y-1">
-                {dayEntries.slice(0, 2).map((entry) => (
-                  <div
-                    key={entry.id}
-                    className="truncate rounded-lg bg-[#009c5b]/10 px-2 py-1 text-[10px] font-medium text-[#009c5b]"
-                  >
-                    {entry.client_name}
-                  </div>
-                ))}
-
-                {dayEntries.length > 2 && (
-                  <div className="text-[10px] font-medium text-slate-500">
-                    +{dayEntries.length - 2} mai multe
-                  </div>
-                )}
-              </div>
-            </button>
+  {dayEntries.length > 0 && (
+    <div className="mt-2 flex justify-center">
+      <div className="rounded-full bg-[#009c5b]/10 px-2 py-1 text-[10px] font-semibold text-[#009c5b]">
+        {dayEntries.length} montaj
+      </div>
+    </div>
+  )}
+</button>
           );
         })}
       </div>
@@ -1675,7 +1671,7 @@ const filteredTasks = tasks.filter((task) => {
         )}
 {showCalendarModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-    <div className="relative max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl">
+    <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
       <button
         type="button"
         onClick={() => setShowCalendarModal(false)}
