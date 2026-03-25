@@ -1232,6 +1232,7 @@ function Dashboard({ session }) {
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [profile, setProfile] = useState(null);
 
   async function loadProfile() {
     if (!supabase || !session?.user?.id) return;
@@ -1475,7 +1476,15 @@ const filteredTasks = tasks.filter((task) => {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
-		<MontageCalendar profile={profile} />
+		<section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+  <button
+    type="button"
+    onClick={() => setShowCalendarModal(true)}
+    className="w-full rounded-2xl bg-[#009c5b] px-4 py-4 text-base font-semibold text-white"
+  >
+    CALENDAR MONTAJE
+  </button>
+</section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
@@ -1664,6 +1673,23 @@ const filteredTasks = tasks.filter((task) => {
             </section>
           </>
         )}
+		{showCalendarModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="relative max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl">
+      <button
+        type="button"
+        onClick={() => setShowCalendarModal(false)}
+        className="absolute right-4 top-4 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+      >
+        Inchide
+      </button>
+
+      <div className="pr-20">
+        <MontageCalendar profile={profile} />
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
