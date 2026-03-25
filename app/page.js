@@ -623,7 +623,7 @@ const canUploadPhotos =
         )}
       </div>
 
-{task.status !== "Finalizata" && canUploadPhotos && (
+{task.status === "In lucru" && canUploadPhotos && (
   <div className="mt-4 rounded-2xl border border-slate-200 p-3">
   {task.status === "Noua" && profile?.role !== "admin" && (
   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
