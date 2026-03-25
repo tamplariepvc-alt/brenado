@@ -1475,13 +1475,13 @@ const filteredTasks = tasks.filter((task) => {
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
 		<section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
-  <button
-    type="button"
-    onClick={() => setShowCalendarModal(true)}
-    className="w-full rounded-2xl bg-[#009c5b] px-4 py-4 text-base font-semibold text-white"
-  >
-    CALENDAR MONTAJE
-  </button>
+<button
+  type="button"
+  onClick={() => setShowCalendarModal(true)}
+  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
+>
+  CALENDAR MONTAJE
+</button>
 </section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
