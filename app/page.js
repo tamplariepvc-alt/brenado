@@ -381,6 +381,7 @@ function TaskForm({ onCreate, creating, users }) {
           type="date"
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
+		  placeholder="Selecteaza data"
           className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         />
       </div>
