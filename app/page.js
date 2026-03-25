@@ -1234,20 +1234,47 @@ async function saveTaskDetails(taskId, details) {
                   placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
                 />
               </div>
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                {["Toate", ...statusOptions].map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => setStatusFilter(status)}
-                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium ${
-                      statusFilter === status ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
+<div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+  {["Noua", "In lucru", "Finalizata", "Toate"].map((status) => {
+    const isActive = statusFilter === status;
+
+    let activeClass = "bg-slate-900 text-white";
+    let inactiveClass = "bg-slate-100 text-slate-700";
+
+    if (status === "Noua") {
+      activeClass = "bg-blue-600 text-white";
+      inactiveClass = "bg-blue-50 text-blue-700";
+    }
+
+    if (status === "In lucru") {
+      activeClass = "bg-orange-500 text-white";
+      inactiveClass = "bg-orange-50 text-orange-700";
+    }
+
+    if (status === "Finalizata") {
+      activeClass = "bg-green-600 text-white";
+      inactiveClass = "bg-green-50 text-green-700";
+    }
+
+    if (status === "Toate") {
+      activeClass = "bg-slate-900 text-white";
+      inactiveClass = "bg-slate-100 text-slate-700";
+    }
+
+    return (
+      <button
+        key={status}
+        type="button"
+        onClick={() => setStatusFilter(status)}
+        className={`whitespace-nowrap rounded-2xl px-6 py-3 text-base font-semibold shadow-sm ${
+          isActive ? activeClass : inactiveClass
+        }`}
+      >
+        {status}
+      </button>
+    );
+  })}
+</div>
             </section>
 
             <section className="space-y-3">
