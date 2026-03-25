@@ -1546,7 +1546,7 @@ const filteredTasks = tasks.filter((task) => {
         )}
 
         {profile?.role === "admin" && activeTab === "useri" && (
-          <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+          <section className="mb-4 rounded-3xl bg-white p-1 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Panou control utilizatori</h3>
               <p className="mt-1 text-sm text-slate-500">
