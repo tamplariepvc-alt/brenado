@@ -1266,7 +1266,7 @@ async function saveTaskDetails(taskId, details) {
         key={status}
         type="button"
         onClick={() => setStatusFilter(status)}
-        className={`whitespace-nowrap rounded-2xl px-6 py-3 text-base font-semibold shadow-sm ${
+        className={`whitespace-nowrap rounded-2xl px-5 py-2 text-base font-semibold shadow-sm ${
           isActive ? activeClass : inactiveClass
         }`}
       >
