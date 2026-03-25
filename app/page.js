@@ -1023,7 +1023,7 @@ function MontageCalendar({ profile }) {
   }
 
   return (
-    <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+    <section className="rounded-3xl bg-white">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-slate-900">
