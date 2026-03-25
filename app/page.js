@@ -398,6 +398,20 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
   }
 
   async function handleUploadCompletionPhotos() {
+  async function handleDeleteFinalPhoto(indexToDelete) {
+  try {
+    const updatedUrls = (task.final_photo_urls || []).filter(
+      (_, index) => index !== indexToDelete
+    );
+
+    await onSaveDetails(task.id, {
+      final_photo_urls: updatedUrls,
+    });
+  } catch (error) {
+    alert("Nu s-a putut sterge poza");
+    console.error(error);
+  }
+}
     if (!completionFiles.length) return;
 
     setUploadingCompletion(true);
@@ -423,21 +437,6 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
       setUploadingCompletion(false);
     }
   }
-  
-  async function handleDeleteFinalPhoto(indexToDelete) {
-  try {
-    const updatedUrls = (task.final_photo_urls || []).filter(
-      (_, index) => index !== indexToDelete
-    );
-
-    await onSaveDetails(task.id, {
-      final_photo_urls: updatedUrls,
-    });
-  } catch (error) {
-    alert("Nu s-a putut sterge poza");
-    console.error(error);
-  }
-}
 
   function removeCompletionFile(indexToRemove) {
     setCompletionFiles((prev) =>
