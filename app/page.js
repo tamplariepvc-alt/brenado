@@ -1474,6 +1474,7 @@ const filteredTasks = tasks.filter((task) => {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
+		<section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
 <button
   type="button"
   onClick={() => setShowCalendarModal(true)}
