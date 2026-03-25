@@ -312,7 +312,7 @@ function TaskForm({ onCreate, creating }) {
   );
 }
 
-function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
+function TaskCard({ task, onUpdateStatus, onSaveDetails, profile }) {
   const galleryImages = [
     ...(task.photo_url
       ? [{ url: task.photo_url, label: "Poza principala" }]
@@ -454,6 +454,8 @@ const hasFinalPhotos =
   task.final_photo_urls.length > 0;
 const isWorkInProgress = task.status === "In lucru";
 const isCompleted = task.status === "Finalizata";
+const canUploadPhotos =
+  profile?.role === "admin" || task.status !== "Noua";
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
@@ -621,8 +623,13 @@ const isCompleted = task.status === "Finalizata";
         )}
       </div>
 
-{task.status !== "Finalizata" && (
+{task.status !== "Finalizata" && canUploadPhotos && (
   <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+  {task.status === "Noua" && profile?.role !== "admin" && (
+  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+    Pozele pot fi adaugate doar de administrator cat timp sarcina este in stadiul Noua.
+  </div>
+)}
           <div className="mb-2 text-sm font-semibold text-slate-900">
             Poze lucrare finalizata
           </div>
@@ -1193,14 +1200,15 @@ async function saveTaskDetails(taskId, details) {
                 </div>
               )}
 
-              {filteredTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onUpdateStatus={updateStatus}
-                  onSaveDetails={saveTaskDetails}
-                />
-              ))}
+{filteredTasks.map((task) => (
+  <TaskCard
+    key={task.id}
+    task={task}
+    onUpdateStatus={updateStatus}
+    onSaveDetails={saveTaskDetails}
+    profile={profile}
+  />
+))}
             </section>
           </>
         )}
