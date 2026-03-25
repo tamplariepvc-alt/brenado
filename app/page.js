@@ -1688,6 +1688,10 @@ const filteredTasks = tasks.filter((task) => {
     </div>
   </div>
 )}
+      </div>
+    </div>
+  );
+}
 
 export default function Page() {
   const [session, setSession] = useState(null);
