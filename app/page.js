@@ -851,6 +851,12 @@ const canUploadPhotos =
         </div>
       )}
 
+<TaskComments
+  taskId={task.id}
+  profile={profile}
+  taskStatus={task.status}
+/>
+
       {isGalleryOpen && galleryImages.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
           <button
@@ -1218,6 +1224,139 @@ return (
         )}
       </div>
     </section>
+  );
+}
+
+function TaskComments({ taskId, profile, taskStatus }) {
+  const [comments, setComments] = useState([]);
+  const [message, setMessage] = useState("");
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [sendingComment, setSendingComment] = useState(false);
+
+  const canShowComments =
+    taskStatus === "In lucru" || taskStatus === "Finalizata";
+
+  async function loadComments() {
+    if (!supabase || !taskId || !canShowComments) return;
+
+    setLoadingComments(true);
+
+    const { data, error } = await supabase
+      .from("task_comments")
+      .select("*, profiles:user_id(full_name)")
+      .eq("task_id", taskId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error(error);
+    } else {
+      setComments(data || []);
+    }
+
+    setLoadingComments(false);
+  }
+
+  useEffect(() => {
+    if (!canShowComments) return;
+
+    loadComments();
+
+    const channel = supabase
+      .channel(`task-comments-${taskId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "task_comments", filter: `task_id=eq.${taskId}` },
+        () => {
+          loadComments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [taskId, taskStatus]);
+
+  async function handleSendComment(e) {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    setSendingComment(true);
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { error } = await supabase.from("task_comments").insert({
+        task_id: taskId,
+        user_id: user?.id || null,
+        message: message.trim(),
+      });
+
+      if (error) throw error;
+
+      setMessage("");
+    } catch (error) {
+      alert(error.message || "Comentariul nu a putut fi trimis.");
+      console.error(error);
+    } finally {
+      setSendingComment(false);
+    }
+  }
+
+  if (!canShowComments) return null;
+
+  return (
+    <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+      <div className="mb-3 text-sm font-semibold text-slate-900">
+        Comentarii
+      </div>
+
+      {loadingComments ? (
+        <div className="text-sm text-slate-500">Se incarca mesajele...</div>
+      ) : comments.length > 0 ? (
+        <div className="space-y-2">
+          {comments.map((comment) => (
+            <div
+              key={comment.id}
+              className="rounded-2xl bg-slate-50 px-3 py-2"
+            >
+              <div className="text-xs font-semibold text-slate-700">
+                {comment.profiles?.full_name || "Utilizator"}
+              </div>
+              <div className="mt-1 text-sm text-slate-700">
+                {comment.message}
+              </div>
+              <div className="mt-1 text-[11px] text-slate-400">
+                {formatDate(comment.created_at)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-sm text-slate-500">
+          Nu exista comentarii pentru aceasta sarcina.
+        </div>
+      )}
+
+      <form onSubmit={handleSendComment} className="mt-3 space-y-2">
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="min-h-[80px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Scrie un comentariu..."
+        />
+
+        <button
+          type="submit"
+          disabled={sendingComment}
+          className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {sendingComment ? "Se trimite..." : "Trimite comentariu"}
+        </button>
+      </form>
+    </div>
   );
 }
 
