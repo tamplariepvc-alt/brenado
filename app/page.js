@@ -1026,9 +1026,9 @@ function MontageCalendar({ profile }) {
     <section className="rounded-3xl bg-white">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold text-slate-900">
-            Calendar montaj
-          </h3>
+<h3 className="text-base font-semibold text-slate-900">
+  Calendar montaj
+</h3>
           <p className="mt-1 text-sm text-slate-500">
             {isAdmin
               ? "Adminul poate adauga si sterge montajele din calendar."
@@ -1673,14 +1673,14 @@ const filteredTasks = tasks.filter((task) => {
         )}
 {showCalendarModal && (
   <div className="fixed inset-0 z-50 bg-black/50 p-2">
-    <div className="relative mx-auto h-[96vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl">
-      <button
-        type="button"
-        onClick={() => setShowCalendarModal(false)}
-        className="absolute right-4 top-4 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-      >
-        Inchide
-      </button>
+<div className="relative mx-auto h-[96vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white pt-10 px-3 pb-4 shadow-2xl">
+<button
+  type="button"
+  onClick={() => setShowCalendarModal(false)}
+  className="absolute right-4 top-3 z-50 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow"
+>
+  ✕
+</button>
 
       <div className="pr-20">
         <MontageCalendar profile={profile} />
