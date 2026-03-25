@@ -231,10 +231,10 @@ function LoginScreen({ onAuth }) {
   );
 }
 
-function TaskForm({ onCreate, creating }) {
+function TaskForm({ onCreate, creating, users }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assignedName, setAssignedName] = useState("");
+  const [assignedNames, setAssignedNames] = useState([]);
   const [deadline, setDeadline] = useState("");
   const [notes, setNotes] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
@@ -246,7 +246,8 @@ function TaskForm({ onCreate, creating }) {
     await onCreate({
       title,
       description,
-      assigned_name: assignedName,
+      assigned_names: assignedNames,
+      assigned_name: assignedNames.join(", "),
       deadline,
       notes,
       photo_url: photoUrl,
@@ -255,7 +256,7 @@ function TaskForm({ onCreate, creating }) {
 
     setTitle("");
     setDescription("");
-    setAssignedName("");
+    setAssignedNames([]);
     setDeadline("");
     setNotes("");
     setPhotoUrl("");
@@ -277,12 +278,40 @@ function TaskForm({ onCreate, creating }) {
         placeholder="Descriere"
       />
       <div className="grid grid-cols-2 gap-3">
-        <input
-          value={assignedName}
-          onChange={(e) => setAssignedName(e.target.value)}
-          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-          placeholder="Responsabil"
-        />
+<label className="block">
+  <span className="mb-1 block text-sm font-medium text-slate-700">
+    Responsabili
+  </span>
+  <div className="space-y-2 rounded-2xl border border-slate-200 p-3">
+    {users?.length > 0 ? (
+      users.map((userItem) => (
+        <label
+          key={userItem.id}
+          className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50"
+        >
+          <input
+            type="checkbox"
+            checked={assignedNames.includes(userItem.full_name)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setAssignedNames((prev) => [...prev, userItem.full_name]);
+              } else {
+                setAssignedNames((prev) =>
+                  prev.filter((name) => name !== userItem.full_name)
+                );
+              }
+            }}
+          />
+          <span className="text-sm text-slate-700">
+            {userItem.full_name || "Fara nume"}
+          </span>
+        </label>
+      ))
+    ) : (
+      <div className="text-sm text-slate-500">Nu exista utilizatori disponibili.</div>
+    )}
+  </div>
+</label>
         <input
           type="date"
           value={deadline}
@@ -492,7 +521,9 @@ const canUploadPhotos =
         <div className="rounded-2xl bg-slate-50 p-3">
           <div className="text-xs text-slate-500">Responsabil</div>
           <div className="mt-1 font-medium">
-            {task.assigned_name || "Neatribuit"}
+            {Array.isArray(task.assigned_names) && task.assigned_names.length > 0
+  ? task.assigned_names.join(", ")
+  : task.assigned_name || "Neatribuit"}
           </div>
         </div>
         <div className="rounded-2xl bg-slate-50 p-3">
@@ -1109,7 +1140,7 @@ async function saveTaskDetails(taskId, details) {
 
         {profile?.role === "admin" && activeTab === "adauga" && (
           <div className="mb-4">
-            <TaskForm onCreate={createTask} creating={creating} />
+            <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
 
