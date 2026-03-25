@@ -1465,7 +1465,7 @@ const filteredTasks = tasks.filter((task) => {
   {/* DREAPTA */}
   <button
     onClick={signOut}
-    className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700"
+    className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
   >
     Iesire
   </button>
