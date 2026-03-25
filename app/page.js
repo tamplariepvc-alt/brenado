@@ -506,39 +506,45 @@ const hasFinalPhotos =
         Creat de: {task.profiles?.full_name || "Necunoscut"}
       </div>
 
-{shouldShowFinalPhotos && (
+{hasFinalPhotos && (
   <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-    <div className="mb-2 flex items-center justify-between">
-      <div className="text-sm font-semibold text-slate-900">
-        Poze lucrare finalizata
-      </div>
+    <div className="mb-2 text-sm font-semibold text-slate-900">
+      Poze lucrare finalizata
+    </div>
 
     <div className="grid grid-cols-2 gap-2">
-      {task.final_photo_urls.slice(0, 2).map((url, index) => {
+      {task.final_photo_urls.map((url, index) => {
         const startIndex = task.photo_url ? index + 1 : index;
-        const isSecondImageWithMore =
-          index === 1 && task.final_photo_urls.length > 2;
-        const extraCount = task.final_photo_urls.length - 2;
 
         return (
-          <button
+          <div
             key={`${url}-${index}`}
-            type="button"
-            onClick={() => openGallery(startIndex)}
-            className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
           >
-            <img
-              src={url}
-              alt={`Finalizare ${index + 1}`}
-              className="h-28 w-full object-cover"
-            />
+            <button
+              type="button"
+              onClick={() => openGallery(startIndex)}
+              className="block w-full"
+            >
+              <img
+                src={url}
+                alt={`Finalizare ${index + 1}`}
+                className="h-28 w-full object-cover"
+              />
+            </button>
 
-            {isSecondImageWithMore && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-sm font-semibold text-white">
-                +{extraCount} mai multe
+            {task.status === "In lucru" && (
+              <div className="p-2">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteFinalPhoto(index)}
+                  className="w-full rounded-lg bg-red-100 px-2 py-2 text-xs font-semibold text-red-600"
+                >
+                  Sterge poza
+                </button>
               </div>
             )}
-          </button>
+          </div>
         );
       })}
     </div>
@@ -634,11 +640,9 @@ const hasFinalPhotos =
               disabled={uploadingCompletion || completionFiles.length === 0}
               className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
-{uploadingCompletion
-  ? "Se incarca pozele..."
-  : task.status === "Noua"
-  ? "Incarca poze"
-  : "Incarca poze finalizare"}
+              {uploadingCompletion
+                ? "Se incarca pozele..."
+                : "Incarca poze finalizare"}
             </button>
 
             {uploadSuccess && (
