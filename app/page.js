@@ -1228,7 +1228,7 @@ const filteredTasks = tasks.filter(
                   placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
                 />
               </div>
-<div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+<div className="mt-4 flex flex-wrap justify-center gap-3 pb-1">
  {["Noua", "In lucru", "Finalizata"].map((status) => {
     const isActive = statusFilter === status;
 
