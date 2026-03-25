@@ -1063,9 +1063,21 @@ async function saveTaskDetails(taskId, details) {
     window.location.reload();
   }
 
-const filteredTasks = tasks.filter(
-  (task) => task.status === statusFilter
-);
+const filteredTasks = tasks.filter((task) => {
+  const matchesStatus = task.status === statusFilter;
+
+  const haystack = `
+    ${task.title || ""}
+    ${task.description || ""}
+    ${task.assigned_name || ""}
+    ${Array.isArray(task.assigned_names) ? task.assigned_names.join(" ") : ""}
+    ${task.notes || ""}
+  `.toLowerCase();
+
+  const matchesSearch = haystack.includes(search.toLowerCase());
+
+  return matchesStatus && matchesSearch;
+});
 
   const showTaskArea = !(profile?.role === "admin" && activeTab === "useri");
 
