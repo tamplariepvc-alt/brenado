@@ -452,6 +452,8 @@ async function handleDeleteFinalPhoto(indexToDelete) {
 const hasFinalPhotos =
   Array.isArray(task.final_photo_urls) &&
   task.final_photo_urls.length > 0;
+const isWorkInProgress = task.status === "In lucru";
+const isCompleted = task.status === "Finalizata";
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
@@ -506,7 +508,50 @@ const hasFinalPhotos =
         Creat de: {task.profiles?.full_name || "Necunoscut"}
       </div>
 
-{hasFinalPhotos && (
+{hasFinalPhotos && isWorkInProgress && (
+  <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+    <div className="mb-2 text-sm font-semibold text-slate-900">
+      Poze lucrare
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      {task.final_photo_urls.map((url, index) => {
+        const startIndex = task.photo_url ? index + 1 : index;
+
+        return (
+          <div
+            key={`${url}-${index}`}
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+          >
+            <button
+              type="button"
+              onClick={() => openGallery(startIndex)}
+              className="block w-full"
+            >
+              <img
+                src={url}
+                alt={`Poza ${index + 1}`}
+                className="h-28 w-full object-cover"
+              />
+            </button>
+
+            <div className="p-2">
+              <button
+                type="button"
+                onClick={() => handleDeleteFinalPhoto(index)}
+                className="w-full rounded-lg bg-red-100 px-2 py-2 text-xs font-semibold text-red-600"
+              >
+                Sterge poza
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
+
+{hasFinalPhotos && isCompleted && (
   <div className="mt-4 rounded-2xl border border-slate-200 p-3">
     <div className="mb-2 text-sm font-semibold text-slate-900">
       Poze lucrare finalizata
@@ -576,7 +621,7 @@ const hasFinalPhotos =
         )}
       </div>
 
-{!hasFinalPhotos && (
+{task.status !== "Finalizata" && (
   <div className="mt-4 rounded-2xl border border-slate-200 p-3">
           <div className="mb-2 text-sm font-semibold text-slate-900">
             Poze lucrare finalizata
@@ -647,7 +692,7 @@ const hasFinalPhotos =
         </div>
       )}
 
-{!hasFinalPhotos && (
+{task.status !== "Finalizata" && (
   <div className="mt-3 grid grid-cols-1 gap-2">
           <button
             type="button"
