@@ -513,38 +513,31 @@ const hasFinalPhotos =
     </div>
 
     <div className="grid grid-cols-2 gap-2">
-      {task.final_photo_urls.map((url, index) => {
+      {task.final_photo_urls.slice(0, 2).map((url, index) => {
         const startIndex = task.photo_url ? index + 1 : index;
+        const isSecondImageWithMore =
+          index === 1 && task.final_photo_urls.length > 2;
+        const extraCount = task.final_photo_urls.length - 2;
 
         return (
-          <div
+          <button
             key={`${url}-${index}`}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+            type="button"
+            onClick={() => openGallery(startIndex)}
+            className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
           >
-            <button
-              type="button"
-              onClick={() => openGallery(startIndex)}
-              className="block w-full"
-            >
-              <img
-                src={url}
-                alt={`Finalizare ${index + 1}`}
-                className="h-28 w-full object-cover"
-              />
-            </button>
+            <img
+              src={url}
+              alt={`Finalizare ${index + 1}`}
+              className="h-28 w-full object-cover"
+            />
 
-            {task.status === "In lucru" && (
-              <div className="p-2">
-                <button
-                  type="button"
-                  onClick={() => handleDeleteFinalPhoto(index)}
-                  className="w-full rounded-lg bg-red-100 px-2 py-2 text-xs font-semibold text-red-600"
-                >
-                  Sterge poza
-                </button>
+            {isSecondImageWithMore && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-sm font-semibold text-white">
+                +{extraCount} mai multe
               </div>
             )}
-          </div>
+          </button>
         );
       })}
     </div>
