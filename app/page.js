@@ -1683,7 +1683,7 @@ const filteredTasks = tasks.filter((task) => {
             </section>
           </>
         )}
-{showCalendarModal && (
+		{showCalendarModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
     <div className="relative max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl">
       <button
@@ -1695,7 +1695,6 @@ const filteredTasks = tasks.filter((task) => {
       </button>
 
       <div className="pr-20">
-        <MontageCalendar profile={profile} />
       </div>
     </div>
   </div>
