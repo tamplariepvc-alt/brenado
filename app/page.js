@@ -1673,6 +1673,7 @@ const filteredTasks = tasks.filter((task) => {
         )}
 {showCalendarModal && (
   <div className="fixed inset-0 z-50 bg-black/50">
+    {/* BUTON X */}
     <button
       type="button"
       onClick={() => setShowCalendarModal(false)}
@@ -1681,22 +1682,12 @@ const filteredTasks = tasks.filter((task) => {
       ×
     </button>
 
-    <div className="mx-auto h-[100vh] w-full max-w-md overflow-y-auto rounded-none bg-white px-3 pb-4 pt-6 shadow-2xl">
+    {/* CONTAINER */}
+    <div className="mx-auto h-[100vh] w-full max-w-none overflow-y-auto bg-white px-3 pb-4 pt-6">
       <MontageCalendar profile={profile} />
     </div>
   </div>
 )}
-
-      <div className="pr-20">
-        <MontageCalendar profile={profile} />
-      </div>
-    </div>
-  </div>
-)}
-      </div>
-    </div>
-  );
-}
 
 export default function Page() {
   const [session, setSession] = useState(null);
