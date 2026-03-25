@@ -873,7 +873,7 @@ function Dashboard({ session }) {
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("taskuri");
-  const [statusFilter, setStatusFilter] = useState("Noua");
+  const [statusFilter, setStatusFilter] = useState("Toate");
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
@@ -1063,7 +1063,10 @@ async function saveTaskDetails(taskId, details) {
     window.location.reload();
   }
 
-const filteredTasks = tasks.filter((task) => task.status === filter);
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const matchesStatus =
+        statusFilter === "Toate" || task.status === statusFilter;
       const haystack = `${task.title || ""} ${task.description || ""} ${task.assigned_name || ""} ${task.notes || ""}`.toLowerCase();
       const matchesSearch = haystack.includes(search.toLowerCase());
       return matchesStatus && matchesSearch;
@@ -1230,6 +1233,20 @@ const filteredTasks = tasks.filter((task) => task.status === filter);
                   className="w-full bg-transparent text-sm outline-none"
                   placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
                 />
+              </div>
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {["Toate", ...statusOptions].map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setStatusFilter(status)}
+                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium ${
+                      statusFilter === status ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
               </div>
             </section>
 
