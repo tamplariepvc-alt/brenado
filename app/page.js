@@ -423,6 +423,21 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
       setUploadingCompletion(false);
     }
   }
+  
+  async function handleDeleteFinalPhoto(indexToDelete) {
+  try {
+    const updatedUrls = (task.final_photo_urls || []).filter(
+      (_, index) => index !== indexToDelete
+    );
+
+    await onSaveDetails(task.id, {
+      final_photo_urls: updatedUrls,
+    });
+  } catch (error) {
+    alert("Nu s-a putut sterge poza");
+    console.error(error);
+  }
+}
 
   function removeCompletionFile(indexToRemove) {
     setCompletionFiles((prev) =>
@@ -491,11 +506,50 @@ function TaskCard({ task, onUpdateStatus, onSaveDetails }) {
         Creat de: {task.profiles?.full_name || "Necunoscut"}
       </div>
 
-      {shouldShowFinalPhotos && (
-        <div className="mt-4 rounded-2xl border border-slate-200 p-3">
-          <div className="mb-2 text-sm font-semibold text-slate-900">
-            Poze lucrare finalizata
-          </div>
+{Array.isArray(task.final_photo_urls) &&
+  task.final_photo_urls.length > 0 && (
+    <div className="mt-4 rounded-2xl border border-slate-200 p-3">
+      <div className="mb-2 text-sm font-semibold text-slate-900">
+        Poze lucrare
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {task.final_photo_urls.map((url, index) => {
+          const startIndex = task.photo_url ? index + 1 : index;
+
+          return (
+            <div
+              key={`${url}-${index}`}
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+            >
+              <button
+                type="button"
+                onClick={() => openGallery(startIndex)}
+              >
+                <img
+                  src={url}
+                  alt={`Poza ${index + 1}`}
+                  className="h-28 w-full object-cover"
+                />
+              </button>
+
+              {task.status === "In lucru" && (
+                <div className="p-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteFinalPhoto(index)}
+                    className="w-full rounded-lg bg-red-100 px-2 py-2 text-xs font-semibold text-red-600"
+                  >
+                    Sterge poza
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )}
 
           <div className="grid grid-cols-2 gap-2">
             {task.final_photo_urls.map((url, index) => {
