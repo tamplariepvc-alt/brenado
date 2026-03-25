@@ -1063,17 +1063,9 @@ async function saveTaskDetails(taskId, details) {
     window.location.reload();
   }
 
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesStatus =
 const filteredTasks = tasks.filter(
   (task) => task.status === statusFilter
 );
-      const haystack = `${task.title || ""} ${task.description || ""} ${task.assigned_name || ""} ${task.notes || ""}`.toLowerCase();
-      const matchesSearch = haystack.includes(search.toLowerCase());
-      return matchesStatus && matchesSearch;
-    });
-  }, [tasks, search, statusFilter]);
 
   const showTaskArea = !(profile?.role === "admin" && activeTab === "useri");
 
