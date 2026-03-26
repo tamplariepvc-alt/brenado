@@ -377,7 +377,11 @@ function TaskForm({ onCreate, creating, users }) {
             </div>
           )}
         </label>
-
+      <div className="grid grid-cols-1 gap-3">
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-slate-700">
+            Selecteaza data de interventie
+          </span>
         <input
           type="date"
           value={deadline}
@@ -391,13 +395,6 @@ function TaskForm({ onCreate, creating, users }) {
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-[80px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         placeholder="Notite initiale"
-      />
-
-      <input
-        value={photoUrl}
-        onChange={(e) => setPhotoUrl(e.target.value)}
-        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-        placeholder="Link poza (optional)"
       />
 
       <button
@@ -2027,9 +2024,9 @@ const filteredTasks = tasks.filter((task) => {
         {profile?.role === "admin" && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
-              <h3 className="text-base font-semibold text-slate-900">Panou control utilizatori</h3>
+              <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
               <p className="mt-1 text-sm text-slate-500">
-                Schimba rolul fiecarui utilizator direct din aplicatie.
+                Vezi rolul fiecarui utilizator înregistrat.
               </p>
             </div>
 
