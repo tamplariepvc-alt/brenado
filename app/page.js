@@ -1380,6 +1380,7 @@ function ClientsManagement({ profile }) {
   const [savingClient, setSavingClient] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showCreateClientForm, setShowCreateClientForm] = useState(false);
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
@@ -1470,6 +1471,7 @@ function ClientsManagement({ profile }) {
       setRegistrationDate("");
       setDeliveryDate("");
       setClientStatus("in asteptare");
+	  setShowCreateClientForm(false);
 
       await loadClients();
     } catch (error) {
@@ -1494,102 +1496,117 @@ function ClientsManagement({ profile }) {
           </p>
         </div>
 
-        {isAdmin && (
-          <form onSubmit={handleCreateClient} className="mb-5 space-y-3 rounded-3xl border border-slate-200 p-4">
+{isAdmin && (
+  <div className="mb-5">
+    <button
+      type="button"
+      onClick={() => setShowCreateClientForm((prev) => !prev)}
+      className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+    >
+      {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
+    </button>
+
+    {showCreateClientForm && (
+      <form
+        onSubmit={handleCreateClient}
+        className="mt-4 space-y-3 rounded-3xl border border-slate-200 p-4"
+      >
+        <input
+          value={clientName}
+          onChange={(e) => setClientName(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Nume client"
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            value={quantityMp}
+            onChange={(e) => setQuantityMp(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Cantitate mp"
+          />
+          <input
+            value={profileSeries}
+            onChange={(e) => setProfileSeries(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Serie profil"
+          />
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <input
+            value={totalValue}
+            onChange={(e) => setTotalValue(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Valoare totala"
+          />
+          <input
+            value={advanceValue}
+            onChange={(e) => setAdvanceValue(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Valoare avans"
+          />
+          <input
+            value={remainingValue}
+            onChange={(e) => setRemainingValue(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Rest de plata"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">
+              Data inregistrare
+            </span>
             <input
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
+              type="date"
+              value={registrationDate}
+              onChange={(e) => setRegistrationDate(e.target.value)}
               className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-              placeholder="Nume client"
             />
+          </label>
 
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                value={quantityMp}
-                onChange={(e) => setQuantityMp(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                placeholder="Cantitate mp"
-              />
-              <input
-                value={profileSeries}
-                onChange={(e) => setProfileSeries(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                placeholder="Serie profil"
-              />
-            </div>
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">
+              Data livrare
+            </span>
+            <input
+              type="date"
+              value={deliveryDate}
+              onChange={(e) => setDeliveryDate(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            />
+          </label>
+        </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <input
-                value={totalValue}
-                onChange={(e) => setTotalValue(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                placeholder="Valoare totala"
-              />
-              <input
-                value={advanceValue}
-                onChange={(e) => setAdvanceValue(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                placeholder="Valoare avans"
-              />
-              <input
-                value={remainingValue}
-                onChange={(e) => setRemainingValue(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                placeholder="Rest de plata"
-              />
-            </div>
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-slate-700">
+            Status
+          </span>
+          <select
+            value={clientStatus}
+            onChange={(e) => setClientStatus(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          >
+            <option value="in asteptare">In asteptare</option>
+            <option value="in lucru">In lucru</option>
+            <option value="executat">Executat</option>
+            <option value="livrat">Livrat</option>
+          </select>
+        </label>
 
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="mb-1 block text-sm font-medium text-slate-700">
-                  Data inregistrare
-                </span>
-                <input
-                  type="date"
-                  value={registrationDate}
-                  onChange={(e) => setRegistrationDate(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-1 block text-sm font-medium text-slate-700">
-                  Data livrare
-                </span>
-                <input
-                  type="date"
-                  value={deliveryDate}
-                  onChange={(e) => setDeliveryDate(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                />
-              </label>
-            </div>
-
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium text-slate-700">
-                Status
-              </span>
-              <select
-                value={clientStatus}
-                onChange={(e) => setClientStatus(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-              >
-                <option value="in asteptare">In asteptare</option>
-                <option value="in lucru">In lucru</option>
-                <option value="executat">Executat</option>
-                <option value="livrat">Livrat</option>
-              </select>
-            </label>
-
-            <button
-              type="submit"
-              disabled={savingClient}
-              className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {savingClient ? "Se salveaza..." : "Salveaza client"}
-            </button>
-          </form>
-        )}
+        <button
+          type="submit"
+          disabled={savingClient}
+          className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {savingClient ? "Se salveaza..." : "Salveaza client"}
+        </button>
+      </form>
+    )}
+  </div>
+)}
 
         {loadingClients ? (
           <div className="text-sm text-slate-500">Se incarca clientii...</div>
