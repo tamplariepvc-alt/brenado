@@ -1699,7 +1699,7 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
             <button
               type="button"
               onClick={() => setShowCreateClientForm((prev) => !prev)}
-              className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+              className="w-full rounded-2xl bg-[#009c5b] px-4 py-4 text-base font-semibold text-white"
             >
               {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
             </button>
