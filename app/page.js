@@ -167,17 +167,17 @@ const { data, error } = await supabase.auth.signUp({
 
 if (error) throw error;
 
-const userId = data.user?.id;
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { full_name: fullName },
+  },
+});
 
-if (userId) {
-  const { error: profileError } = await supabase.from("profiles").upsert({
-    id: userId,
-    full_name: fullName,
-    role: "user",
-  });
+if (error) throw error;
 
-  if (profileError) throw profileError;
-}
+setMessage("Cont creat cu succes. Acum te poti autentifica.");
 
 setMessage("Cont creat cu succes. Acum te poti autentifica.");
       } else {
