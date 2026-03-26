@@ -150,12 +150,14 @@ function LoginScreen({ onAuth }) {
 
 async function handleSubmit(e) {
   e.preventDefault();
+  if (!supabase) return;
+
   setLoading(true);
   setMessage("");
 
   try {
-    if (mode === "register") {
-      const { data, error } = await supabase.auth.signUp({
+    if (mode === "signup") {
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
