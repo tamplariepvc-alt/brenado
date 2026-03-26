@@ -1524,13 +1524,13 @@ function ClientsManagement({ profile }) {
             value={advanceValue}
             onChange={(e) => setAdvanceValue(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Valoare avans"
+            placeholder="Avans"
           />
           <input
             value={remainingValue}
             onChange={(e) => setRemainingValue(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Rest de plata"
+            placeholder="Rest"
           />
         </div>
 
