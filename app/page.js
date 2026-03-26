@@ -148,54 +148,39 @@ function LoginScreen({ onAuth }) {
   const [message, setMessage] = useState("");
   const LOGO_URL = "/logo.png";
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!supabase) return;
+async function handleSubmit(e) {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    setLoading(true);
-    setMessage("");
+  try {
+    if (mode === "register") {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+        },
+      });
 
-    try {
-      if (mode === "signup") {
-const { data, error } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { full_name: fullName },
-  },
-});
+      if (error) throw error;
 
-if (error) throw error;
+      setMessage("Cont creat cu succes. Acum te poti autentifica.");
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-const userId = data.user?.id;
-
-if (userId) {
-const { data, error } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { full_name: fullName },
-  },
-});
-
-if (error) throw error;
-
-setMessage("Cont creat cu succes. Acum te poti autentifica.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-        onAuth?.();
-      }
-    } catch (error) {
-      setMessage(error.message || "A aparut o eroare.");
-    } finally {
-      setLoading(false);
+      if (error) throw error;
+      onAuth?.();
     }
+  } catch (error) {
+    setMessage(error.message || "A aparut o eroare.");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
