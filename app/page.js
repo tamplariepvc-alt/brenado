@@ -1528,7 +1528,7 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
       <section className="w-full bg-white">
         <div className="mb-4">
           <h3 className="text-base font-semibold text-slate-900">
-            Gestiune clienti
+            Gestiune comenzi
           </h3>
           <p className="mt-1 text-sm text-slate-500">
             {isAdmin
@@ -1812,38 +1812,48 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
         ) : filteredClients.length > 0 ? (
           <div className="space-y-3">
             {filteredClients.map((client) => (
-              <button
-                key={client.id}
-                type="button"
-                onClick={() => {
-                  setSelectedClient(client);
-                  setShowDetailsModal(true);
-                }}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
-              >
-                <div className="font-semibold text-slate-900">
-                  {client.client_name}
-                </div>
+<button
+  key={client.id}
+  type="button"
+  onClick={() => {
+    setSelectedClient(client);
+    setShowDetailsModal(true);
+  }}
+  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
+>
+  <div className="font-semibold text-slate-900">
+    {client.client_name}
+  </div>
 
-                <div className="mt-1 text-sm text-slate-500">
-                  Data inregistrare: {formatDate(client.registration_date)}
-                </div>
+  <div className="mt-1 text-sm text-slate-500">
+    Data inregistrare: {formatDate(client.registration_date)}
+  </div>
 
-                <div className="mt-1 text-sm font-medium text-slate-700">
-                  {formatCurrency(client.total_value)}
-                </div>
+  <div className="mt-1 text-sm font-medium text-slate-700">
+    {formatCurrency(client.total_value)}
+  </div>
 
-                <div className="mt-2">
-                  <span
-                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-                      clientStatusStyles[client.status] ||
-                      "bg-slate-100 text-slate-700 border-slate-200"
-                    }`}
-                  >
-                    {client.status || "-"}
-                  </span>
-                </div>
-              </button>
+  <div className="mt-2 flex flex-wrap gap-2">
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+        clientStatusStyles[client.status] ||
+        "bg-slate-100 text-slate-700 border-slate-200"
+      }`}
+    >
+      {client.status || "-"}
+    </span>
+
+    {Number(client.remaining_value || 0) <= 0 ? (
+      <span className="inline-flex rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
+        Achitata
+      </span>
+    ) : (
+      <span className="inline-flex rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">
+        Restanta: {formatCurrency(client.remaining_value)}
+      </span>
+    )}
+  </div>
+</button>
             ))}
           </div>
         ) : (
@@ -2181,7 +2191,7 @@ const filteredTasks = tasks.filter((task) => {
       onClick={() => setShowClientsModal(true)}
       className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
     >
-      GESTIUNE CLIENTI
+      GESTIUNE COMENZI
     </button>
   </div>
 )}
