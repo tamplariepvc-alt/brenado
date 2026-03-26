@@ -1380,6 +1380,14 @@ function ClientsManagement({ profile }) {
 
   const isAdmin = profile?.role === "admin";
   
+useEffect(() => {
+  const total = Number(String(totalValue).replace(",", ".")) || 0;
+  const advance = Number(String(advanceValue).replace(",", ".")) || 0;
+  const remaining = total - advance;
+
+  setRemainingValue(remaining >= 0 ? remaining.toFixed(2) : "0.00");
+}, [totalValue, advanceValue]);
+  
 const profileOptions = [
   "Klass400",
   "Klass600",
@@ -1775,12 +1783,12 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
                     placeholder="Avans"
                   />
-                  <input
-                    value={remainingValue}
-                    onChange={(e) => setRemainingValue(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                    placeholder="Rest"
-                  />
+<input
+  value={remainingValue}
+  readOnly
+  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
+  placeholder="Rest"
+/>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
