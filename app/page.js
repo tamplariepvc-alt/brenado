@@ -1935,27 +1935,27 @@ const filteredTasks = tasks.filter((task) => {
 </div>
         </header>
 
-        <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
-		<section className="mb-4 rounded-3xl bg-white p-0 shadow-sm">
-<button
-  type="button"
-  onClick={() => setShowCalendarModal(true)}
-  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
->
-  CALENDAR MONTAJE
-</button>
-
-{profile?.role === "admin" && (
-<div className="mt-3 mb-4">
+<div className="rounded-3xl bg-green-600 p-3">
+  <div className="space-y-3">
     <button
       type="button"
-      onClick={() => setShowClientsModal(true)}
-      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
+      onClick={() => setShowCalendarModal(true)}
+      className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
     >
-      GESTIUNE CLIENTI
+      CALENDAR MONTAJE
     </button>
+
+    {profile?.role === "admin" && (
+      <button
+        type="button"
+        onClick={() => setShowClientsModal(true)}
+        className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
+      >
+        GESTIUNE CLIENTI
+      </button>
+    )}
   </div>
-)}
+</div>
 
 </section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
