@@ -1692,6 +1692,7 @@ function Dashboard({ session }) {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [showClientsModal, setShowClientsModal] = useState(false);
 
   async function loadProfile() {
     if (!supabase || !session?.user?.id) return;
@@ -1944,7 +1945,17 @@ const filteredTasks = tasks.filter((task) => {
   CALENDAR MONTAJE
 </button>
 
-{profile?.role === "admin" && <ClientsManagement profile={profile} />}
+{profile?.role === "admin" && (
+  <div className="mb-4">
+    <button
+      type="button"
+      onClick={() => setShowClientsModal(true)}
+      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
+    >
+      GESTIUNE CLIENTI
+    </button>
+  </div>
+)}
 
 </section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
@@ -2152,6 +2163,23 @@ const filteredTasks = tasks.filter((task) => {
     </div>
   </div>
 )}
+
+{showClientsModal && (
+  <div className="fixed inset-0 z-50 bg-black/50">
+    <button
+      type="button"
+      onClick={() => setShowClientsModal(false)}
+      className="absolute right-3 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-red-500 text-2xl font-bold text-white shadow-lg"
+    >
+      ×
+    </button>
+
+    <div className="mx-auto h-[100vh] w-full max-w-none overflow-y-auto bg-white px-3 pb-4 pt-6">
+      <ClientsManagement profile={profile} />
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
