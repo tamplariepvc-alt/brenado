@@ -168,6 +168,7 @@ const { data, error } = await supabase.auth.signUp({
 if (error) throw error;
 
 const userId = data.user?.id;
+
 if (userId) {
   const { error: profileError } = await supabase.from("profiles").upsert({
     id: userId,
@@ -175,9 +176,7 @@ if (userId) {
     role: "user",
   });
 
-  if (profileError) {
-    throw profileError;
-  }
+  if (profileError) throw profileError;
 }
 
 setMessage("Cont creat cu succes. Acum te poti autentifica.");
