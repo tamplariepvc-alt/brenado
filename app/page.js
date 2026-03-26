@@ -105,8 +105,8 @@ function formatCurrency(value) {
 const clientStatusStyles = {
   "in asteptare": "bg-blue-50 text-blue-700 border-blue-200",
   "in lucru": "bg-orange-50 text-orange-700 border-orange-200",
-  executat: "bg-slate-100 text-slate-700 border-slate-200",
-  livrat: "bg-green-50 text-green-700 border-green-200",
+  "executat": "bg-slate-100 text-slate-700 border-slate-200",
+  "livrat": "bg-green-50 text-green-700 border-green-200",
 };
 
 function toISODate(date) {
