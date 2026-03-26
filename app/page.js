@@ -1946,7 +1946,7 @@ const filteredTasks = tasks.filter((task) => {
 </button>
 
 {profile?.role === "admin" && (
-  <div className="mb-4">
+<div className="mt-3 mb-4">
     <button
       type="button"
       onClick={() => setShowClientsModal(true)}
