@@ -1569,7 +1569,7 @@ function ClientsManagement({ profile }) {
 
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700">
-              Data livrare
+              Termen livrare
             </span>
             <input
               type="date"
@@ -1683,7 +1683,7 @@ function ClientsManagement({ profile }) {
                   {formatDate(selectedClient.registration_date)}
                 </div>
                 <div>
-                  <span className="font-semibold">Data livrare:</span>{" "}
+                  <span className="font-semibold">Termen livrare:</span>{" "}
                   {formatDate(selectedClient.delivery_date)}
                 </div>
                 <div>
