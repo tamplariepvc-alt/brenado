@@ -102,13 +102,6 @@ function formatCurrency(value) {
   }).format(Number(value));
 }
 
-const clientStatusStyles = {
-  "in asteptare": "bg-blue-50 text-blue-700 border-blue-200",
-  "in lucru": "bg-orange-50 text-orange-700 border-orange-200",
-  "executat": "bg-slate-100 text-slate-700 border-slate-200",
-  "livrat": "bg-green-50 text-green-700 border-green-200",
-};
-
 function toISODate(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -155,41 +148,54 @@ function LoginScreen({ onAuth }) {
   const [message, setMessage] = useState("");
   const LOGO_URL = "/logo.png";
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  if (!supabase) return;
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!supabase) return;
 
-  setLoading(true);
-  setMessage("");
+    setLoading(true);
+    setMessage("");
 
-  try {
-    if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName },
-        },
-      });
+    try {
+      if (mode === "signup") {
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { full_name: fullName },
+  },
+});
 
-      if (error) throw error;
+if (error) throw error;
 
-      setMessage("Cont creat cu succes. Acum te poti autentifica.");
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+const userId = data.user?.id;
+if (userId) {
+  const { error: profileError } = await supabase.from("profiles").upsert({
+    id: userId,
+    full_name: fullName,
+    role: "user",
+  });
 
-      if (error) throw error;
-      onAuth?.();
-    }
-  } catch (error) {
-    setMessage(error.message || "A aparut o eroare.");
-  } finally {
-    setLoading(false);
+  if (profileError) {
+    throw profileError;
   }
 }
+
+setMessage("Cont creat cu succes. Acum te poti autentifica.");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+        onAuth?.();
+      }
+    } catch (error) {
+      setMessage(error.message || "A aparut o eroare.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
@@ -398,6 +404,13 @@ function TaskForm({ onCreate, creating, users }) {
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-[80px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
         placeholder="Notite initiale"
+      />
+
+      <input
+        value={photoUrl}
+        onChange={(e) => setPhotoUrl(e.target.value)}
+        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        placeholder="Link poza (optional)"
       />
 
       <button
@@ -1367,7 +1380,6 @@ function ClientsManagement({ profile }) {
   const [savingClient, setSavingClient] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showCreateClientForm, setShowCreateClientForm] = useState(false);
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
@@ -1378,7 +1390,6 @@ function ClientsManagement({ profile }) {
   const [registrationDate, setRegistrationDate] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [clientStatus, setClientStatus] = useState("in asteptare");
-  const [clientsFilter, setClientsFilter] = useState("toate");
 
   const isAdmin = profile?.role === "admin";
 
@@ -1418,23 +1429,6 @@ function ClientsManagement({ profile }) {
         }
       )
       .subscribe();
-	  
-   const filteredClients = clients.filter((client) => {
-  if (clientsFilter === "toate") return true;
-
-  const total = Number(client.total_value || 0);
-  const remaining = Number(client.remaining_value || 0);
-
-  if (clientsFilter === "achitate") {
-    return total > 0 && remaining <= 0;
-  }
-
-  if (clientsFilter === "restante") {
-    return remaining > 0;
-  }
-
-  return true;
-}); 
 
     return () => {
       supabase.removeChannel(channel);
@@ -1476,7 +1470,6 @@ function ClientsManagement({ profile }) {
       setRegistrationDate("");
       setDeliveryDate("");
       setClientStatus("in asteptare");
-	  setShowCreateClientForm(false);
 
       await loadClients();
     } catch (error) {
@@ -1500,199 +1493,134 @@ function ClientsManagement({ profile }) {
               : "Lista clientilor este vizibila doar pentru administrare."}
           </p>
         </div>
-		
-	<div className="mb-4 flex flex-wrap gap-3">
-  <button
-    type="button"
-    onClick={() => setClientsFilter("toate")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "toate"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    Toate comenzile
-  </button>
 
-  <button
-    type="button"
-    onClick={() => setClientsFilter("achitate")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "achitate"
-        ? "bg-green-600 text-white"
-        : "bg-green-50 text-green-700"
-    }`}
-  >
-    Achitate
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setClientsFilter("restante")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "restante"
-        ? "bg-red-600 text-white"
-        : "bg-red-50 text-red-700"
-    }`}
-  >
-    Restante
-  </button>
-</div>	
-
-{isAdmin && (
-  <div className="mb-5">
-    <button
-      type="button"
-      onClick={() => setShowCreateClientForm((prev) => !prev)}
-      className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
-    >
-      {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
-    </button>
-
-    {showCreateClientForm && (
-      <form
-        onSubmit={handleCreateClient}
-        className="mt-4 space-y-3 rounded-3xl border border-slate-200 p-4"
-      >
-        <input
-          value={clientName}
-          onChange={(e) => setClientName(e.target.value)}
-          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-          placeholder="Nume client"
-        />
-
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            value={quantityMp}
-            onChange={(e) => setQuantityMp(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Cantitate mp"
-          />
-          <input
-            value={profileSeries}
-            onChange={(e) => setProfileSeries(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Serie profil"
-          />
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <input
-            value={totalValue}
-            onChange={(e) => setTotalValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Valoare totala"
-          />
-          <input
-            value={advanceValue}
-            onChange={(e) => setAdvanceValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Avans"
-          />
-          <input
-            value={remainingValue}
-            onChange={(e) => setRemainingValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Rest"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
-              Data inregistrare
-            </span>
+        {isAdmin && (
+          <form onSubmit={handleCreateClient} className="mb-5 space-y-3 rounded-3xl border border-slate-200 p-4">
             <input
-              type="date"
-              value={registrationDate}
-              onChange={(e) => setRegistrationDate(e.target.value)}
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
               className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              placeholder="Nume client"
             />
-          </label>
 
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
-              Termen livrare
-            </span>
-            <input
-              type="date"
-              value={deliveryDate}
-              onChange={(e) => setDeliveryDate(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            />
-          </label>
-        </div>
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                value={quantityMp}
+                onChange={(e) => setQuantityMp(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Cantitate mp"
+              />
+              <input
+                value={profileSeries}
+                onChange={(e) => setProfileSeries(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Serie profil"
+              />
+            </div>
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Status
-          </span>
-          <select
-            value={clientStatus}
-            onChange={(e) => setClientStatus(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-          >
-            <option value="in asteptare">In asteptare</option>
-            <option value="in lucru">In lucru</option>
-            <option value="executat">Executat</option>
-            <option value="livrat">Livrat</option>
-          </select>
-        </label>
+            <div className="grid grid-cols-3 gap-3">
+              <input
+                value={totalValue}
+                onChange={(e) => setTotalValue(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Valoare totala"
+              />
+              <input
+                value={advanceValue}
+                onChange={(e) => setAdvanceValue(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Valoare avans"
+              />
+              <input
+                value={remainingValue}
+                onChange={(e) => setRemainingValue(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Rest de plata"
+              />
+            </div>
 
-        <button
-          type="submit"
-          disabled={savingClient}
-          className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-        >
-          {savingClient ? "Se salveaza..." : "Salveaza client"}
-        </button>
-      </form>
-    )}
-  </div>
-)}
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-700">
+                  Data inregistrare
+                </span>
+                <input
+                  type="date"
+                  value={registrationDate}
+                  onChange={(e) => setRegistrationDate(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-700">
+                  Data livrare
+                </span>
+                <input
+                  type="date"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                />
+              </label>
+            </div>
+
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-700">
+                Status
+              </span>
+              <select
+                value={clientStatus}
+                onChange={(e) => setClientStatus(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              >
+                <option value="in asteptare">In asteptare</option>
+                <option value="in lucru">In lucru</option>
+                <option value="executat">Executat</option>
+                <option value="livrat">Livrat</option>
+              </select>
+            </label>
+
+            <button
+              type="submit"
+              disabled={savingClient}
+              className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {savingClient ? "Se salveaza..." : "Salveaza client"}
+            </button>
+          </form>
+        )}
 
         {loadingClients ? (
           <div className="text-sm text-slate-500">Se incarca clientii...</div>
-) : filteredClients.length > 0 ? (
-  <div className="space-y-3">
-    {filteredClients.map((client) => (
-<button
-  key={client.id}
-  type="button"
-  onClick={() => {
-    setSelectedClient(client);
-    setShowDetailsModal(true);
-  }}
-  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
->
-  <div className="font-semibold text-slate-900">
-    {client.client_name}
-  </div>
-
-  <div className="mt-1 text-sm text-slate-500">
-    Data inregistrare: {formatDate(client.registration_date)}
-  </div>
-
-  <div className="mt-1 text-sm font-medium text-slate-700">
-    {formatCurrency(client.total_value)}
-  </div>
-
-  <div className="mt-2">
-    <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-        clientStatusStyles[client.status] || "bg-slate-100 text-slate-700 border-slate-200"
-      }`}
-    >
-      {client.status || "-"}
-    </span>
-  </div>
-</button>
+        ) : clients.length > 0 ? (
+          <div className="space-y-3">
+            {clients.map((client) => (
+              <button
+                key={client.id}
+                type="button"
+                onClick={() => {
+                  setSelectedClient(client);
+                  setShowDetailsModal(true);
+                }}
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
+              >
+                <div className="font-semibold text-slate-900">
+                  {client.client_name}
+                </div>
+                <div className="mt-1 text-sm text-slate-500">
+                  Data inregistrare: {formatDate(client.registration_date)}
+                </div>
+                <div className="mt-1 text-sm font-medium text-slate-700">
+                  {formatCurrency(client.total_value)}
+                </div>
+              </button>
             ))}
           </div>
         ) : (
-<div className="text-sm text-slate-500">
-  Nu exista comenzi pentru filtrul selectat.
-</div>
+          <div className="text-sm text-slate-500">
+            Nu exista clienti inregistrati.
+          </div>
         )}
       </section>
 
@@ -1738,7 +1666,7 @@ function ClientsManagement({ profile }) {
                   {formatDate(selectedClient.registration_date)}
                 </div>
                 <div>
-                  <span className="font-semibold">Termen livrare:</span>{" "}
+                  <span className="font-semibold">Data livrare:</span>{" "}
                   {formatDate(selectedClient.delivery_date)}
                 </div>
                 <div>
@@ -1764,7 +1692,6 @@ function Dashboard({ session }) {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
-  const [showClientsModal, setShowClientsModal] = useState(false);
 
   async function loadProfile() {
     if (!supabase || !session?.user?.id) return;
@@ -2008,7 +1935,7 @@ const filteredTasks = tasks.filter((task) => {
         </header>
 
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
-		<section className="mb-4 rounded-3xl bg-[#009c5b] p-0 shadow-sm">
+		<section className="mb-4 rounded-3xl bg-white p-0 shadow-sm">
 <button
   type="button"
   onClick={() => setShowCalendarModal(true)}
@@ -2017,17 +1944,7 @@ const filteredTasks = tasks.filter((task) => {
   CALENDAR MONTAJE
 </button>
 
-{profile?.role === "admin" && (
-<div className="mt-3 mb-4">
-    <button
-      type="button"
-      onClick={() => setShowClientsModal(true)}
-      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
-    >
-      GESTIUNE CLIENTI
-    </button>
-  </div>
-)}
+{profile?.role === "admin" && <ClientsManagement profile={profile} />}
 
 </section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
@@ -2095,9 +2012,9 @@ const filteredTasks = tasks.filter((task) => {
         {profile?.role === "admin" && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
-              <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
+              <h3 className="text-base font-semibold text-slate-900">Panou control utilizatori</h3>
               <p className="mt-1 text-sm text-slate-500">
-                Vezi rolul fiecarui utilizator înregistrat.
+                Schimba rolul fiecarui utilizator direct din aplicatie.
               </p>
             </div>
 
@@ -2235,23 +2152,6 @@ const filteredTasks = tasks.filter((task) => {
     </div>
   </div>
 )}
-
-{showClientsModal && (
-  <div className="fixed inset-0 z-50 bg-black/50">
-    <button
-      type="button"
-      onClick={() => setShowClientsModal(false)}
-      className="absolute right-3 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-red-500 text-2xl font-bold text-white shadow-lg"
-    >
-      ×
-    </button>
-
-    <div className="mx-auto h-[100vh] w-full max-w-none overflow-y-auto bg-white px-3 pb-4 pt-6">
-      <ClientsManagement profile={profile} />
-    </div>
-  </div>
-)}
-
       </div>
     </div>
   );
