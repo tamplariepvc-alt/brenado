@@ -53,8 +53,8 @@ async function uploadTaskPhotos(files) {
 }
 
 const statusStyles = {
-  Noua: "border-blue-200 bg-blue-50 text-blue-700",
-  "In lucru": "border-orange-200 bg-orange-50 text-orange-700",
+  Nouă: "border-blue-200 bg-blue-50 text-blue-700",
+  "În lucru": "border-orange-200 bg-orange-50 text-orange-700",
   Finalizata: "border-green-200 bg-green-50 text-green-700",
 };
 
@@ -1562,7 +1562,7 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
         : "bg-blue-50 text-blue-700"
     }`}
   >
-    Dupa luna
+    După lună
   </button>
 
   <button
@@ -1604,7 +1604,7 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
         : "bg-slate-100 text-slate-700"
     }`}
   >
-    Cauta
+    Caută
   </button>
 </div>
 
@@ -1719,7 +1719,7 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
                     value={totalValue}
                     onChange={(e) => setTotalValue(e.target.value)}
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                    placeholder="Valoare totala"
+                    placeholder="V. totală"
                   />
                   <input
                     value={advanceValue}
@@ -2238,7 +2238,7 @@ const filteredTasks = tasks.filter((task) => {
                   activeTab === "adauga" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
-                Adauga
+                Adaugă
               </button>
               <button
                 type="button"
@@ -2318,23 +2318,23 @@ const filteredTasks = tasks.filter((task) => {
                 />
               </div>
 <div className="mt-4 flex flex-wrap justify-center gap-3 pb-1">
- {["Noua", "In lucru", "Finalizata"].map((status) => {
+ {["Nouă", "În lucru", "Finalizată"].map((status) => {
     const isActive = statusFilter === status;
 
     let activeClass = "bg-slate-900 text-white";
     let inactiveClass = "bg-slate-100 text-slate-700";
 
-    if (status === "Noua") {
+    if (status === "Nouă") {
       activeClass = "bg-blue-600 text-white";
       inactiveClass = "bg-blue-50 text-blue-700";
     }
 
-    if (status === "In lucru") {
+    if (status === "În lucru") {
       activeClass = "bg-orange-500 text-white";
       inactiveClass = "bg-orange-50 text-orange-700";
     }
 
-    if (status === "Finalizata") {
+    if (status === "Finalizată") {
       activeClass = "bg-green-600 text-white";
       inactiveClass = "bg-green-50 text-green-700";
     }
