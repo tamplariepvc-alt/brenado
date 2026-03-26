@@ -918,40 +918,6 @@ const canUploadPhotos =
   );
 }
 
-function NotificationsToast({ notifications, onClose }) {
-  if (!notifications.length) return null;
-
-  return (
-    <div className="fixed right-3 top-3 z-[100] space-y-2">
-      {notifications.map((item) => (
-        <div
-          key={item.id}
-          className="w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-sm font-bold text-slate-900">
-                {item.title}
-              </div>
-              <div className="mt-1 text-sm text-slate-600">
-                {item.message}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onClose(item.id)}
-              className="rounded-full px-2 py-1 text-xs font-semibold text-slate-500"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function MontageCalendar({ profile }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(toISODate(new Date()));
