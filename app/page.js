@@ -92,6 +92,16 @@ function formatDate(value) {
   const date = new Date(value);
   return new Intl.DateTimeFormat("ro-RO").format(date);
 }
+
+function formatCurrency(value) {
+  if (value === null || value === undefined || value === "") return "-";
+  return new Intl.NumberFormat("ro-RO", {
+    style: "currency",
+    currency: "RON",
+    maximumFractionDigits: 2,
+  }).format(Number(value));
+}
+
 function toISODate(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1364,6 +1374,314 @@ function TaskComments({ taskId, profile, taskStatus }) {
   );
 }
 
+function ClientsManagement({ profile }) {
+  const [clients, setClients] = useState([]);
+  const [loadingClients, setLoadingClients] = useState(false);
+  const [savingClient, setSavingClient] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  const [clientName, setClientName] = useState("");
+  const [quantityMp, setQuantityMp] = useState("");
+  const [profileSeries, setProfileSeries] = useState("");
+  const [totalValue, setTotalValue] = useState("");
+  const [advanceValue, setAdvanceValue] = useState("");
+  const [remainingValue, setRemainingValue] = useState("");
+  const [registrationDate, setRegistrationDate] = useState("");
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [clientStatus, setClientStatus] = useState("in asteptare");
+
+  const isAdmin = profile?.role === "admin";
+
+  async function loadClients() {
+    if (!supabase) return;
+
+    setLoadingClients(true);
+
+    const { data, error } = await supabase
+      .from("clients_management")
+      .select("*")
+      .order("registration_date", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert(error.message);
+    } else {
+      setClients(data || []);
+    }
+
+    setLoadingClients(false);
+  }
+
+  useEffect(() => {
+    loadClients();
+
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel("clients-management-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "clients_management" },
+        () => {
+          loadClients();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  async function handleCreateClient(e) {
+    e.preventDefault();
+    if (!clientName.trim()) return;
+
+    setSavingClient(true);
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { error } = await supabase.from("clients_management").insert({
+        client_name: clientName,
+        quantity_mp: quantityMp || null,
+        profile_series: profileSeries,
+        total_value: totalValue || null,
+        advance_value: advanceValue || null,
+        remaining_value: remainingValue || null,
+        registration_date: registrationDate || null,
+        delivery_date: deliveryDate || null,
+        status: clientStatus,
+        created_by: user?.id || null,
+      });
+
+      if (error) throw error;
+
+      setClientName("");
+      setQuantityMp("");
+      setProfileSeries("");
+      setTotalValue("");
+      setAdvanceValue("");
+      setRemainingValue("");
+      setRegistrationDate("");
+      setDeliveryDate("");
+      setClientStatus("in asteptare");
+
+      await loadClients();
+    } catch (error) {
+      alert(error.message || "Clientul nu a putut fi salvat.");
+      console.error(error);
+    } finally {
+      setSavingClient(false);
+    }
+  }
+
+  return (
+    <>
+      <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+        <div className="mb-4">
+          <h3 className="text-base font-semibold text-slate-900">
+            Gestiune clienti
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            {isAdmin
+              ? "Adminul poate adauga si gestiona clientii."
+              : "Lista clientilor este vizibila doar pentru administrare."}
+          </p>
+        </div>
+
+        {isAdmin && (
+          <form onSubmit={handleCreateClient} className="mb-5 space-y-3 rounded-3xl border border-slate-200 p-4">
+            <input
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              placeholder="Nume client"
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                value={quantityMp}
+                onChange={(e) => setQuantityMp(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Cantitate mp"
+              />
+              <input
+                value={profileSeries}
+                onChange={(e) => setProfileSeries(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Serie profil"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <input
+                value={totalValue}
+                onChange={(e) => setTotalValue(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Valoare totala"
+              />
+              <input
+                value={advanceValue}
+                onChange={(e) => setAdvanceValue(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Valoare avans"
+              />
+              <input
+                value={remainingValue}
+                onChange={(e) => setRemainingValue(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                placeholder="Rest de plata"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-700">
+                  Data inregistrare
+                </span>
+                <input
+                  type="date"
+                  value={registrationDate}
+                  onChange={(e) => setRegistrationDate(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-700">
+                  Data livrare
+                </span>
+                <input
+                  type="date"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                />
+              </label>
+            </div>
+
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-700">
+                Status
+              </span>
+              <select
+                value={clientStatus}
+                onChange={(e) => setClientStatus(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+              >
+                <option value="in asteptare">In asteptare</option>
+                <option value="in lucru">In lucru</option>
+                <option value="executat">Executat</option>
+                <option value="livrat">Livrat</option>
+              </select>
+            </label>
+
+            <button
+              type="submit"
+              disabled={savingClient}
+              className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {savingClient ? "Se salveaza..." : "Salveaza client"}
+            </button>
+          </form>
+        )}
+
+        {loadingClients ? (
+          <div className="text-sm text-slate-500">Se incarca clientii...</div>
+        ) : clients.length > 0 ? (
+          <div className="space-y-3">
+            {clients.map((client) => (
+              <button
+                key={client.id}
+                type="button"
+                onClick={() => {
+                  setSelectedClient(client);
+                  setShowDetailsModal(true);
+                }}
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
+              >
+                <div className="font-semibold text-slate-900">
+                  {client.client_name}
+                </div>
+                <div className="mt-1 text-sm text-slate-500">
+                  Data inregistrare: {formatDate(client.registration_date)}
+                </div>
+                <div className="mt-1 text-sm font-medium text-slate-700">
+                  {formatCurrency(client.total_value)}
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-slate-500">
+            Nu exista clienti inregistrati.
+          </div>
+        )}
+      </section>
+
+      {showDetailsModal && selectedClient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setShowDetailsModal(false)}
+              className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-2 text-sm font-semibold text-white"
+            >
+              ✕
+            </button>
+
+            <div className="pr-10">
+              <h3 className="text-lg font-bold text-slate-900">
+                {selectedClient.client_name}
+              </h3>
+
+              <div className="mt-4 space-y-3 text-sm text-slate-700">
+                <div>
+                  <span className="font-semibold">Cantitate mp:</span>{" "}
+                  {selectedClient.quantity_mp || "-"}
+                </div>
+                <div>
+                  <span className="font-semibold">Serie profil:</span>{" "}
+                  {selectedClient.profile_series || "-"}
+                </div>
+                <div>
+                  <span className="font-semibold">Valoare totala:</span>{" "}
+                  {formatCurrency(selectedClient.total_value)}
+                </div>
+                <div>
+                  <span className="font-semibold">Valoare avans:</span>{" "}
+                  {formatCurrency(selectedClient.advance_value)}
+                </div>
+                <div>
+                  <span className="font-semibold">Rest de plata:</span>{" "}
+                  {formatCurrency(selectedClient.remaining_value)}
+                </div>
+                <div>
+                  <span className="font-semibold">Data inregistrare:</span>{" "}
+                  {formatDate(selectedClient.registration_date)}
+                </div>
+                <div>
+                  <span className="font-semibold">Data livrare:</span>{" "}
+                  {formatDate(selectedClient.delivery_date)}
+                </div>
+                <div>
+                  <span className="font-semibold">Status:</span>{" "}
+                  {selectedClient.status || "-"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
@@ -1625,6 +1943,9 @@ const filteredTasks = tasks.filter((task) => {
 >
   CALENDAR MONTAJE
 </button>
+
+{profile?.role === "admin" && <ClientsManagement profile={profile} />}
+
 </section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
