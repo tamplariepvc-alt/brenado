@@ -53,8 +53,8 @@ async function uploadTaskPhotos(files) {
 }
 
 const statusStyles = {
-  Nouă: "border-blue-200 bg-blue-50 text-blue-700",
-  "În lucru": "border-orange-200 bg-orange-50 text-orange-700",
+  Noua: "border-blue-200 bg-blue-50 text-blue-700",
+  "In lucru": "border-orange-200 bg-orange-50 text-orange-700",
   Finalizata: "border-green-200 bg-green-50 text-green-700",
 };
 
@@ -2318,23 +2318,23 @@ const filteredTasks = tasks.filter((task) => {
                 />
               </div>
 <div className="mt-4 flex flex-wrap justify-center gap-3 pb-1">
- {["Nouă", "În lucru", "Finalizată"].map((status) => {
+ {["Noua", "In lucru", "Finalizata"].map((status) => {
     const isActive = statusFilter === status;
 
     let activeClass = "bg-slate-900 text-white";
     let inactiveClass = "bg-slate-100 text-slate-700";
 
-    if (status === "Nouă") {
+    if (status === "Noua") {
       activeClass = "bg-blue-600 text-white";
       inactiveClass = "bg-blue-50 text-blue-700";
     }
 
-    if (status === "În lucru") {
+    if (status === "In lucru") {
       activeClass = "bg-orange-500 text-white";
       inactiveClass = "bg-orange-50 text-orange-700";
     }
 
-    if (status === "Finalizată") {
+    if (status === "Finalizata") {
       activeClass = "bg-green-600 text-white";
       inactiveClass = "bg-green-50 text-green-700";
     }
