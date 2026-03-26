@@ -94,12 +94,6 @@ function formatDate(value) {
 }
 
 function formatCurrency(value) {
-const clientStatusStyles = {
-  "in asteptare": "bg-blue-50 text-blue-700 border-blue-200",
-  "in lucru": "bg-orange-50 text-orange-700 border-orange-200",
-  executat: "bg-slate-100 text-slate-700 border-slate-200",
-  livrat: "bg-green-50 text-green-700 border-green-200",
-};
   if (value === null || value === undefined || value === "") return "-";
   return new Intl.NumberFormat("ro-RO", {
     style: "currency",
@@ -1367,6 +1361,7 @@ function ClientsManagement({ profile }) {
   const [selectedClient, setSelectedClient] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCreateClientForm, setShowCreateClientForm] = useState(false);
+  const [clientsFilter, setClientsFilter] = useState("toate");
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
@@ -1377,9 +1372,15 @@ function ClientsManagement({ profile }) {
   const [registrationDate, setRegistrationDate] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [clientStatus, setClientStatus] = useState("in asteptare");
-  const [clientsFilter, setClientsFilter] = useState("toate");
 
   const isAdmin = profile?.role === "admin";
+
+  const clientStatusStyles = {
+    "in asteptare": "bg-blue-50 text-blue-700 border-blue-200",
+    "in lucru": "bg-orange-50 text-orange-700 border-orange-200",
+    executat: "bg-slate-100 text-slate-700 border-slate-200",
+    livrat: "bg-green-50 text-green-700 border-green-200",
+  };
 
   async function loadClients() {
     if (!supabase) return;
@@ -1404,23 +1405,6 @@ function ClientsManagement({ profile }) {
 
   useEffect(() => {
     loadClients();
-	
-	const filteredClients = clients.filter((client) => {
-  if (clientsFilter === "toate") return true;
-
-  const total = Number(client.total_value || 0);
-  const remaining = Number(client.remaining_value || 0);
-
-  if (clientsFilter === "achitate") {
-    return total > 0 && remaining <= 0;
-  }
-
-  if (clientsFilter === "restante") {
-    return remaining > 0;
-  }
-
-  return true;
-});
 
     if (!supabase) return;
 
@@ -1454,7 +1438,7 @@ function ClientsManagement({ profile }) {
       const { error } = await supabase.from("clients_management").insert({
         client_name: clientName,
         quantity_mp: quantityMp || null,
-        profile_series: profileSeries,
+        profile_series: profileSeries || null,
         total_value: totalValue || null,
         advance_value: advanceValue || null,
         remaining_value: remainingValue || null,
@@ -1475,7 +1459,7 @@ function ClientsManagement({ profile }) {
       setRegistrationDate("");
       setDeliveryDate("");
       setClientStatus("in asteptare");
-	  setShowCreateClientForm(false);
+      setShowCreateClientForm(false);
 
       await loadClients();
     } catch (error) {
@@ -1486,9 +1470,26 @@ function ClientsManagement({ profile }) {
     }
   }
 
+  const filteredClients = clients.filter((client) => {
+    if (clientsFilter === "toate") return true;
+
+    const total = Number(client.total_value || 0);
+    const remaining = Number(client.remaining_value || 0);
+
+    if (clientsFilter === "achitate") {
+      return total > 0 && remaining <= 0;
+    }
+
+    if (clientsFilter === "restante") {
+      return remaining > 0;
+    }
+
+    return true;
+  });
+
   return (
     <>
-      <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+      <section className="w-full bg-white">
         <div className="mb-4">
           <h3 className="text-base font-semibold text-slate-900">
             Gestiune clienti
@@ -1496,202 +1497,203 @@ function ClientsManagement({ profile }) {
           <p className="mt-1 text-sm text-slate-500">
             {isAdmin
               ? "Adminul poate adauga si gestiona clientii."
-              : "Lista clientilor este vizibila doar pentru administrare."}
+              : "Lista clientilor este disponibila doar pentru vizualizare."}
           </p>
         </div>
-		
-		<div className="mb-4 flex flex-wrap gap-3">
-  <button
-    type="button"
-    onClick={() => setClientsFilter("toate")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "toate"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    Toate comenzile
-  </button>
 
-  <button
-    type="button"
-    onClick={() => setClientsFilter("achitate")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "achitate"
-        ? "bg-green-600 text-white"
-        : "bg-green-50 text-green-700"
-    }`}
-  >
-    Achitate
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setClientsFilter("restante")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "restante"
-        ? "bg-red-600 text-white"
-        : "bg-red-50 text-red-700"
-    }`}
-  >
-    Restante
-  </button>
-</div>
-
-{isAdmin && (
-  <div className="mb-5">
-    <button
-      type="button"
-      onClick={() => setShowCreateClientForm((prev) => !prev)}
-      className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
-    >
-      {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
-    </button>
-
-    {showCreateClientForm && (
-      <form
-        onSubmit={handleCreateClient}
-        className="mt-4 space-y-3 rounded-3xl border border-slate-200 p-4"
-      >
-        <input
-          value={clientName}
-          onChange={(e) => setClientName(e.target.value)}
-          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-          placeholder="Nume client"
-        />
-
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            value={quantityMp}
-            onChange={(e) => setQuantityMp(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Cantitate mp"
-          />
-          <input
-            value={profileSeries}
-            onChange={(e) => setProfileSeries(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Serie profil"
-          />
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <input
-            value={totalValue}
-            onChange={(e) => setTotalValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Valoare totala"
-          />
-          <input
-            value={advanceValue}
-            onChange={(e) => setAdvanceValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Avans"
-          />
-          <input
-            value={remainingValue}
-            onChange={(e) => setRemainingValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Rest"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
-              Data inregistrare
-            </span>
-            <input
-              type="date"
-              value={registrationDate}
-              onChange={(e) => setRegistrationDate(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
-              Termen livrare
-            </span>
-            <input
-              type="date"
-              value={deliveryDate}
-              onChange={(e) => setDeliveryDate(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            />
-          </label>
-        </div>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Status
-          </span>
-          <select
-            value={clientStatus}
-            onChange={(e) => setClientStatus(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        <div className="mb-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setClientsFilter("toate")}
+            className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+              clientsFilter === "toate"
+                ? "bg-slate-900 text-white"
+                : "bg-slate-100 text-slate-700"
+            }`}
           >
-            <option value="in asteptare">In asteptare</option>
-            <option value="in lucru">In lucru</option>
-            <option value="executat">Executat</option>
-            <option value="livrat">Livrat</option>
-          </select>
-        </label>
+            Toate comenzile
+          </button>
 
-        <button
-          type="submit"
-          disabled={savingClient}
-          className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-        >
-          {savingClient ? "Se salveaza..." : "Salveaza client"}
-        </button>
-      </form>
-    )}
-  </div>
-)}
+          <button
+            type="button"
+            onClick={() => setClientsFilter("achitate")}
+            className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+              clientsFilter === "achitate"
+                ? "bg-green-600 text-white"
+                : "bg-green-50 text-green-700"
+            }`}
+          >
+            Achitate
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setClientsFilter("restante")}
+            className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+              clientsFilter === "restante"
+                ? "bg-red-600 text-white"
+                : "bg-red-50 text-red-700"
+            }`}
+          >
+            Restante
+          </button>
+        </div>
+
+        {isAdmin && (
+          <div className="mb-5">
+            <button
+              type="button"
+              onClick={() => setShowCreateClientForm((prev) => !prev)}
+              className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+            >
+              {showCreateClientForm ? "Ascunde formularul" : "Adauga comanda"}
+            </button>
+
+            {showCreateClientForm && (
+              <form
+                onSubmit={handleCreateClient}
+                className="mt-4 space-y-3 rounded-3xl border border-slate-200 p-4"
+              >
+                <input
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                  placeholder="Nume client"
+                />
+
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    value={quantityMp}
+                    onChange={(e) => setQuantityMp(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    placeholder="Cantitate mp"
+                  />
+                  <input
+                    value={profileSeries}
+                    onChange={(e) => setProfileSeries(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    placeholder="Serie profil"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <input
+                    value={totalValue}
+                    onChange={(e) => setTotalValue(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    placeholder="Valoare totala"
+                  />
+                  <input
+                    value={advanceValue}
+                    onChange={(e) => setAdvanceValue(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    placeholder="Valoare avans"
+                  />
+                  <input
+                    value={remainingValue}
+                    onChange={(e) => setRemainingValue(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    placeholder="Rest de plata"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-slate-700">
+                      Data inregistrare
+                    </span>
+                    <input
+                      type="date"
+                      value={registrationDate}
+                      onChange={(e) => setRegistrationDate(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-slate-700">
+                      Data livrare
+                    </span>
+                    <input
+                      type="date"
+                      value={deliveryDate}
+                      onChange={(e) => setDeliveryDate(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    />
+                  </label>
+                </div>
+
+                <label className="block">
+                  <span className="mb-1 block text-sm font-medium text-slate-700">
+                    Status
+                  </span>
+                  <select
+                    value={clientStatus}
+                    onChange={(e) => setClientStatus(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                  >
+                    <option value="in asteptare">In asteptare</option>
+                    <option value="in lucru">In lucru</option>
+                    <option value="executat">Executat</option>
+                    <option value="livrat">Livrat</option>
+                  </select>
+                </label>
+
+                <button
+                  type="submit"
+                  disabled={savingClient}
+                  className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {savingClient ? "Se salveaza..." : "Salveaza client"}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         {loadingClients ? (
           <div className="text-sm text-slate-500">Se incarca clientii...</div>
-) : filteredClients.length > 0 ? (
-  <div className="space-y-3">
-    {filteredClients.map((client) => (
-<button
-  key={client.id}
-  type="button"
-  onClick={() => {
-    setSelectedClient(client);
-    setShowDetailsModal(true);
-  }}
-  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
->
-  <div className="font-semibold text-slate-900">
-    {client.client_name}
-  </div>
+        ) : filteredClients.length > 0 ? (
+          <div className="space-y-3">
+            {filteredClients.map((client) => (
+              <button
+                key={client.id}
+                type="button"
+                onClick={() => {
+                  setSelectedClient(client);
+                  setShowDetailsModal(true);
+                }}
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
+              >
+                <div className="font-semibold text-slate-900">
+                  {client.client_name}
+                </div>
 
-  <div className="mt-1 text-sm text-slate-500">
-    Data inregistrare: {formatDate(client.registration_date)}
-  </div>
+                <div className="mt-1 text-sm text-slate-500">
+                  Data inregistrare: {formatDate(client.registration_date)}
+                </div>
 
-  <div className="mt-1 text-sm font-medium text-slate-700">
-    {formatCurrency(client.total_value)}
-  </div>
+                <div className="mt-1 text-sm font-medium text-slate-700">
+                  {formatCurrency(client.total_value)}
+                </div>
 
-  <div className="mt-2">
-    <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-        clientStatusStyles[client.status] || "bg-slate-100 text-slate-700 border-slate-200"
-      }`}
-    >
-      {client.status || "-"}
-    </span>
-  </div>
-</button>
+                <div className="mt-2">
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+                      clientStatusStyles[client.status] ||
+                      "bg-slate-100 text-slate-700 border-slate-200"
+                    }`}
+                  >
+                    {client.status || "-"}
+                  </span>
+                </div>
+              </button>
             ))}
           </div>
         ) : (
-<div className="text-sm text-slate-500">
-  Nu exista comenzi pentru filtrul selectat.
-</div>
+          <div className="text-sm text-slate-500">
+            Nu exista comenzi pentru filtrul selectat.
+          </div>
         )}
       </section>
 
@@ -1737,7 +1739,7 @@ function ClientsManagement({ profile }) {
                   {formatDate(selectedClient.registration_date)}
                 </div>
                 <div>
-                  <span className="font-semibold">Termen livrare:</span>{" "}
+                  <span className="font-semibold">Data livrare:</span>{" "}
                   {formatDate(selectedClient.delivery_date)}
                 </div>
                 <div>
