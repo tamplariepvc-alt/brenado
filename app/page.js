@@ -1369,7 +1369,8 @@ function ClientsManagement({ profile }) {
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
-  const [profileSeries, setProfileSeries] = useState("");
+  const [profileSeries, setProfileSeries] = useState([]);
+  const [showProfileSelect, setShowProfileSelect] = useState(false);
   const [totalValue, setTotalValue] = useState("");
   const [advanceValue, setAdvanceValue] = useState("");
   const [remainingValue, setRemainingValue] = useState("");
@@ -1378,6 +1379,21 @@ function ClientsManagement({ profile }) {
   const [clientStatus, setClientStatus] = useState("in asteptare");
 
   const isAdmin = profile?.role === "admin";
+  
+const profileOptions = [
+  "Klass400",
+  "Klass600",
+  "Klass 76 MD",
+  "proEvolution72",
+  "proEvolution82",
+  "Profilco 26 culisant",
+  "Profilco 43",
+  "Profilco 63",
+  "Weiss 30 Culisant",
+  "Weiss 40",
+  "Weiss 78",
+  "Weiss 85",
+];
   
   const months = [
   { value: "01", label: "Ianuarie" },
@@ -1457,7 +1473,7 @@ function ClientsManagement({ profile }) {
       const { error } = await supabase.from("clients_management").insert({
         client_name: clientName,
         quantity_mp: quantityMp || null,
-        profile_series: profileSeries || null,
+        profile_series: profileSeries.length ? profileSeries.join(", ") : null,
         total_value: totalValue || null,
         advance_value: advanceValue || null,
         remaining_value: remainingValue || null,
@@ -1471,7 +1487,8 @@ function ClientsManagement({ profile }) {
 
       setClientName("");
       setQuantityMp("");
-      setProfileSeries("");
+      setProfileSeries([]);
+      setShowProfileSelect(false);
       setTotalValue("");
       setAdvanceValue("");
       setRemainingValue("");
@@ -1706,12 +1723,43 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
                     placeholder="Cantitate mp"
                   />
-                  <input
-                    value={profileSeries}
-                    onChange={(e) => setProfileSeries(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                    placeholder="Serie profil"
-                  />
+<div className="relative">
+  <button
+    type="button"
+    onClick={() => setShowProfileSelect((prev) => !prev)}
+    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-left text-sm outline-none focus:border-slate-400"
+  >
+    {profileSeries.length > 0
+      ? profileSeries.join(", ")
+      : "Selecteaza serie profil"}
+  </button>
+
+  {showProfileSelect && (
+    <div className="mt-2 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow">
+      {profileOptions.map((profile) => (
+        <label
+          key={profile}
+          className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50"
+        >
+          <input
+            type="checkbox"
+            checked={profileSeries.includes(profile)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setProfileSeries((prev) => [...prev, profile]);
+              } else {
+                setProfileSeries((prev) =>
+                  prev.filter((item) => item !== profile)
+                );
+              }
+            }}
+          />
+          <span className="text-sm text-slate-700">{profile}</span>
+        </label>
+      ))}
+    </div>
+  )}
+</div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
