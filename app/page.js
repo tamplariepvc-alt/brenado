@@ -860,6 +860,10 @@ const canUploadPhotos =
   profile={profile}
   taskStatus={task.status}
 />
+<NotificationsToast
+  notifications={notifications}
+  onClose={removeNotification}
+/>
 
       {isGalleryOpen && galleryImages.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
@@ -911,6 +915,40 @@ const canUploadPhotos =
         </div>
       )}
     </article>
+  );
+}
+
+function NotificationsToast({ notifications, onClose }) {
+  if (!notifications.length) return null;
+
+  return (
+    <div className="fixed right-3 top-3 z-[100] space-y-2">
+      {notifications.map((item) => (
+        <div
+          key={item.id}
+          className="w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-sm font-bold text-slate-900">
+                {item.title}
+              </div>
+              <div className="mt-1 text-sm text-slate-600">
+                {item.message}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onClose(item.id)}
+              className="rounded-full px-2 py-1 text-xs font-semibold text-slate-500"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -1260,26 +1298,80 @@ function TaskComments({ taskId, profile, taskStatus }) {
     setLoadingComments(false);
   }
 
-  useEffect(() => {
-    if (!canShowComments) return;
+useEffect(() => {
+  if (!supabase) return;
 
-    loadComments();
+  loadProfile();
+  loadTasks();
+  loadUsers();
 
-    const channel = supabase
-      .channel(`task-comments-${taskId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "task_comments", filter: `task_id=eq.${taskId}` },
-        () => {
-          loadComments();
+  const timer = setTimeout(() => {
+    setRealtimeReady(true);
+  }, 1200);
+
+  const channel = supabase
+    .channel("taskuri-live")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "tasks" },
+      (payload) => {
+        const eventType = payload.eventType;
+        const newTask = payload.new;
+        const oldTask = payload.old;
+
+        if (realtimeReady && eventType === "INSERT" && newTask?.title) {
+          pushNotification("Sarcina noua", `A fost creata: ${newTask.title}`);
         }
-      )
-      .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [taskId, taskStatus]);
+        if (
+          realtimeReady &&
+          eventType === "UPDATE" &&
+          oldTask?.status !== newTask?.status &&
+          newTask?.title
+        ) {
+          if (newTask.status === "In lucru") {
+            pushNotification(
+              "Sarcina in lucru",
+              `Sarcina "${newTask.title}" a trecut in lucru`
+            );
+          }
+
+          if (newTask.status === "Finalizata") {
+            pushNotification(
+              "Sarcina inchisa",
+              `Sarcina "${newTask.title}" a fost finalizata`
+            );
+          }
+
+          if (
+            oldTask?.status === "Finalizata" &&
+            newTask?.status === "In lucru"
+          ) {
+            pushNotification(
+              "Sarcina redeschisa",
+              `Sarcina "${newTask.title}" a fost redeschisa`
+            );
+          }
+        }
+
+        loadTasks();
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "profiles" },
+      () => {
+        loadUsers();
+        loadProfile();
+      }
+    )
+    .subscribe();
+
+  return () => {
+    clearTimeout(timer);
+    supabase.removeChannel(channel);
+  };
+}, [session?.user?.id, realtimeReady, tasks]);
 
   async function handleSendComment(e) {
     e.preventDefault();
@@ -1364,6 +1456,40 @@ function TaskComments({ taskId, profile, taskStatus }) {
   );
 }
 
+function NotificationsToast({ notifications, onClose }) {
+  if (!notifications.length) return null;
+
+  return (
+    <div className="fixed right-3 top-3 z-[100] space-y-2">
+      {notifications.map((item) => (
+        <div
+          key={item.id}
+          className="w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-sm font-bold text-slate-900">
+                {item.title}
+              </div>
+              <div className="mt-1 text-sm text-slate-600">
+                {item.message}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onClose(item.id)}
+              className="rounded-full px-2 py-1 text-xs font-semibold text-slate-500"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
@@ -1374,6 +1500,42 @@ function Dashboard({ session }) {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [realtimeReady, setRealtimeReady] = useState(false);
+  
+  function pushNotification(title, message) {
+  const id = `${Date.now()}-${Math.random()}`;
+
+  setNotifications((prev) => [
+    { id, title, message },
+    ...prev.slice(0, 4),
+  ]);
+
+  setTimeout(() => {
+    setNotifications((prev) => prev.filter((item) => item.id !== id));
+  }, 5000);
+}
+
+function removeNotification(id) {
+  setNotifications((prev) => prev.filter((item) => item.id !== id));
+}
+  
+  function pushNotification(title, message) {
+  const id = `${Date.now()}-${Math.random()}`;
+
+  setNotifications((prev) => [
+    { id, title, message },
+    ...prev.slice(0, 4),
+  ]);
+
+  setTimeout(() => {
+    setNotifications((prev) => prev.filter((item) => item.id !== id));
+  }, 5000);
+}
+
+function removeNotification(id) {
+  setNotifications((prev) => prev.filter((item) => item.id !== id));
+}
 
   async function loadProfile() {
     if (!supabase || !session?.user?.id) return;
@@ -1580,6 +1742,10 @@ const filteredTasks = tasks.filter((task) => {
 
   return (
     <div className="min-h-screen bg-slate-100 pb-24 text-slate-900">
+	<NotificationsToast
+  notifications={notifications}
+  onClose={removeNotification}
+/>
       <div className="mx-auto max-w-md px-4 pt-4">
         <header className="mb-4 border-b border-slate-200 bg-white p-5">
 <div className="flex items-center justify-between gap-3">
