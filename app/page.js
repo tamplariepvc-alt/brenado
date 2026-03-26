@@ -377,11 +377,7 @@ function TaskForm({ onCreate, creating, users }) {
             </div>
           )}
         </label>
-      <div className="grid grid-cols-1 gap-3">
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Selecteaza data de interventie
-          </span>
+
         <input
           type="date"
           value={deadline}
