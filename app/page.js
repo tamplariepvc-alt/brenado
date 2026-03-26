@@ -2294,7 +2294,7 @@ const filteredTasks = tasks.filter((task) => {
                   activeTab === "adauga" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
-                Adaugă
+                + Adaugă
               </button>
               <button
                 type="button"
