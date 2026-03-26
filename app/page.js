@@ -1409,7 +1409,12 @@ function Dashboard({ session }) {
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [realtimeReady, setRealtimeReady] = useState(false);
+  const realtimeReadyRef = useRef(false);
+  const tasksRef = useRef([]);
+  
+useEffect(() => {
+  tasksRef.current = tasks;
+}, [tasks]);  
   
 function pushNotification(title, message) {
   const id = `${Date.now()}-${Math.random()}`;
@@ -1487,12 +1492,14 @@ function removeNotification(id) {
 useEffect(() => {
   if (!supabase) return;
 
+  realtimeReadyRef.current = false;
+
   loadProfile();
   loadTasks();
   loadUsers();
 
   const timer = setTimeout(() => {
-    setRealtimeReady(true);
+    realtimeReadyRef.current = true;
   }, 1200);
 
   const channel = supabase
@@ -1505,12 +1512,16 @@ useEffect(() => {
         const newTask = payload.new;
         const oldTask = payload.old;
 
-        if (realtimeReady && eventType === "INSERT" && newTask?.title) {
+        if (
+          realtimeReadyRef.current &&
+          eventType === "INSERT" &&
+          newTask?.title
+        ) {
           pushNotification("Sarcina noua", `A fost creata: ${newTask.title}`);
         }
 
         if (
-          realtimeReady &&
+          realtimeReadyRef.current &&
           eventType === "UPDATE" &&
           oldTask?.status !== newTask?.status &&
           newTask?.title
@@ -1555,12 +1566,14 @@ useEffect(() => {
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "task_comments" },
       (payload) => {
-        if (!realtimeReady) return;
+        if (!realtimeReadyRef.current) return;
 
         const newComment = payload.new;
         if (!newComment?.task_id) return;
 
-        const task = tasks.find((item) => item.id === newComment.task_id);
+        const task = tasksRef.current.find(
+          (item) => item.id === newComment.task_id
+        );
 
         pushNotification(
           "Comentariu nou",
@@ -1576,7 +1589,7 @@ useEffect(() => {
     clearTimeout(timer);
     supabase.removeChannel(channel);
   };
-}, [session?.user?.id, realtimeReady, tasks]);
+}, [session?.user?.id]);
 
   async function createTask(payload) {
     if (profile?.role !== "admin") {
