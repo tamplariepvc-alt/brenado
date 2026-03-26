@@ -1519,6 +1519,10 @@ const filteredClients = clients.filter((client) => {
   return matchesFilter && matchesMonth && matchesSearch;
 });
 
+const filteredClientsTotal = filteredClients.reduce((sum, client) => {
+  return sum + Number(client.total_value || 0);
+}, 0);
+
   return (
     <>
       <section className="w-full bg-white">
@@ -1784,6 +1788,24 @@ const filteredClients = clients.filter((client) => {
             )}
           </div>
         )}
+
+<div className="mb-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+  <div className="text-sm text-slate-500">
+    {selectedMonth
+      ? "Valoare totala pentru luna selectata"
+      : clientSearch
+      ? "Valoare totala pentru cautarea curenta"
+      : clientsFilter === "achitate"
+      ? "Valoare totala comenzi achitate"
+      : clientsFilter === "restante"
+      ? "Valoare totala comenzi restante"
+      : "Valoare totala toate comenzile"}
+  </div>
+
+  <div className="mt-1 text-xl font-bold text-slate-900">
+    {formatCurrency(filteredClientsTotal)}
+  </div>
+</div>
 
         {loadingClients ? (
           <div className="text-sm text-slate-500">Se incarca clientii...</div>
