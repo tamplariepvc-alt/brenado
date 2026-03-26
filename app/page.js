@@ -1362,6 +1362,10 @@ function ClientsManagement({ profile }) {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCreateClientForm, setShowCreateClientForm] = useState(false);
   const [clientsFilter, setClientsFilter] = useState("toate");
+  const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [clientSearch, setClientSearch] = useState("");
+  const [showSearchBox, setShowSearchBox] = useState(false);
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
@@ -1374,6 +1378,21 @@ function ClientsManagement({ profile }) {
   const [clientStatus, setClientStatus] = useState("in asteptare");
 
   const isAdmin = profile?.role === "admin";
+  
+  const months = [
+  { value: "01", label: "Ianuarie" },
+  { value: "02", label: "Februarie" },
+  { value: "03", label: "Martie" },
+  { value: "04", label: "Aprilie" },
+  { value: "05", label: "Mai" },
+  { value: "06", label: "Iunie" },
+  { value: "07", label: "Iulie" },
+  { value: "08", label: "August" },
+  { value: "09", label: "Septembrie" },
+  { value: "10", label: "Octombrie" },
+  { value: "11", label: "Noiembrie" },
+  { value: "12", label: "Decembrie" },
+];
 
   const clientStatusStyles = {
     "in asteptare": "bg-blue-50 text-blue-700 border-blue-200",
@@ -1470,22 +1489,35 @@ function ClientsManagement({ profile }) {
     }
   }
 
-  const filteredClients = clients.filter((client) => {
-    if (clientsFilter === "toate") return true;
+const filteredClients = clients.filter((client) => {
+  const total = Number(client.total_value || 0);
+  const remaining = Number(client.remaining_value || 0);
 
-    const total = Number(client.total_value || 0);
-    const remaining = Number(client.remaining_value || 0);
+  let matchesFilter = true;
 
-    if (clientsFilter === "achitate") {
-      return total > 0 && remaining <= 0;
-    }
+  if (clientsFilter === "achitate") {
+    matchesFilter = total > 0 && remaining <= 0;
+  }
 
-    if (clientsFilter === "restante") {
-      return remaining > 0;
-    }
+  if (clientsFilter === "restante") {
+    matchesFilter = remaining > 0;
+  }
 
-    return true;
-  });
+  let matchesMonth = true;
+  if (selectedMonth) {
+    const registrationDate = client.registration_date || "";
+    matchesMonth = registrationDate.slice(5, 7) === selectedMonth;
+  }
+
+  let matchesSearch = true;
+  if (clientSearch.trim()) {
+    matchesSearch = (client.client_name || "")
+      .toLowerCase()
+      .includes(clientSearch.toLowerCase());
+  }
+
+  return matchesFilter && matchesMonth && matchesSearch;
+});
 
   return (
     <>
@@ -1501,43 +1533,145 @@ function ClientsManagement({ profile }) {
           </p>
         </div>
 
-        <div className="mb-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => setClientsFilter("toate")}
-            className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-              clientsFilter === "toate"
-                ? "bg-slate-900 text-white"
-                : "bg-slate-100 text-slate-700"
-            }`}
-          >
-            Toate comenzile
-          </button>
+<div className="mb-4 flex flex-wrap gap-3">
+  <button
+    type="button"
+    onClick={() => {
+      setClientsFilter("toate");
+      setSelectedMonth("");
+    }}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      clientsFilter === "toate" && !selectedMonth
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    Toate comenzile
+  </button>
 
-          <button
-            type="button"
-            onClick={() => setClientsFilter("achitate")}
-            className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-              clientsFilter === "achitate"
-                ? "bg-green-600 text-white"
-                : "bg-green-50 text-green-700"
-            }`}
-          >
-            Achitate
-          </button>
+  <button
+    type="button"
+    onClick={() => setShowMonthFilter((prev) => !prev)}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      selectedMonth
+        ? "bg-blue-600 text-white"
+        : "bg-blue-50 text-blue-700"
+    }`}
+  >
+    Dupa luna
+  </button>
 
-          <button
-            type="button"
-            onClick={() => setClientsFilter("restante")}
-            className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-              clientsFilter === "restante"
-                ? "bg-red-600 text-white"
-                : "bg-red-50 text-red-700"
-            }`}
-          >
-            Restante
-          </button>
-        </div>
+  <button
+    type="button"
+    onClick={() => {
+      setClientsFilter("achitate");
+      setSelectedMonth("");
+    }}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      clientsFilter === "achitate"
+        ? "bg-green-600 text-white"
+        : "bg-green-50 text-green-700"
+    }`}
+  >
+    Achitate
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setClientsFilter("restante");
+      setSelectedMonth("");
+    }}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      clientsFilter === "restante"
+        ? "bg-red-600 text-white"
+        : "bg-red-50 text-red-700"
+    }`}
+  >
+    Restante
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setShowSearchBox((prev) => !prev)}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      clientSearch
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    Cauta
+  </button>
+</div>
+
+{showMonthFilter && (
+  <div className="mb-4 rounded-3xl border border-slate-200 p-4">
+    <div className="mb-3 text-sm font-semibold text-slate-900">
+      Selecteaza luna
+    </div>
+
+    <div className="grid grid-cols-2 gap-3">
+      {months.map((month) => (
+        <button
+          key={month.value}
+          type="button"
+          onClick={() => {
+            setSelectedMonth(month.value);
+            setClientsFilter("toate");
+            setShowMonthFilter(false);
+          }}
+          className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+            selectedMonth === month.value
+              ? "bg-blue-600 text-white"
+              : "bg-blue-50 text-blue-700"
+          }`}
+        >
+          {month.label}
+        </button>
+      ))}
+    </div>
+
+    {selectedMonth && (
+      <div className="mt-3">
+        <button
+          type="button"
+          onClick={() => setSelectedMonth("")}
+          className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
+        >
+          Reseteaza filtrul de luna
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
+{showSearchBox && (
+  <div className="mb-4 rounded-3xl border border-slate-200 p-4">
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-slate-900">
+        Cauta dupa nume client
+      </span>
+      <input
+        value={clientSearch}
+        onChange={(e) => setClientSearch(e.target.value)}
+        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        placeholder="Scrie numele clientului"
+      />
+    </label>
+
+    {clientSearch && (
+      <div className="mt-3">
+        <button
+          type="button"
+          onClick={() => setClientSearch("")}
+          className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
+        >
+          Reseteaza cautarea
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
         {isAdmin && (
           <div className="mb-5">
