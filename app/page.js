@@ -2214,15 +2214,10 @@ onClick={() => {
             Renunta
           </button>
         </div>
-      </form>
-    )}
-  </div>
-</div>
-      )}
+     )}
     </>
   );
-
-function Dashboard({ session }) {
+}
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
   const [users, setUsers] = useState([]);
