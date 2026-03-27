@@ -1366,6 +1366,7 @@ function ClientsManagement({ profile }) {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [clientSearch, setClientSearch] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
+  const [companyFilter, setCompanyFilter] = useState("toate");
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
@@ -1377,6 +1378,7 @@ function ClientsManagement({ profile }) {
   const [registrationDate, setRegistrationDate] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [clientStatus, setClientStatus] = useState("in asteptare");
+  const [businessUnit, setBusinessUnit] = useState("");
   
   const [isEditingClient, setIsEditingClient] = useState(false);
   const [editClientName, setEditClientName] = useState("");
@@ -1391,8 +1393,7 @@ function ClientsManagement({ profile }) {
   const [updatingClient, setUpdatingClient] = useState(false);
   const [deletingClient, setDeletingClient] = useState(false);
   
-  const [businessUnit, setBusinessUnit] = useState("constructii");
-  const [companyFilter, setCompanyFilter] = useState("toate");
+
 
   const isAdmin = profile?.role === "admin";
   
@@ -1512,7 +1513,7 @@ const profileOptions = [
         registration_date: registrationDate || null,
         delivery_date: deliveryDate || null,
         status: clientStatus,
-		business_unit: businessUnit,
+		business_unit: businessUnit || null,
         created_by: user?.id || null,
       });
 
@@ -1528,7 +1529,7 @@ const profileOptions = [
       setRegistrationDate("");
       setDeliveryDate("");
       setClientStatus("in asteptare");
-	  setBusinessUnit("constructii");
+	  setBusinessUnit("");
       setShowCreateClientForm(false);
 
       await loadClients();
@@ -1645,12 +1646,7 @@ const filteredClients = clients.filter((client) => {
       .includes(clientSearch.toLowerCase());
   }
 
-  let matchesCompany = true;
-  if (companyFilter !== "toate") {
-    matchesCompany = client.business_unit === companyFilter;
-  }
-
-  return matchesFilter && matchesMonth && matchesSearch && matchesCompany;
+  return matchesFilter && matchesMonth && matchesSearch;
 });
 
 const filteredClientsTotal = filteredClients.reduce((sum, client) => {
@@ -1740,42 +1736,6 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
   >
     Caută
   </button>
-  <div className="mb-4 flex flex-wrap gap-3">
-  <button
-    type="button"
-    onClick={() => setCompanyFilter("constructii")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      companyFilter === "constructii"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    BRENADO SRL - CONSTRUCTII
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setCompanyFilter("mentenanta")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      companyFilter === "mentenanta"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    BRENADO SRL - MENTENANTA
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setCompanyFilter("toate")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      companyFilter === "toate"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    Toate firmele
-  </button>
 </div>
 
 {showMonthFilter && (
@@ -1862,19 +1822,12 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
                 onSubmit={handleCreateClient}
                 className="mt-4 space-y-3 rounded-3xl border border-slate-200 p-4"
               >
-                <input
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                  placeholder="Nume client"
-                />
-				
-				<div className="space-y-2">
+			  <div className="space-y-2">
   <span className="block text-sm font-medium text-slate-700">
-    Tip companie
+    Tip comanda
   </span>
 
-  <div className="grid grid-cols-2 gap-3">
+  <div className="grid grid-cols-1 gap-3">
     <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
       <input
         type="radio"
@@ -1883,7 +1836,9 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
         checked={businessUnit === "constructii"}
         onChange={(e) => setBusinessUnit(e.target.value)}
       />
-      <span className="text-sm font-medium text-slate-700">CONSTRUCTII</span>
+      <span className="text-sm font-medium text-slate-700">
+        BRENADO SRL - CONSTRUCTII
+      </span>
     </label>
 
     <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
@@ -1894,10 +1849,18 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
         checked={businessUnit === "mentenanta"}
         onChange={(e) => setBusinessUnit(e.target.value)}
       />
-      <span className="text-sm font-medium text-slate-700">MENTENANTA</span>
+      <span className="text-sm font-medium text-slate-700">
+        BRENADO SRL - MENTENANTA
+      </span>
     </label>
   </div>
 </div>
+                <input
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                  placeholder="Nume client"
+                />
 
                 <div className="grid grid-cols-2 gap-3">
                   <input
@@ -2159,14 +2122,7 @@ onClick={() => {
                       <span className="font-semibold">Status:</span>{" "}
                       {selectedClient.status || "-"}
                     </div>
-				  <div>
-  <span className="font-semibold">Companie:</span>{" "}
-  {selectedClient.business_unit === "constructii"
-    ? "BRENADO SRL - CONSTRUCTII"
-    : selectedClient.business_unit === "mentenanta"
-    ? "BRENADO SRL - MENTENANTA"
-    : "-"}
-</div>
+                  </div>
 
                   {isAdmin && (
                     <div className="mt-6 grid grid-cols-2 gap-3">
