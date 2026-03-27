@@ -403,7 +403,7 @@ function TaskForm({ onCreate, creating, users }) {
   );
 }
 
-function TaskCard({ task, onUpdateStatus, onSaveDetails, onDeleteTask, profile }) {
+function TaskCard({ task, onUpdateStatus, onSaveDetails, profile }) {
   const galleryImages = [
     ...(task.photo_url
       ? [{ url: task.photo_url, label: "Poza principala" }]
@@ -531,13 +531,6 @@ async function handleDeleteFinalPhoto(indexToDelete) {
   }
 }
 
-async function handleDeleteTask() {
-  const confirmDelete = window.confirm("Esti sigur ca vrei sa stergi sarcina?");
-  if (!confirmDelete) return;
-
-  await onDeleteTask(task.id);
-}
-
   function removeCompletionFile(indexToRemove) {
     setCompletionFiles((prev) =>
       prev.filter((_, index) => index !== indexToRemove)
@@ -557,31 +550,16 @@ const canUploadPhotos =
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
-<div className="flex items-start justify-between gap-3">
-  <div className="flex-1">
-    <h3 className="text-base font-semibold leading-snug">{task.title}</h3>
-  </div>
-
-  <div className="flex items-center gap-2">
-    <span
-      className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-        statusStyles[task.status] || statusStyles.Noua
-      }`}
-    >
-      {task.status}
-    </span>
-
-    {profile?.role === "admin" && (
-      <button
-        type="button"
-        onClick={handleDeleteTask}
-        className="rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white"
-      >
-        Sterge
-      </button>
-    )}
-  </div>
-</div>
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-base font-semibold leading-snug">{task.title}</h3>
+        <span
+          className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+            statusStyles[task.status] || statusStyles.Noua
+          }`}
+        >
+          {task.status}
+        </span>
+      </div>
 
       <p className="mt-2 text-sm text-slate-600">
         {task.description || "Fara descriere"}
@@ -2600,26 +2578,6 @@ async function saveTaskDetails(taskId, details) {
     );
     return;
   }
-  
-  async function deleteTask(taskId) {
-  if (!supabase) {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    return;
-  }
-
-  const { error } = await supabase
-    .from("tasks")
-    .delete()
-    .eq("id", taskId);
-
-  if (error) {
-    alert(error.message);
-    console.error(error);
-    return;
-  }
-
-  setTasks((prev) => prev.filter((task) => task.id !== taskId));
-}
 
   const { error } = await supabase
     .from("tasks")
@@ -2903,7 +2861,6 @@ const filteredTasks = tasks.filter((task) => {
     task={task}
     onUpdateStatus={updateStatus}
     onSaveDetails={saveTaskDetails}
-    onDeleteTask={deleteTask}
     profile={profile}
   />
 ))}
