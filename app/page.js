@@ -910,6 +910,7 @@ function MontageCalendar({ profile }) {
   const [entries, setEntries] = useState([]);
   const [loadingEntries, setLoadingEntries] = useState(false);
   const [savingEntry, setSavingEntry] = useState(false);
+  const [showCreateMontajForm, setShowCreateMontajForm] = useState(false);
 
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
@@ -993,6 +994,7 @@ function MontageCalendar({ profile }) {
       setPhone("");
       setAddress("");
       setNotes("");
+	  setShowCreateMontajForm(false);
       await loadEntries();
     } catch (error) {
       alert(error.message || "Montajul nu a putut fi salvat.");
@@ -1173,49 +1175,61 @@ return (
           </div>
         )}
 
-        {isAdmin && (
-          <form onSubmit={handleCreateEntry} className="mt-4 space-y-3 border-t border-slate-200 pt-4">
-            <h4 className="text-sm font-semibold text-slate-900">
-              Adauga montaj
-            </h4>
+{isAdmin && (
+  <div className="mt-4 border-t border-slate-200 pt-4">
+    <button
+      type="button"
+      onClick={() => setShowCreateMontajForm((prev) => !prev)}
+      className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+    >
+      {showCreateMontajForm ? "Ascunde formularul" : "Adauga montaj"}
+    </button>
 
-            <input
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-              placeholder="Nume client"
-            />
+    {showCreateMontajForm && (
+      <form onSubmit={handleCreateEntry} className="mt-4 space-y-3">
+        <h4 className="text-sm font-semibold text-slate-900">
+          Adauga montaj
+        </h4>
 
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-              placeholder="Nr telefon"
-            />
+        <input
+          value={clientName}
+          onChange={(e) => setClientName(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Nume client"
+        />
 
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-              placeholder="Adresa"
-            />
+        <input
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Nr telefon"
+        />
 
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="min-h-[90px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-              placeholder="Notite"
-            />
+        <input
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Adresa"
+        />
 
-            <button
-              type="submit"
-              disabled={savingEntry}
-              className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {savingEntry ? "Se salveaza..." : "Salveaza montaj"}
-            </button>
-          </form>
-        )}
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="min-h-[90px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Notite"
+        />
+
+        <button
+          type="submit"
+          disabled={savingEntry}
+          className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {savingEntry ? "Se salveaza..." : "Salveaza montaj"}
+        </button>
+      </form>
+    )}
+  </div>
+)}
       </div>
     </section>
   );
