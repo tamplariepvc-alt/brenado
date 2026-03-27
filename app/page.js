@@ -2139,6 +2139,15 @@ onClick={() => {
                   <h3 className="text-lg font-bold text-slate-900">
                     {selectedClient.client_name}
                   </h3>
+				  
+				  <div>
+  <span className="font-semibold">Tip comanda:</span>{" "}
+  {selectedClient.business_unit === "constructii"
+    ? "BRENADO SRL - CONSTRUCTII"
+    : selectedClient.business_unit === "mentenanta"
+    ? "BRENADO SRL - MENTENANTA"
+    : "-"}
+</div>
 
                   <div className="mt-4 space-y-3 text-sm text-slate-700">
                     <div>
