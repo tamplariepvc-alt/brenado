@@ -2032,54 +2032,49 @@ onClick={() => {
       {showDetailsModal && selectedClient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
-            <button
-              type="button"
-              onClick={() => setShowDetailsModal(false)}
-              className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-2 text-sm font-semibold text-white"
-            >
-              ✕
-            </button>
+  <div className="pr-10">
+    {!isEditingClient ? (
+      <>
+        <h3 className="text-lg font-bold text-slate-900">
+          {selectedClient.client_name}
+        </h3>
 
-            <div className="pr-10">
-              <h3 className="text-lg font-bold text-slate-900">
-                {selectedClient.client_name}
-              </h3>
+        <div className="mt-4 space-y-3 text-sm text-slate-700">
+          <div>
+            <span className="font-semibold">Cantitate mp:</span>{" "}
+            {selectedClient.quantity_mp || "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Serie profil:</span>{" "}
+            {selectedClient.profile_series || "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Valoare totala:</span>{" "}
+            {formatCurrency(selectedClient.total_value)}
+          </div>
+          <div>
+            <span className="font-semibold">Valoare avans:</span>{" "}
+            {formatCurrency(selectedClient.advance_value)}
+          </div>
+          <div>
+            <span className="font-semibold">Rest de plata:</span>{" "}
+            {formatCurrency(selectedClient.remaining_value)}
+          </div>
+          <div>
+            <span className="font-semibold">Data inregistrare:</span>{" "}
+            {formatDate(selectedClient.registration_date)}
+          </div>
+          <div>
+            <span className="font-semibold">Data livrare:</span>{" "}
+            {formatDate(selectedClient.delivery_date)}
+          </div>
+          <div>
+            <span className="font-semibold">Status:</span>{" "}
+            {selectedClient.status || "-"}
+          </div>
+        </div>
 
-              <div className="mt-4 space-y-3 text-sm text-slate-700">
-                <div>
-                  <span className="font-semibold">Cantitate mp:</span>{" "}
-                  {selectedClient.quantity_mp || "-"}
-                </div>
-                <div>
-                  <span className="font-semibold">Serie profil:</span>{" "}
-                  {selectedClient.profile_series || "-"}
-                </div>
-                <div>
-                  <span className="font-semibold">Valoare totala:</span>{" "}
-                  {formatCurrency(selectedClient.total_value)}
-                </div>
-                <div>
-                  <span className="font-semibold">Valoare avans:</span>{" "}
-                  {formatCurrency(selectedClient.advance_value)}
-                </div>
-                <div>
-                  <span className="font-semibold">Rest de plata:</span>{" "}
-                  {formatCurrency(selectedClient.remaining_value)}
-                </div>
-                <div>
-                  <span className="font-semibold">Data inregistrare:</span>{" "}
-                  {formatDate(selectedClient.registration_date)}
-                </div>
-                <div>
-                  <span className="font-semibold">Data livrare:</span>{" "}
-                  {formatDate(selectedClient.delivery_date)}
-                </div>
-                <div>
-                  <span className="font-semibold">Status:</span>{" "}
-                  {selectedClient.status || "-"}
-                </div>
-              </div>
-{isAdmin && (
+        {isAdmin && (
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
