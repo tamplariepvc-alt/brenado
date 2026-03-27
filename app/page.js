@@ -2029,184 +2029,200 @@ onClick={() => {
         )}
       </section>
 
-      {showDetailsModal && selectedClient && (
+{showDetailsModal && selectedClient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
-  <div className="pr-10">
-    {!isEditingClient ? (
-      <>
-        <h3 className="text-lg font-bold text-slate-900">
-          {selectedClient.client_name}
-        </h3>
-
-        <div className="mt-4 space-y-3 text-sm text-slate-700">
-          <div>
-            <span className="font-semibold">Cantitate mp:</span>{" "}
-            {selectedClient.quantity_mp || "-"}
-          </div>
-          <div>
-            <span className="font-semibold">Serie profil:</span>{" "}
-            {selectedClient.profile_series || "-"}
-          </div>
-          <div>
-            <span className="font-semibold">Valoare totala:</span>{" "}
-            {formatCurrency(selectedClient.total_value)}
-          </div>
-          <div>
-            <span className="font-semibold">Valoare avans:</span>{" "}
-            {formatCurrency(selectedClient.advance_value)}
-          </div>
-          <div>
-            <span className="font-semibold">Rest de plata:</span>{" "}
-            {formatCurrency(selectedClient.remaining_value)}
-          </div>
-          <div>
-            <span className="font-semibold">Data inregistrare:</span>{" "}
-            {formatDate(selectedClient.registration_date)}
-          </div>
-          <div>
-            <span className="font-semibold">Data livrare:</span>{" "}
-            {formatDate(selectedClient.delivery_date)}
-          </div>
-          <div>
-            <span className="font-semibold">Status:</span>{" "}
-            {selectedClient.status || "-"}
-          </div>
-        </div>
-
-        {isAdmin && (
-          <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setIsEditingClient(true)}
-              className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
+              onClick={() => {
+                setShowDetailsModal(false);
+                setIsEditingClient(false);
+              }}
+              className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-2 text-sm font-semibold text-white"
             >
-              Editeaza
+              ✕
             </button>
 
-            <button
-              type="button"
-              onClick={handleDeleteClient}
-              disabled={deletingClient}
-              className="rounded-2xl bg-red-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {deletingClient ? "Se sterge..." : "Sterge comanda"}
-            </button>
+            <div className="pr-10">
+              {!isEditingClient ? (
+                <>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {selectedClient.client_name}
+                  </h3>
+
+                  <div className="mt-4 space-y-3 text-sm text-slate-700">
+                    <div>
+                      <span className="font-semibold">Cantitate mp:</span>{" "}
+                      {selectedClient.quantity_mp || "-"}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Serie profil:</span>{" "}
+                      {selectedClient.profile_series || "-"}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Valoare totala:</span>{" "}
+                      {formatCurrency(selectedClient.total_value)}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Valoare avans:</span>{" "}
+                      {formatCurrency(selectedClient.advance_value)}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Rest de plata:</span>{" "}
+                      {formatCurrency(selectedClient.remaining_value)}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Data inregistrare:</span>{" "}
+                      {formatDate(selectedClient.registration_date)}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Data livrare:</span>{" "}
+                      {formatDate(selectedClient.delivery_date)}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Status:</span>{" "}
+                      {selectedClient.status || "-"}
+                    </div>
+                  </div>
+
+                  {isAdmin && (
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingClient(true)}
+                        className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
+                      >
+                        Editeaza
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleDeleteClient}
+                        disabled={deletingClient}
+                        className="rounded-2xl bg-red-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        {deletingClient ? "Se sterge..." : "Sterge comanda"}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <form onSubmit={handleUpdateClient} className="space-y-3">
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Editeaza comanda
+                  </h3>
+
+                  <input
+                    value={editClientName}
+                    onChange={(e) => setEditClientName(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    placeholder="Nume client"
+                  />
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      value={editQuantityMp}
+                      onChange={(e) => setEditQuantityMp(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Cantitate mp"
+                    />
+                    <input
+                      value={editProfileSeries}
+                      onChange={(e) => setEditProfileSeries(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Serie profil"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <input
+                      value={editTotalValue}
+                      onChange={(e) => setEditTotalValue(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Valoare totala"
+                    />
+                    <input
+                      value={editAdvanceValue}
+                      onChange={(e) => setEditAdvanceValue(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                      placeholder="Valoare avans"
+                    />
+                    <input
+                      value={editRemainingValue}
+                      readOnly
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
+                      placeholder="Rest de plata"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="mb-1 block text-sm font-medium text-slate-700">
+                        Data inregistrare
+                      </span>
+                      <input
+                        type="date"
+                        value={editRegistrationDate}
+                        onChange={(e) => setEditRegistrationDate(e.target.value)}
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-sm font-medium text-slate-700">
+                        Data livrare
+                      </span>
+                      <input
+                        type="date"
+                        value={editDeliveryDate}
+                        onChange={(e) => setEditDeliveryDate(e.target.value)}
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                      />
+                    </label>
+                  </div>
+
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-slate-700">
+                      Status
+                    </span>
+                    <select
+                      value={editClientStatus}
+                      onChange={(e) => setEditClientStatus(e.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+                    >
+                      <option value="in asteptare">In asteptare</option>
+                      <option value="in lucru">In lucru</option>
+                      <option value="executat">Executat</option>
+                      <option value="livrat">Livrat</option>
+                    </select>
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={updatingClient}
+                      className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {updatingClient ? "Se salveaza..." : "Salveaza modificarile"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingClient(false)}
+                      className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
+                    >
+                      Renunta
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
-        )}
-      </>
-    ) : (
-      <form onSubmit={handleUpdateClient} className="space-y-3">
-        <h3 className="text-lg font-bold text-slate-900">
-          Editeaza comanda
-        </h3>
-
-        <input
-          value={editClientName}
-          onChange={(e) => setEditClientName(e.target.value)}
-          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-          placeholder="Nume client"
-        />
-
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            value={editQuantityMp}
-            onChange={(e) => setEditQuantityMp(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Cantitate mp"
-          />
-          <input
-            value={editProfileSeries}
-            onChange={(e) => setEditProfileSeries(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Serie profil"
-          />
         </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <input
-            value={editTotalValue}
-            onChange={(e) => setEditTotalValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Valoare totala"
-          />
-          <input
-            value={editAdvanceValue}
-            onChange={(e) => setEditAdvanceValue(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            placeholder="Valoare avans"
-          />
-          <input
-            value={editRemainingValue}
-            readOnly
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
-            placeholder="Rest de plata"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
-              Data inregistrare
-            </span>
-            <input
-              type="date"
-              value={editRegistrationDate}
-              onChange={(e) => setEditRegistrationDate(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
-              Data livrare
-            </span>
-            <input
-              type="date"
-              value={editDeliveryDate}
-              onChange={(e) => setEditDeliveryDate(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-            />
-          </label>
-        </div>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">
-            Status
-          </span>
-          <select
-            value={editClientStatus}
-            onChange={(e) => setEditClientStatus(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-          >
-            <option value="in asteptare">In asteptare</option>
-            <option value="in lucru">In lucru</option>
-            <option value="executat">Executat</option>
-            <option value="livrat">Livrat</option>
-          </select>
-        </label>
-
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={updatingClient}
-            className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {updatingClient ? "Se salveaza..." : "Salveaza modificarile"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsEditingClient(false)}
-            className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
-          >
-            Renunta
-          </button>
-        </div>
-      </form>
-    )}
-  </div>
-</div>
+      )}
+    </>
+  );
+}
 
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
