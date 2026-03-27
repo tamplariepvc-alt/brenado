@@ -1471,6 +1471,8 @@ const profileOptions = [
   "Weiss 40",
   "Weiss 78",
   "Weiss 85",
+  "Sticla",
+  "Alte servicii",
 ];
   
   const months = [
