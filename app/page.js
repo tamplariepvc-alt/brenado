@@ -2218,6 +2218,9 @@ onClick={() => {
     )}
   </div>
 </div>
+      )}
+    </>
+  );
 
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
