@@ -1738,6 +1738,44 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
   </button>
 </div>
 
+<div className="mb-4 flex flex-wrap gap-3">
+  <button
+    type="button"
+    onClick={() => setCompanyFilter("constructii")}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      companyFilter === "constructii"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    BRENADO SRL - CONSTRUCTII
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setCompanyFilter("mentenanta")}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      companyFilter === "mentenanta"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    BRENADO SRL - MENTENANTA
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setCompanyFilter("toate")}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      companyFilter === "toate"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    Toate tipurile
+  </button>
+</div>
+
 {showMonthFilter && (
   <div className="mb-4 rounded-3xl border border-slate-200 p-4">
     <div className="mb-3 text-sm font-semibold text-slate-900">
