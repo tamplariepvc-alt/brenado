@@ -688,7 +688,12 @@ const canUploadPhotos =
         {task.status === "Noua" && (
           <button
             type="button"
-            onClick={() => onUpdateStatus(task.id, "In lucru")}
+            onClick={() => {
+  const confirmAction = window.confirm("Esti sigur ca vrei sa redeschizi sarcina?");
+  if (!confirmAction) return;
+
+  onUpdateStatus(task.id, "In lucru");
+}}
             className="col-span-3 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"
           >
             Trece in lucru
@@ -698,7 +703,12 @@ const canUploadPhotos =
         {task.status === "In lucru" && (
           <button
             type="button"
-            onClick={() => onUpdateStatus(task.id, "Finalizata")}
+            onClick={() => {
+  const confirmAction = window.confirm("Esti sigur ca vrei sa inchizi sarcina?");
+  if (!confirmAction) return;
+
+  onUpdateStatus(task.id, "Finalizata");
+}}
             className="col-span-3 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white"
           >
             Inchide sarcina
