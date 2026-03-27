@@ -2829,7 +2829,7 @@ const filteredTasks = tasks.filter((task) => {
       activeClass = "bg-slate-900 text-white";
       inactiveClass = "bg-slate-100 text-slate-700";
     }
-
+    return (
 <button
   onClick={() => setStatusFilter("Noua")}
   className={`relative rounded-2xl px-5 py-3 text-sm font-semibold ${
@@ -2845,17 +2845,36 @@ const filteredTasks = tasks.filter((task) => {
   </span>
 </button>
 
-    return (
-      <button
-        key={status}
-        type="button"
-        onClick={() => setStatusFilter(status)}
-        className={`whitespace-nowrap rounded-2xl px-4 py-2 text-base font-semibold shadow-sm ${
-          isActive ? activeClass : inactiveClass
-        }`}
-      >
-        {status}
-      </button>
+<button
+  onClick={() => setStatusFilter("In lucru")}
+  className={`relative rounded-2xl px-5 py-3 text-sm font-semibold ${
+    statusFilter === "In lucru"
+      ? "bg-orange-500 text-white"
+      : "bg-orange-50 text-orange-700"
+  }`}
+>
+  In lucru
+
+  <span className="absolute -top-2 -right-2 flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-500 px-1 text-xs font-bold text-white">
+    {formatCount(countInLucru)}
+  </span>
+</button>
+
+<button
+  onClick={() => setStatusFilter("Finalizata")}
+  className={`relative rounded-2xl px-5 py-3 text-sm font-semibold ${
+    statusFilter === "Finalizata"
+      ? "bg-green-600 text-white"
+      : "bg-green-50 text-green-700"
+  }`}
+>
+  Finalizata
+
+  <span className="absolute -top-2 -right-2 flex h-6 min-w-[24px] items-center justify-center rounded-full bg-slate-500 px-1 text-xs font-bold text-white">
+    {formatCount(countFinalizata)}
+  </span>
+</button>
+
     );
   })}
 </div>
