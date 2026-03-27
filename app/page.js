@@ -1377,6 +1377,19 @@ function ClientsManagement({ profile }) {
   const [registrationDate, setRegistrationDate] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [clientStatus, setClientStatus] = useState("in asteptare");
+  
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [editClientName, setEditClientName] = useState("");
+  const [editQuantityMp, setEditQuantityMp] = useState("");
+  const [editProfileSeries, setEditProfileSeries] = useState("");
+  const [editTotalValue, setEditTotalValue] = useState("");
+  const [editAdvanceValue, setEditAdvanceValue] = useState("");
+  const [editRemainingValue, setEditRemainingValue] = useState("");
+  const [editRegistrationDate, setEditRegistrationDate] = useState("");
+  const [editDeliveryDate, setEditDeliveryDate] = useState("");
+  const [editClientStatus, setEditClientStatus] = useState("in asteptare");
+  const [updatingClient, setUpdatingClient] = useState(false);
+  const [deletingClient, setDeletingClient] = useState(false);
 
   const isAdmin = profile?.role === "admin";
   
@@ -1387,6 +1400,14 @@ useEffect(() => {
 
   setRemainingValue(remaining >= 0 ? remaining.toFixed(2) : "0.00");
 }, [totalValue, advanceValue]);
+
+useEffect(() => {
+  const total = Number(String(editTotalValue).replace(",", ".")) || 0;
+  const advance = Number(String(editAdvanceValue).replace(",", ".")) || 0;
+  const remaining = total - advance;
+
+  setEditRemainingValue(remaining >= 0 ? remaining.toFixed(2) : "0.00");
+}, [editTotalValue, editAdvanceValue]);
   
 const profileOptions = [
   "Klass400",
@@ -1513,6 +1534,84 @@ const profileOptions = [
       setSavingClient(false);
     }
   }
+  
+ async function handleUpdateClient(e) {
+  e.preventDefault();
+  if (!selectedClient?.id) return;
+
+  setUpdatingClient(true);
+
+  try {
+    const { error } = await supabase
+      .from("clients_management")
+      .update({
+        client_name: editClientName,
+        quantity_mp: editQuantityMp || null,
+        profile_series: editProfileSeries || null,
+        total_value: editTotalValue || null,
+        advance_value: editAdvanceValue || null,
+        remaining_value: editRemainingValue || null,
+        registration_date: editRegistrationDate || null,
+        delivery_date: editDeliveryDate || null,
+        status: editClientStatus,
+      })
+      .eq("id", selectedClient.id);
+
+    if (error) throw error;
+
+    setSelectedClient((prev) =>
+      prev
+        ? {
+            ...prev,
+            client_name: editClientName,
+            quantity_mp: editQuantityMp || null,
+            profile_series: editProfileSeries || null,
+            total_value: editTotalValue || null,
+            advance_value: editAdvanceValue || null,
+            remaining_value: editRemainingValue || null,
+            registration_date: editRegistrationDate || null,
+            delivery_date: editDeliveryDate || null,
+            status: editClientStatus,
+          }
+        : prev
+    );
+
+    setIsEditingClient(false);
+    await loadClients();
+  } catch (error) {
+    alert(error.message || "Comanda nu a putut fi actualizata.");
+    console.error(error);
+  } finally {
+    setUpdatingClient(false);
+  }
+} 
+
+async function handleDeleteClient() {
+  if (!selectedClient?.id) return;
+
+  const confirmDelete = window.confirm("Sigur vrei sa stergi aceasta comanda?");
+  if (!confirmDelete) return;
+
+  setDeletingClient(true);
+
+  try {
+    const { error } = await supabase
+      .from("clients_management")
+      .delete()
+      .eq("id", selectedClient.id);
+
+    if (error) throw error;
+
+    setShowDetailsModal(false);
+    setSelectedClient(null);
+    await loadClients();
+  } catch (error) {
+    alert(error.message || "Comanda nu a putut fi stearsa.");
+    console.error(error);
+  } finally {
+    setDeletingClient(false);
+  }
+}
 
 const filteredClients = clients.filter((client) => {
   const total = Number(client.total_value || 0);
@@ -1871,10 +1970,21 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
 <button
   key={client.id}
   type="button"
-  onClick={() => {
-    setSelectedClient(client);
-    setShowDetailsModal(true);
-  }}
+onClick={() => {
+  setSelectedClient(client);
+  setShowDetailsModal(true);
+  setIsEditingClient(false);
+
+  setEditClientName(client.client_name || "");
+  setEditQuantityMp(client.quantity_mp || "");
+  setEditProfileSeries(client.profile_series || "");
+  setEditTotalValue(client.total_value || "");
+  setEditAdvanceValue(client.advance_value || "");
+  setEditRemainingValue(client.remaining_value || "");
+  setEditRegistrationDate(client.registration_date || "");
+  setEditDeliveryDate(client.delivery_date || "");
+  setEditClientStatus(client.status || "in asteptare");
+}}
   className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left"
 >
   <div className="font-semibold text-slate-900">
@@ -1921,61 +2031,193 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
 
       {showDetailsModal && selectedClient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
-            <button
-              type="button"
-              onClick={() => setShowDetailsModal(false)}
-              className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-2 text-sm font-semibold text-white"
-            >
-              ✕
-            </button>
+<div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
+  <button
+    type="button"
+    onClick={() => {
+      setShowDetailsModal(false);
+      setIsEditingClient(false);
+    }}
+    className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-2 text-sm font-semibold text-white"
+  >
+    ✕
+  </button>
 
-            <div className="pr-10">
-              <h3 className="text-lg font-bold text-slate-900">
-                {selectedClient.client_name}
-              </h3>
+  <div className="pr-10">
+    {!isEditingClient ? (
+      <>
+        <h3 className="text-lg font-bold text-slate-900">
+          {selectedClient.client_name}
+        </h3>
 
-              <div className="mt-4 space-y-3 text-sm text-slate-700">
-                <div>
-                  <span className="font-semibold">Cantitate mp:</span>{" "}
-                  {selectedClient.quantity_mp || "-"}
-                </div>
-                <div>
-                  <span className="font-semibold">Serie profil:</span>{" "}
-                  {selectedClient.profile_series || "-"}
-                </div>
-                <div>
-                  <span className="font-semibold">Valoare totala:</span>{" "}
-                  {formatCurrency(selectedClient.total_value)}
-                </div>
-                <div>
-                  <span className="font-semibold">Valoare avans:</span>{" "}
-                  {formatCurrency(selectedClient.advance_value)}
-                </div>
-                <div>
-                  <span className="font-semibold">Rest de plata:</span>{" "}
-                  {formatCurrency(selectedClient.remaining_value)}
-                </div>
-                <div>
-                  <span className="font-semibold">Data inregistrare:</span>{" "}
-                  {formatDate(selectedClient.registration_date)}
-                </div>
-                <div>
-                  <span className="font-semibold">Data livrare:</span>{" "}
-                  {formatDate(selectedClient.delivery_date)}
-                </div>
-                <div>
-                  <span className="font-semibold">Status:</span>{" "}
-                  {selectedClient.status || "-"}
-                </div>
-              </div>
-            </div>
+        <div className="mt-4 space-y-3 text-sm text-slate-700">
+          <div>
+            <span className="font-semibold">Cantitate mp:</span>{" "}
+            {selectedClient.quantity_mp || "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Serie profil:</span>{" "}
+            {selectedClient.profile_series || "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Valoare totala:</span>{" "}
+            {formatCurrency(selectedClient.total_value)}
+          </div>
+          <div>
+            <span className="font-semibold">Valoare avans:</span>{" "}
+            {formatCurrency(selectedClient.advance_value)}
+          </div>
+          <div>
+            <span className="font-semibold">Rest de plata:</span>{" "}
+            {formatCurrency(selectedClient.remaining_value)}
+          </div>
+          <div>
+            <span className="font-semibold">Data inregistrare:</span>{" "}
+            {formatDate(selectedClient.registration_date)}
+          </div>
+          <div>
+            <span className="font-semibold">Data livrare:</span>{" "}
+            {formatDate(selectedClient.delivery_date)}
+          </div>
+          <div>
+            <span className="font-semibold">Status:</span>{" "}
+            {selectedClient.status || "-"}
           </div>
         </div>
-      )}
-    </>
-  );
-}
+
+        {isAdmin && (
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setIsEditingClient(true)}
+              className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
+            >
+              Editeaza
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDeleteClient}
+              disabled={deletingClient}
+              className="rounded-2xl bg-red-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {deletingClient ? "Se sterge..." : "Sterge comanda"}
+            </button>
+          </div>
+        )}
+      </>
+    ) : (
+      <form onSubmit={handleUpdateClient} className="space-y-3">
+        <h3 className="text-lg font-bold text-slate-900">
+          Editeaza comanda
+        </h3>
+
+        <input
+          value={editClientName}
+          onChange={(e) => setEditClientName(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          placeholder="Nume client"
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            value={editQuantityMp}
+            onChange={(e) => setEditQuantityMp(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Cantitate mp"
+          />
+          <input
+            value={editProfileSeries}
+            onChange={(e) => setEditProfileSeries(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Serie profil"
+          />
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <input
+            value={editTotalValue}
+            onChange={(e) => setEditTotalValue(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Valoare totala"
+          />
+          <input
+            value={editAdvanceValue}
+            onChange={(e) => setEditAdvanceValue(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            placeholder="Valoare avans"
+          />
+          <input
+            value={editRemainingValue}
+            readOnly
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
+            placeholder="Rest de plata"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">
+              Data inregistrare
+            </span>
+            <input
+              type="date"
+              value={editRegistrationDate}
+              onChange={(e) => setEditRegistrationDate(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-slate-700">
+              Data livrare
+            </span>
+            <input
+              type="date"
+              value={editDeliveryDate}
+              onChange={(e) => setEditDeliveryDate(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            />
+          </label>
+        </div>
+
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-slate-700">
+            Status
+          </span>
+          <select
+            value={editClientStatus}
+            onChange={(e) => setEditClientStatus(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+          >
+            <option value="in asteptare">In asteptare</option>
+            <option value="in lucru">In lucru</option>
+            <option value="executat">Executat</option>
+            <option value="livrat">Livrat</option>
+          </select>
+        </label>
+
+        <div className="grid grid-cols-2 gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={updatingClient}
+            className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {updatingClient ? "Se salveaza..." : "Salveaza modificarile"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsEditingClient(false)}
+            className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
+          >
+            Renunta
+          </button>
+        </div>
+      </form>
+    )}
+  </div>
+</div>
 
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
