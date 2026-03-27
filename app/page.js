@@ -1390,6 +1390,9 @@ function ClientsManagement({ profile }) {
   const [editClientStatus, setEditClientStatus] = useState("in asteptare");
   const [updatingClient, setUpdatingClient] = useState(false);
   const [deletingClient, setDeletingClient] = useState(false);
+  
+  const [businessUnit, setBusinessUnit] = useState("constructii");
+  const [companyFilter, setCompanyFilter] = useState("toate");
 
   const isAdmin = profile?.role === "admin";
   
@@ -1509,6 +1512,7 @@ const profileOptions = [
         registration_date: registrationDate || null,
         delivery_date: deliveryDate || null,
         status: clientStatus,
+		business_unit: businessUnit,
         created_by: user?.id || null,
       });
 
@@ -1524,6 +1528,7 @@ const profileOptions = [
       setRegistrationDate("");
       setDeliveryDate("");
       setClientStatus("in asteptare");
+	  setBusinessUnit("constructii");
       setShowCreateClientForm(false);
 
       await loadClients();
@@ -1640,7 +1645,12 @@ const filteredClients = clients.filter((client) => {
       .includes(clientSearch.toLowerCase());
   }
 
-  return matchesFilter && matchesMonth && matchesSearch;
+  let matchesCompany = true;
+  if (companyFilter !== "toate") {
+    matchesCompany = client.business_unit === companyFilter;
+  }
+
+  return matchesFilter && matchesMonth && matchesSearch && matchesCompany;
 });
 
 const filteredClientsTotal = filteredClients.reduce((sum, client) => {
@@ -1729,6 +1739,42 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
     }`}
   >
     Caută
+  </button>
+  <div className="mb-4 flex flex-wrap gap-3">
+  <button
+    type="button"
+    onClick={() => setCompanyFilter("constructii")}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      companyFilter === "constructii"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    BRENADO SRL - CONSTRUCTII
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setCompanyFilter("mentenanta")}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      companyFilter === "mentenanta"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    BRENADO SRL - MENTENANTA
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setCompanyFilter("toate")}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      companyFilter === "toate"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    Toate firmele
   </button>
 </div>
 
@@ -1822,6 +1868,36 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
                   className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
                   placeholder="Nume client"
                 />
+				
+				<div className="space-y-2">
+  <span className="block text-sm font-medium text-slate-700">
+    Tip companie
+  </span>
+
+  <div className="grid grid-cols-2 gap-3">
+    <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
+      <input
+        type="radio"
+        name="businessUnit"
+        value="constructii"
+        checked={businessUnit === "constructii"}
+        onChange={(e) => setBusinessUnit(e.target.value)}
+      />
+      <span className="text-sm font-medium text-slate-700">CONSTRUCTII</span>
+    </label>
+
+    <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
+      <input
+        type="radio"
+        name="businessUnit"
+        value="mentenanta"
+        checked={businessUnit === "mentenanta"}
+        onChange={(e) => setBusinessUnit(e.target.value)}
+      />
+      <span className="text-sm font-medium text-slate-700">MENTENANTA</span>
+    </label>
+  </div>
+</div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <input
@@ -2083,7 +2159,14 @@ onClick={() => {
                       <span className="font-semibold">Status:</span>{" "}
                       {selectedClient.status || "-"}
                     </div>
-                  </div>
+				  <div>
+  <span className="font-semibold">Companie:</span>{" "}
+  {selectedClient.business_unit === "constructii"
+    ? "BRENADO SRL - CONSTRUCTII"
+    : selectedClient.business_unit === "mentenanta"
+    ? "BRENADO SRL - MENTENANTA"
+    : "-"}
+</div>
 
                   {isAdmin && (
                     <div className="mt-6 grid grid-cols-2 gap-3">
