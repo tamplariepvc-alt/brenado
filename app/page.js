@@ -2694,7 +2694,7 @@ const filteredTasks = tasks.filter((task) => {
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
-              ? "Gestioneaza sarcinile si utilizatorii dintr-un panou curat si usor de folosit."
+              ? "Gestioneaza sarcinile, comenzile si membrii echipei."
               : "Vezi si gestioneaza sarcinile in timp real."}
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
@@ -2741,7 +2741,7 @@ const filteredTasks = tasks.filter((task) => {
                   activeTab === "useri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
-                Utilizatori
+                Membrii
               </button>
             </div>
           </section>
@@ -2773,24 +2773,9 @@ const filteredTasks = tasks.filter((task) => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => updateUserRole(userItem.id, "admin")}
-                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${
-                          userItem.role === "admin" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        Admin
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => updateUserRole(userItem.id, "user")}
-                        className={`rounded-xl px-3 py-2 text-xs font-semibold ${
-                          userItem.role === "user" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        User
-                      </button>
+<div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+  {userItem.role === "admin" ? "Admin" : "User"}
+</div>
                     </div>
                   </div>
                 </div>
