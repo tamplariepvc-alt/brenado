@@ -1646,7 +1646,12 @@ const filteredClients = clients.filter((client) => {
       .includes(clientSearch.toLowerCase());
   }
 
-  return matchesFilter && matchesMonth && matchesSearch;
+  let matchesCompany = true;
+  if (companyFilter !== "toate") {
+    matchesCompany = client.business_unit === companyFilter;
+  }
+
+  return matchesFilter && matchesMonth && matchesSearch && matchesCompany;
 });
 
 const filteredClientsTotal = filteredClients.reduce((sum, client) => {
@@ -2067,6 +2072,14 @@ onClick={() => {
   <div className="font-semibold text-slate-900">
     {client.client_name}
   </div>
+  
+<div className="mt-1 text-xs font-medium text-slate-500">
+  {client.business_unit === "constructii"
+    ? "BRENADO SRL - CONSTRUCTII"
+    : client.business_unit === "mentenanta"
+    ? "BRENADO SRL - MENTENANTA"
+    : "Fara selectie"}
+</div>
 
   <div className="mt-1 text-sm text-slate-500">
     Data inregistrare: {formatDate(client.registration_date)}
