@@ -1367,6 +1367,7 @@ function ClientsManagement({ profile }) {
   const [clientSearch, setClientSearch] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const [companyFilter, setCompanyFilter] = useState("toate");
+  const [showBusinessFilters, setShowBusinessFilters] = useState(false);
 
   const [clientName, setClientName] = useState("");
   const [quantityMp, setQuantityMp] = useState("");
@@ -1646,10 +1647,21 @@ const filteredClients = clients.filter((client) => {
       .includes(clientSearch.toLowerCase());
   }
 
-  let matchesCompany = true;
-  if (companyFilter !== "toate") {
-    matchesCompany = client.business_unit === companyFilter;
-  }
+let matchesCompany = true;
+
+if (companyFilter === "constructii") {
+  matchesCompany = client.business_unit === "constructii";
+}
+
+if (companyFilter === "mentenanta") {
+  matchesCompany = client.business_unit === "mentenanta";
+}
+
+if (companyFilter === "ambele") {
+  matchesCompany =
+    client.business_unit === "constructii" ||
+    client.business_unit === "mentenanta";
+}
 
   return matchesFilter && matchesMonth && matchesSearch && matchesCompany;
 });
@@ -1743,41 +1755,15 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
   </button>
 </div>
 
-<div className="mb-4 flex flex-wrap gap-3">
+<div className="mb-4">
   <button
     type="button"
-    onClick={() => setCompanyFilter("constructii")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      companyFilter === "constructii"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
+    onClick={() => setShowBusinessFilters((prev) => !prev)}
+    className="w-full rounded-2xl bg-slate-100 px-4 py-4 text-sm font-semibold text-slate-900"
   >
-    BRENADO SRL - CONSTRUCTII
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setCompanyFilter("mentenanta")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      companyFilter === "mentenanta"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    BRENADO SRL - MENTENANTA
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setCompanyFilter("toate")}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      companyFilter === "toate"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    Toate tipurile
+    {showBusinessFilters
+      ? "ASCUNDE FILTRE PENTRU BRENADO SRL"
+      : "ARATA FILTRE PENTRU BRENADO SRL"}
   </button>
 </div>
 
