@@ -1685,20 +1685,25 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
         </div>
 
 <div className="mb-4 flex flex-wrap gap-3">
-  <button
-    type="button"
-    onClick={() => {
-      setClientsFilter("toate");
-      setSelectedMonth("");
-    }}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "toate" && !selectedMonth
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    Toate comenzile
-  </button>
+<button
+  type="button"
+  onClick={() => {
+    setClientsFilter("toate");
+    setSelectedMonth("");
+    setCompanyFilter("toate");
+    setClientSearch("");
+  }}
+  className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+    clientsFilter === "toate" &&
+    !selectedMonth &&
+    companyFilter === "toate" &&
+    !clientSearch
+      ? "bg-slate-900 text-white"
+      : "bg-slate-100 text-slate-700"
+  }`}
+>
+  Toate comenzile
+</button>
 
   <button
     type="button"
