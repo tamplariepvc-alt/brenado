@@ -1066,6 +1066,28 @@ function MontageCalendar({ profile }) {
 
     await loadEntries();
   }
+  
+  async function handleCompleteEntry(entryId) {
+  if (!isAdmin) return;
+
+  const confirmComplete = window.confirm(
+    "Esti sigur ca vrei sa finalizezi acest montaj?"
+  );
+  if (!confirmComplete) return;
+
+  const { error } = await supabase
+    .from("montaj_calendar")
+    .update({ is_completed: true })
+    .eq("id", entryId);
+
+  if (error) {
+    alert(error.message);
+    console.error(error);
+    return;
+  }
+
+  await loadEntries();
+}
 
 return (
   <section className="w-full bg-white">
@@ -1150,13 +1172,24 @@ return (
     {date.getDate()}
   </div>
 
-  {dayEntries.length > 0 && (
-    <div className="mt-2 flex justify-center">
-      <div className="rounded-full bg-[#009c5b]/10 px-2 py-1 text-[10px] font-semibold text-[#009c5b]">
-        {dayEntries.length}
-      </div>
-    </div>
-  )}
+{dayEntries.length > 0 && (
+  <div className="mt-2 flex justify-center gap-1">
+    {dayEntries.slice(0, 3).map((entry) => (
+      <span
+        key={entry.id}
+        className={`h-2.5 w-2.5 rounded-full ${
+          entry.is_completed ? "bg-green-500" : "bg-blue-500"
+        }`}
+      />
+    ))}
+
+    {dayEntries.length > 3 && (
+      <span className="text-[10px] font-semibold text-slate-500">
+        +{dayEntries.length - 3}
+      </span>
+    )}
+  </div>
+)}
 </button>
           );
         })}
@@ -1179,6 +1212,18 @@ return (
                 <div className="font-semibold text-slate-900">
                   {entry.client_name}
                 </div>
+				
+				<div className="mt-2">
+  <span
+    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+      entry.is_completed
+        ? "border-green-200 bg-green-50 text-green-700"
+        : "border-blue-200 bg-blue-50 text-blue-700"
+    }`}
+  >
+    {entry.is_completed ? "Finalizat" : "Nefinalizat"}
+  </span>
+</div>
 
                 {entry.phone && (
                   <div className="mt-1 text-sm text-slate-600">
@@ -1198,17 +1243,27 @@ return (
                   </div>
                 )}
 
-                {isAdmin && (
-                  <div className="mt-3">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteEntry(entry.id)}
-                      className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-600"
-                    >
-                      Sterge
-                    </button>
-                  </div>
-                )}
+{isAdmin && (
+  <div className="mt-3 grid grid-cols-2 gap-3">
+    {!entry.is_completed && (
+      <button
+        type="button"
+        onClick={() => handleCompleteEntry(entry.id)}
+        className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white"
+      >
+        Finalizeaza montaj
+      </button>
+    )}
+
+    <button
+      type="button"
+      onClick={() => handleDeleteEntry(entry.id)}
+      className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-600"
+    >
+      Sterge
+    </button>
+  </div>
+)}
               </div>
             ))}
           </div>
