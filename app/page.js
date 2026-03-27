@@ -1379,7 +1379,7 @@ function ClientsManagement({ profile }) {
   const [registrationDate, setRegistrationDate] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [clientStatus, setClientStatus] = useState("in asteptare");
-  const [businessUnit, setBusinessUnit] = useState("");
+  const [businessUnit, setBusinessUnit] = useState("comanda_noua");
   
   const [isEditingClient, setIsEditingClient] = useState(false);
   const [editClientName, setEditClientName] = useState("");
@@ -1530,7 +1530,7 @@ const profileOptions = [
       setRegistrationDate("");
       setDeliveryDate("");
       setClientStatus("in asteptare");
-	  setBusinessUnit("");
+	  setBusinessUnit("comanda_noua");
       setShowCreateClientForm(false);
 
       await loadClients();
@@ -1894,12 +1894,25 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
                 onSubmit={handleCreateClient}
                 className="mt-4 space-y-3 rounded-3xl border border-slate-200 p-4"
               >
-			  <div className="space-y-2">
+<div className="space-y-2">
   <span className="block text-sm font-medium text-slate-700">
     Tip comanda
   </span>
 
   <div className="grid grid-cols-1 gap-3">
+    <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
+      <input
+        type="radio"
+        name="businessUnit"
+        value="comanda_noua"
+        checked={businessUnit === "comanda_noua"}
+        onChange={(e) => setBusinessUnit(e.target.value)}
+      />
+      <span className="text-sm font-medium text-slate-700">
+        COMANDA NOUA
+      </span>
+    </label>
+
     <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
       <input
         type="radio"
@@ -2103,7 +2116,9 @@ onClick={() => {
   </div>
   
 <div className="mt-1 text-xs font-medium text-slate-500">
-  {client.business_unit === "constructii"
+  {client.business_unit === "comanda_noua"
+    ? "COMANDA NOUA"
+    : client.business_unit === "constructii"
     ? "BRENADO SRL - CONSTRUCTII"
     : client.business_unit === "mentenanta"
     ? "BRENADO SRL - MENTENANTA"
@@ -2169,9 +2184,11 @@ onClick={() => {
                     {selectedClient.client_name}
                   </h3>
 				  
-				  <div>
+<div>
   <span className="font-semibold">Tip comanda:</span>{" "}
-  {selectedClient.business_unit === "constructii"
+  {selectedClient.business_unit === "comanda_noua"
+    ? "COMANDA NOUA"
+    : selectedClient.business_unit === "constructii"
     ? "BRENADO SRL - CONSTRUCTII"
     : selectedClient.business_unit === "mentenanta"
     ? "BRENADO SRL - MENTENANTA"
