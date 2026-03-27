@@ -2218,6 +2218,7 @@ onClick={() => {
     </>
   );
 }
+function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
   const [users, setUsers] = useState([]);
