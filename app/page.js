@@ -1717,35 +1717,33 @@ const filteredClientsTotal = filteredClients.reduce((sum, client) => {
     După lună
   </button>
 
-  <button
-    type="button"
-    onClick={() => {
-      setClientsFilter("achitate");
-      setSelectedMonth("");
-    }}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "achitate"
-        ? "bg-green-600 text-white"
-        : "bg-green-50 text-green-700"
-    }`}
-  >
-    Achitate
-  </button>
+<button
+  type="button"
+  onClick={() => {
+    setClientsFilter("achitate");
+  }}
+  className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+    clientsFilter === "achitate"
+      ? "bg-green-600 text-white"
+      : "bg-green-50 text-green-700"
+  }`}
+>
+  Achitate
+</button>
 
-  <button
-    type="button"
-    onClick={() => {
-      setClientsFilter("restante");
-      setSelectedMonth("");
-    }}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      clientsFilter === "restante"
-        ? "bg-red-600 text-white"
-        : "bg-red-50 text-red-700"
-    }`}
-  >
-    Restante
-  </button>
+<button
+  type="button"
+  onClick={() => {
+    setClientsFilter("restante");
+  }}
+  className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+    clientsFilter === "restante"
+      ? "bg-red-600 text-white"
+      : "bg-red-50 text-red-700"
+  }`}
+>
+  Restante
+</button>
 
   <button
     type="button"
