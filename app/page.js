@@ -1255,6 +1255,9 @@ function TaskComments({ taskId, profile, taskStatus }) {
   const [message, setMessage] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
+  const [showAllComments, setShowAllComments] = useState(false);
+  
+  const visibleComments = showAllComments ? comments : comments.slice(-1);
 
   const canShowComments =
     taskStatus === "In lucru" || taskStatus === "Finalizata";
@@ -1340,7 +1343,7 @@ function TaskComments({ taskId, profile, taskStatus }) {
         <div className="text-sm text-slate-500">Se incarca mesajele...</div>
       ) : comments.length > 0 ? (
         <div className="space-y-2">
-          {comments.map((comment) => (
+          {visibleComments.map((comment) => (
             <div
               key={comment.id}
               className="rounded-2xl bg-slate-50 px-3 py-2"
@@ -1362,6 +1365,18 @@ function TaskComments({ taskId, profile, taskStatus }) {
           Nu exista comentarii pentru aceasta sarcina.
         </div>
       )}
+	  
+	  {comments.length > 1 && (
+  <div className="mt-2">
+    <button
+      type="button"
+      onClick={() => setShowAllComments((prev) => !prev)}
+      className="text-sm font-semibold text-[#009c5b]"
+    >
+      {showAllComments ? "Ascunde comentariile" : "Vezi toate comentariile"}
+    </button>
+  </div>
+)}
 
       <form onSubmit={handleSendComment} className="mt-3 space-y-2">
         <textarea
