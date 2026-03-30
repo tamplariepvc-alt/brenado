@@ -2015,7 +2015,7 @@ const filteredClientsCount = filteredClients.length;
             <button
               type="button"
               onClick={() => setShowCreateClientForm((prev) => !prev)}
-              className="w-full rounded-2xl bg-blue px-4 py-4 text-base font-semibold text-white"
+              className="w-full rounded-2xl bg-slate-100 px-4 py-4 text-base font-semibold text-white"
             >
               {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
             </button>
