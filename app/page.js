@@ -2510,9 +2510,26 @@ function WinarhiOffers({ profile }) {
   const [offers, setOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [uploadingOffer, setUploadingOffer] = useState(false);
-  
+  const [offersFilter, setOffersFilter] = useState("toate");
+  const [selectedOfferMonth, setSelectedOfferMonth] = useState("");
+  const [showOfferMonthFilter, setShowOfferMonthFilter] = useState(false);
 
   const isAdmin = profile?.role === "admin";
+  
+  const months = [
+  { value: "01", label: "Ianuarie" },
+  { value: "02", label: "Februarie" },
+  { value: "03", label: "Martie" },
+  { value: "04", label: "Aprilie" },
+  { value: "05", label: "Mai" },
+  { value: "06", label: "Iunie" },
+  { value: "07", label: "Iulie" },
+  { value: "08", label: "August" },
+  { value: "09", label: "Septembrie" },
+  { value: "10", label: "Octombrie" },
+  { value: "11", label: "Noiembrie" },
+  { value: "12", label: "Decembrie" },
+];
 
   async function loadOffers() {
     if (!supabase) return;
@@ -2641,6 +2658,29 @@ async function handleUploadOffer(e) {
       console.error(error);
     }
   }
+
+
+const todayIso = new Date().toISOString().slice(0, 10);
+
+const filteredOffers = offers.filter((offer) => {
+  const createdAt = offer.created_at || "";
+  const createdDate = createdAt.slice(0, 10);
+  const createdMonth = createdAt.slice(5, 7);
+
+  let matchesFilter = true;
+
+  if (offersFilter === "azi") {
+    matchesFilter = createdDate === todayIso;
+  }
+
+  if (offersFilter === "luna") {
+    matchesFilter = selectedOfferMonth
+      ? createdMonth === selectedOfferMonth
+      : true;
+  }
+
+  return matchesFilter;
+});
 
   return (
     <section className="w-full bg-white">
