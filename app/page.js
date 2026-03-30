@@ -3021,15 +3021,14 @@ const filteredTasks = tasks.filter((task) => {
         GESTIUNE COMENZI
       </button>
     )}
-
-{profile?.role === "admin" && (
-  <button
-    type="button"
-    onClick={() => setShowWinarhiOffersModal(true)}
-    className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
-  >
-    OFERTE WINARHI
-  </button>
+    {profile?.role === "admin" && (
+    <button
+      type="button"
+      onClick={() => setShowWinarhiOffersModal(true)}
+      className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
+    >
+      OFERTE WINARHI
+    </button>
   </div>
 
   <div className="mt-6">
