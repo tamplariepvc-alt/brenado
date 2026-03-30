@@ -2806,6 +2806,13 @@ const filteredOffers = offers.filter((offer) => {
         </div>
       )}
 
+<div className="mb-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+  <div className="text-sm text-slate-500">Numar oferte afisate</div>
+  <div className="mt-1 text-xl font-bold text-slate-900">
+    {filteredOffers.length}
+  </div>
+</div>
+
       {loadingOffers ? (
         <div className="text-sm text-slate-500">Se incarca ofertele...</div>
 ) : filteredOffers.length > 0 ? (
