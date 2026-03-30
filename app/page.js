@@ -3033,7 +3033,7 @@ const filteredTasks = tasks.filter((task) => {
   </div>
 
   <div className="mt-6">
-    <h2 className="text-xl font-semibold tracking-tight">
+    <h2 className="text-xl font-semibold tracking-tight">Sarcini in timp real</h2>
     <p className="mt-2 text-sm text-white/80">
       Gestioneaza sarcinile, comenzile si membrii echipei.
     </p>
