@@ -2692,6 +2692,55 @@ const filteredOffers = offers.filter((offer) => {
           Vizualizeaza si incarca PDF-urile exportate din Winarhi.
         </p>
       </div>
+	  
+	  <div className="mb-4 flex flex-col gap-3">
+  <button
+    type="button"
+    onClick={() => {
+      setOffersFilter("toate");
+      setSelectedOfferMonth("");
+      setShowOfferMonthFilter(false);
+    }}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      offersFilter === "toate"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
+    }`}
+  >
+    Toate ofertele
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setOffersFilter("luna");
+      setShowOfferMonthFilter((prev) => !prev);
+    }}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      offersFilter === "luna"
+        ? "bg-blue-600 text-white"
+        : "bg-blue-50 text-blue-700"
+    }`}
+  >
+    Oferte dupa luna
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setOffersFilter("azi");
+      setSelectedOfferMonth("");
+      setShowOfferMonthFilter(false);
+    }}
+    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+      offersFilter === "azi"
+        ? "bg-green-600 text-white"
+        : "bg-green-50 text-green-700"
+    }`}
+  >
+    Oferte create azi
+  </button>
+</div>
 
       {isAdmin && (
         <div className="mb-4">
