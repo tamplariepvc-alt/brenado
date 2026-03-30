@@ -3000,34 +3000,32 @@ const filteredTasks = tasks.filter((task) => {
         <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
 		<section className="mb-4 rounded-3xl bg-[#009c5b] p-0 shadow-sm">
 <button
-  type="button"
-  onClick={() => setShowCalendarModal(true)}
-  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
->
-  CALENDAR MONTAJE
-</button>
+     type="button"
+      onClick={() => setShowCalendarModal(true)}
+      className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
+    >
+      CALENDAR MONTAJE
+    </button>
 
-{profile?.role === "admin" && (
-<div className="mt-3 mb-4">
+    {profile?.role === "admin" && (
+      <button
+        type="button"
+        onClick={() => setShowClientsModal(true)}
+        className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
+      >
+        GESTIUNE COMENZI
+      </button>
+    )}
+
     <button
       type="button"
-      onClick={() => setShowClientsModal(true)}
-      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
+      onClick={() => setShowWinarhiOffersModal(true)}
+      className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
     >
-      GESTIUNE COMENZI
+      OFERTE WINARHI
     </button>
   </div>
-  
-  <div className="mb-4">
-  <button
-    type="button"
-    onClick={() => setShowWinarhiOffersModal(true)}
-    className="w-full rounded-2xl bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
-  >
-    OFERTE WINARHI
-  </button>
 </div>
-  
 )}
 
 </section>
