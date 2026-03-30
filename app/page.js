@@ -3038,19 +3038,19 @@ const filteredTasks = tasks.filter((task) => {
     </p>
 
     <div className="mt-5 grid grid-cols-3 gap-3">
-      <div className="rounded-3xl bg-white/10 p-4 text-center">
+      <div className="rounded-3xl bg-white/10 p-2 text-center">
         <div className="text-3xl font-bold">{tasks.length}</div>
         <div className="mt-2 text-sm text-white/85">Total</div>
       </div>
 
-      <div className="rounded-3xl bg-white/10 p-4 text-center">
+      <div className="rounded-3xl bg-white/10 p-2 text-center">
         <div className="text-3xl font-bold">
           {tasks.filter((t) => t.status === "In lucru").length}
         </div>
         <div className="mt-2 text-sm text-white/85">In lucru</div>
       </div>
 
-      <div className="rounded-3xl bg-white/10 p-4 text-center">
+      <div className="rounded-3xl bg-white/10 p-2 text-center">
         <div className="text-3xl font-bold">
           {tasks.filter((t) => t.status === "Finalizata").length}
         </div>
