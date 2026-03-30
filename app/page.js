@@ -2215,29 +2215,13 @@ const filteredClientsCount = filteredClients.length;
   <div className="mt-1 text-xl font-bold text-slate-900">
     {formatCurrency(filteredClientsTotal)}
   </div>
-</div>
-
-<div className="mb-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-  <div className="text-sm text-slate-500">
-    {selectedMonth
-      ? "Valoare totala pentru luna selectata"
-      : clientSearch
-      ? "Valoare totala pentru cautarea curenta"
-      : clientsFilter === "achitate"
-      ? "Valoare totala comenzi achitate"
-      : clientsFilter === "restante"
-      ? "Valoare totala comenzi restante"
-      : "Valoare totala toate comenzile"}
-  </div>
-
-  <div className="mt-1 text-xl font-bold text-slate-900">
-    {formatCurrency(filteredClientsTotal)}
-  </div>
 
   <div className="mt-2 text-sm font-medium text-slate-600">
     Nr. comenzi: {filteredClientsCount}
   </div>
 </div>
+
+
 
         {loadingClients ? (
           <div className="text-sm text-slate-500">Se incarca clientii...</div>
