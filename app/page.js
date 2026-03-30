@@ -717,7 +717,7 @@ const canUploadPhotos =
           <button
             type="button"
             onClick={() => {
-  const confirmAction = window.confirm("Esti sigur ca vrei sa redeschizi sarcina?");
+  const confirmAction = window.confirm("Esti sigur ca vrei sa treci sarcina in lucru?");
   if (!confirmAction) return;
 
   onUpdateStatus(task.id, "In lucru");
