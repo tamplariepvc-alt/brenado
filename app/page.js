@@ -2716,7 +2716,9 @@ function WinarhiOffers({ profile }) {
           Nu exista oferte Winarhi incarcate.
         </div>
       )}
-    </section>
+  </section>
+  );
+}
 
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
