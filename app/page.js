@@ -819,7 +819,7 @@ onClick={() => {
               type="button"
               onClick={handleUploadCompletionPhotos}
               disabled={uploadingCompletion || completionFiles.length === 0}
-              className="w-full rounded-2xl bg-[#303030] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               {uploadingCompletion
                 ? "Se incarca pozele..."
@@ -1164,7 +1164,7 @@ return (
   onClick={() => setSelectedDate(iso)}
   className={`aspect-square rounded-2xl border p-1 text-center transition ${
     isSelected
-      ? "border-[#303030] bg-green-50 shadow-sm"
+      ? "border-[#009c5b] bg-green-50 shadow-sm"
       : "border-slate-200 bg-white"
   }`}
 >
@@ -1320,7 +1320,7 @@ return (
         <button
           type="submit"
           disabled={savingEntry}
-          className="w-full rounded-2xl bg-[#303030] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+          className="w-full rounded-2xl bg-[#009c5b] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
         >
           {savingEntry ? "Se salveaza..." : "Salveaza montaj"}
         </button>
@@ -1454,7 +1454,7 @@ function TaskComments({ taskId, profile, taskStatus }) {
     <button
       type="button"
       onClick={() => setShowAllComments((prev) => !prev)}
-      className="text-sm font-semibold text-[#303030]"
+      className="text-sm font-semibold text-[#009c5b]"
     >
       {showAllComments ? "Ascunde comentariile" : "Vezi toate comentariile"}
     </button>
@@ -2015,7 +2015,7 @@ const filteredClientsCount = filteredClients.length;
             <button
               type="button"
               onClick={() => setShowCreateClientForm((prev) => !prev)}
-              className="w-full rounded-2xl bg-[#303030] px-4 py-4 text-base font-semibold text-white"
+              className="w-full rounded-2xl bg-[#009c5b] px-4 py-4 text-base font-semibold text-white"
             >
               {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
             </button>
@@ -2782,8 +2782,8 @@ const filteredTasks = tasks.filter((task) => {
 </div>
         </header>
 
-        <section className="mb-4 rounded-[2rem] bg-[#303030] p-4 text-white shadow-sm">
-		<section className="mb-4 rounded-3xl bg-[#303030] p-0 shadow-sm">
+        <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
+		<section className="mb-4 rounded-3xl bg-[#009c5b] p-0 shadow-sm">
 <button
   type="button"
   onClick={() => setShowCalendarModal(true)}
