@@ -3054,6 +3054,7 @@ const filteredTasks = tasks.filter((task) => {
     </div>
   </div>
 </section>
+)}
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
             {profile?.role === "admin"
