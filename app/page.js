@@ -2711,12 +2711,12 @@ function WinarhiOffers({ profile }) {
             </div>
           ))}
         </div>
-      ) : (
+ ) : (
         <div className="text-sm text-slate-500">
           Nu exista oferte Winarhi incarcate.
         </div>
       )}
-  </section>
+    </section>
   );
 }
 
