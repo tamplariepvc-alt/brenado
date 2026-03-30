@@ -2808,9 +2808,9 @@ const filteredOffers = offers.filter((offer) => {
 
       {loadingOffers ? (
         <div className="text-sm text-slate-500">Se incarca ofertele...</div>
-      ) : offers.length > 0 ? (
-        <div className="space-y-3">
-          {offers.map((offer) => (
+) : filteredOffers.length > 0 ? (
+  <div className="space-y-3">
+    {filteredOffers.map((offer) => (
             <div
               key={offer.id}
               className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
@@ -2848,7 +2848,7 @@ const filteredOffers = offers.filter((offer) => {
         </div>
  ) : (
         <div className="text-sm text-slate-500">
-          Nu exista oferte Winarhi incarcate.
+          Nu exista oferte Winarhi pentru filtrul selectat.
         </div>
       )}
     </section>
