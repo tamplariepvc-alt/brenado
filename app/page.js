@@ -2554,18 +2554,25 @@ function WinarhiOffers({ profile }) {
     };
   }, []);
 
-  async function handleUploadOffer(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+async function handleUploadOffer(e) {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
 
-    if (file.type !== "application/pdf") {
-      alert("Se accepta doar fisiere PDF.");
-      return;
-    }
+  const pdfFiles = files.filter((file) => file.type === "application/pdf");
 
-    setUploadingOffer(true);
+  if (!pdfFiles.length) {
+    alert("Se accepta doar fisiere PDF.");
+    return;
+  }
 
-    try {
+  setUploadingOffer(true);
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    for (const file of pdfFiles) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random()
         .toString(36)
@@ -2584,10 +2591,6 @@ function WinarhiOffers({ profile }) {
         .from("winarhi-offers")
         .getPublicUrl(filePath);
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
       const { error: insertError } = await supabase
         .from("winarhi_offers")
         .insert({
@@ -2598,17 +2601,18 @@ function WinarhiOffers({ profile }) {
         });
 
       if (insertError) throw insertError;
-
-      await loadOffers();
-      alert("Oferta a fost incarcata cu succes.");
-    } catch (error) {
-      alert(error.message || "Oferta nu a putut fi incarcata.");
-      console.error(error);
-    } finally {
-      setUploadingOffer(false);
-      e.target.value = "";
     }
+
+    await loadOffers();
+    alert("Ofertele au fost incarcate cu succes.");
+  } catch (error) {
+    alert(error.message || "Ofertele nu au putut fi incarcate.");
+    console.error(error);
+  } finally {
+    setUploadingOffer(false);
+    e.target.value = "";
   }
+}
 
   async function handleDeleteOffer(offer) {
     const confirmDelete = window.confirm(
@@ -2654,13 +2658,14 @@ function WinarhiOffers({ profile }) {
             <span className="mb-2 block text-sm font-medium text-slate-700">
               Incarca oferta PDF
             </span>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={handleUploadOffer}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-              disabled={uploadingOffer}
-            />
+<input
+  type="file"
+  accept="application/pdf"
+  multiple
+  onChange={handleUploadOffer}
+  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+  disabled={uploadingOffer}
+/>
           </label>
 
           {uploadingOffer && (
