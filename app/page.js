@@ -2510,26 +2510,9 @@ function WinarhiOffers({ profile }) {
   const [offers, setOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [uploadingOffer, setUploadingOffer] = useState(false);
-  const [offersFilter, setOffersFilter] = useState("toate");
-  const [selectedOfferMonth, setSelectedOfferMonth] = useState("");
-  const [showOfferMonthFilter, setShowOfferMonthFilter] = useState(false);
+  
 
   const isAdmin = profile?.role === "admin";
-  
-  const months = [
-  { value: "01", label: "Ianuarie" },
-  { value: "02", label: "Februarie" },
-  { value: "03", label: "Martie" },
-  { value: "04", label: "Aprilie" },
-  { value: "05", label: "Mai" },
-  { value: "06", label: "Iunie" },
-  { value: "07", label: "Iulie" },
-  { value: "08", label: "August" },
-  { value: "09", label: "Septembrie" },
-  { value: "10", label: "Octombrie" },
-  { value: "11", label: "Noiembrie" },
-  { value: "12", label: "Decembrie" },
-];
 
   async function loadOffers() {
     if (!supabase) return;
@@ -2659,28 +2642,6 @@ async function handleUploadOffer(e) {
     }
   }
 
-const todayIso = new Date().toISOString().slice(0, 10);
-
-const filteredOffers = offers.filter((offer) => {
-  const createdAt = offer.created_at || "";
-  const createdDate = createdAt.slice(0, 10);
-  const createdMonth = createdAt.slice(5, 7);
-
-  let matchesFilter = true;
-
-  if (offersFilter === "azi") {
-    matchesFilter = createdDate === todayIso;
-  }
-
-  if (offersFilter === "luna") {
-    matchesFilter = selectedOfferMonth
-      ? createdMonth === selectedOfferMonth
-      : true;
-  }
-
-  return matchesFilter;
-});
-
   return (
     <section className="w-full bg-white">
       <div className="mb-4">
@@ -2691,94 +2652,6 @@ const filteredOffers = offers.filter((offer) => {
           Vizualizeaza si incarca PDF-urile exportate din Winarhi.
         </p>
       </div>
-	  
-	  <div className="mb-4 flex flex-col gap-3">
-  <button
-    type="button"
-    onClick={() => {
-      setOffersFilter("toate");
-      setSelectedOfferMonth("");
-      setShowOfferMonthFilter(false);
-    }}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      offersFilter === "toate"
-        ? "bg-slate-900 text-white"
-        : "bg-slate-100 text-slate-700"
-    }`}
-  >
-    Toate ofertele
-  </button>
-
-  <button
-    type="button"
-    onClick={() => {
-      setOffersFilter("luna");
-      setShowOfferMonthFilter((prev) => !prev);
-    }}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      offersFilter === "luna"
-        ? "bg-blue-600 text-white"
-        : "bg-blue-50 text-blue-700"
-    }`}
-  >
-    Oferte dupa luna
-  </button>
-
-  <button
-    type="button"
-    onClick={() => {
-      setOffersFilter("azi");
-      setSelectedOfferMonth("");
-      setShowOfferMonthFilter(false);
-    }}
-    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-      offersFilter === "azi"
-        ? "bg-green-600 text-white"
-        : "bg-green-50 text-green-700"
-    }`}
-  >
-    Oferte create azi
-  </button>
-</div>
-
-{offersFilter === "luna" && showOfferMonthFilter && (
-  <div className="mb-4 rounded-3xl border border-slate-200 p-4">
-    <div className="mb-3 text-sm font-semibold text-slate-900">
-      Selecteaza luna
-    </div>
-
-    <div className="grid grid-cols-2 gap-3">
-      {months.map((month) => (
-        <button
-          key={month.value}
-          type="button"
-          onClick={() => {
-            setSelectedOfferMonth(month.value);
-            setShowOfferMonthFilter(false);
-          }}
-          className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-            selectedOfferMonth === month.value
-              ? "bg-blue-600 text-white"
-              : "bg-blue-50 text-blue-700"
-          }`}
-        >
-          {month.label}
-        </button>
-      ))}
-    </div>
-
-    {selectedOfferMonth && (
-      <div className="mt-3">
-        <button
-          type="button"
-          onClick={() => setSelectedOfferMonth("")}
-          className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
-        >
-          Reseteaza luna
-        </button>
-      </div>
-    )}
-  </div>
 
       {isAdmin && (
         <div className="mb-4">
@@ -2804,18 +2677,11 @@ const filteredOffers = offers.filter((offer) => {
         </div>
       )}
 
-<div className="mb-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-  <div className="text-sm text-slate-500">Numar oferte afisate</div>
-  <div className="mt-1 text-xl font-bold text-slate-900">
-    {filteredOffers.length}
-  </div>
-</div>
-
       {loadingOffers ? (
         <div className="text-sm text-slate-500">Se incarca ofertele...</div>
-) : filteredOffers.length > 0 ? (
-  <div className="space-y-3">
-    {filteredOffers.map((offer) => (
+      ) : offers.length > 0 ? (
+        <div className="space-y-3">
+          {offers.map((offer) => (
             <div
               key={offer.id}
               className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
@@ -2853,7 +2719,7 @@ const filteredOffers = offers.filter((offer) => {
         </div>
  ) : (
         <div className="text-sm text-slate-500">
-          Nu exista oferte Winarhi pentru filtrul selectat.
+          Nu exista oferte Winarhi incarcate.
         </div>
       )}
     </section>
