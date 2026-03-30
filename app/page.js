@@ -3054,28 +3054,6 @@ const filteredTasks = tasks.filter((task) => {
     </div>
   </div>
 </section>
-)}
-          <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
-          <p className="mt-2 text-sm text-slate-300">
-            {profile?.role === "admin"
-              ? "Gestioneaza sarcinile, comenzile si membrii echipei."
-              : "Vezi si gestioneaza sarcinile in timp real."}
-          </p>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-2xl bg-white/10 p-3">
-              <div className="text-lg font-bold">{tasks.length}</div>
-              <div className="text-xs text-slate-300">Total</div>
-            </div>
-            <div className="rounded-2xl bg-white/10 p-3">
-              <div className="text-lg font-bold">{tasks.filter((t) => t.status === "In lucru").length}</div>
-              <div className="text-xs text-slate-300">In lucru</div>
-            </div>
-            <div className="rounded-2xl bg-white/10 p-3">
-              <div className="text-lg font-bold">{tasks.filter((t) => t.status === "Finalizata").length}</div>
-              <div className="text-xs text-slate-300">Finalizate</div>
-            </div>
-          </div>
-        </section>
 
         {profile?.role === "admin" && (
           <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
