@@ -3029,6 +3029,7 @@ const filteredTasks = tasks.filter((task) => {
     >
       OFERTE WINARHI
     </button>
+	    )}
   </div>
 
   <div className="mt-6">
