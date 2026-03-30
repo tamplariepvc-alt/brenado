@@ -3033,29 +3033,29 @@ const filteredTasks = tasks.filter((task) => {
   </div>
 
   <div className="mt-6">
-    <h1 className="text-3xl font-bold">Sarcini in timp real</h1>
-    <p className="mt-3 text-lg text-white/85">
+    <h2 className="text-xl font-semibold tracking-tight">
+    <p className="mt-2 text-sm text-white/80">
       Gestioneaza sarcinile, comenzile si membrii echipei.
     </p>
 
-    <div className="mt-5 grid grid-cols-3 gap-3">
-      <div className="rounded-3xl bg-white/10 p-4 text-center">
-        <div className="text-3xl font-bold">{tasks.length}</div>
-        <div className="mt-2 text-sm text-white/85">Total</div>
+    <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="rounded-2xl bg-white/10 p-3 text-center">
+        <div className="text-xl font-semibold">{tasks.length}</div>
+        <div className="mt-1 text-sm text-white/80">Total</div>
       </div>
 
-      <div className="rounded-3xl bg-white/10 p-4 text-center">
-        <div className="text-3xl font-bold">
+      <div className="rounded-2xl bg-white/10 p-3 text-center">
+        <div className="text-xl font-semibold">
           {tasks.filter((t) => t.status === "In lucru").length}
         </div>
-        <div className="mt-2 text-sm text-white/85">In lucru</div>
+        <div className="mt-1 text-sm text-white/80">In lucru</div>
       </div>
 
-      <div className="rounded-3xl bg-white/10 p-4 text-center">
-        <div className="text-3xl font-bold">
+      <div className="rounded-2xl bg-white/10 p-3 text-center">
+        <div className="text-xl font-semibold">
           {tasks.filter((t) => t.status === "Finalizata").length}
         </div>
-        <div className="mt-2 text-sm text-white/85">Finalizate</div>
+        <div className="mt-1 text-sm text-white/80">Finalizate</div>
       </div>
     </div>
   </div>
