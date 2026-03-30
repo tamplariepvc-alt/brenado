@@ -2782,29 +2782,6 @@ const filteredOffers = offers.filter((offer) => {
   </div>
 )}
 
-      {isAdmin && (
-        <div className="mb-4">
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700">
-              Incarca oferta PDF
-            </span>
-<input
-  type="file"
-  accept="application/pdf"
-  multiple
-  onChange={handleUploadOffer}
-  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-  disabled={uploadingOffer}
-/>
-          </label>
-
-          {uploadingOffer && (
-            <div className="mt-2 text-sm text-slate-500">
-              Se incarca oferta...
-            </div>
-          )}
-        </div>
-      )}
 
 <div className="mb-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
   <div className="text-sm text-slate-500">Numar oferte afisate</div>
