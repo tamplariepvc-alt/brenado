@@ -2718,8 +2718,8 @@ const filteredOffers = offers.filter((offer) => {
     }}
     className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
       offersFilter === "luna"
-        ? "bg-blue-600 text-white"
-        : "bg-blue-50 text-blue-700"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
     }`}
   >
     Oferte dupa luna
@@ -2734,8 +2734,8 @@ const filteredOffers = offers.filter((offer) => {
     }}
     className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
       offersFilter === "azi"
-        ? "bg-green-600 text-white"
-        : "bg-green-50 text-green-700"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
     }`}
   >
     Oferte create azi
@@ -2759,8 +2759,8 @@ const filteredOffers = offers.filter((offer) => {
           }}
           className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
             selectedOfferMonth === month.value
-              ? "bg-blue-600 text-white"
-              : "bg-blue-50 text-blue-700"
+        ? "bg-slate-900 text-white"
+        : "bg-slate-100 text-slate-700"
           }`}
         >
           {month.label}
