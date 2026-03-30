@@ -2742,6 +2742,46 @@ const filteredOffers = offers.filter((offer) => {
   </button>
 </div>
 
+{offersFilter === "luna" && showOfferMonthFilter && (
+  <div className="mb-4 rounded-3xl border border-slate-200 p-4">
+    <div className="mb-3 text-sm font-semibold text-slate-900">
+      Selecteaza luna
+    </div>
+
+    <div className="grid grid-cols-2 gap-3">
+      {months.map((month) => (
+        <button
+          key={month.value}
+          type="button"
+          onClick={() => {
+            setSelectedOfferMonth(month.value);
+            setShowOfferMonthFilter(false);
+          }}
+          className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+            selectedOfferMonth === month.value
+              ? "bg-blue-600 text-white"
+              : "bg-blue-50 text-blue-700"
+          }`}
+        >
+          {month.label}
+        </button>
+      ))}
+    </div>
+
+    {selectedOfferMonth && (
+      <div className="mt-3">
+        <button
+          type="button"
+          onClick={() => setSelectedOfferMonth("")}
+          className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
+        >
+          Reseteaza luna
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
       {isAdmin && (
         <div className="mb-4">
           <label className="block">
