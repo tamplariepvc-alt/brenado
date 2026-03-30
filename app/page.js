@@ -2506,6 +2506,218 @@ onClick={() => {
   );
 }
 
+function WinarhiOffers({ profile }) {
+  const [offers, setOffers] = useState([]);
+  const [loadingOffers, setLoadingOffers] = useState(false);
+  const [uploadingOffer, setUploadingOffer] = useState(false);
+
+  const isAdmin = profile?.role === "admin";
+
+  async function loadOffers() {
+    if (!supabase) return;
+
+    setLoadingOffers(true);
+
+    const { data, error } = await supabase
+      .from("winarhi_offers")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert(error.message);
+    } else {
+      setOffers(data || []);
+    }
+
+    setLoadingOffers(false);
+  }
+
+  useEffect(() => {
+    loadOffers();
+
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel("winarhi-offers-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "winarhi_offers" },
+        () => {
+          loadOffers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  async function handleUploadOffer(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Se accepta doar fisiere PDF.");
+      return;
+    }
+
+    setUploadingOffer(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2)}.${fileExt}`;
+      const filePath = `offers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("winarhi-offers")
+        .upload(filePath, file, {
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicData } = supabase.storage
+        .from("winarhi-offers")
+        .getPublicUrl(filePath);
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { error: insertError } = await supabase
+        .from("winarhi_offers")
+        .insert({
+          file_name: file.name,
+          file_path: filePath,
+          public_url: publicData.publicUrl,
+          uploaded_by: user?.id || null,
+        });
+
+      if (insertError) throw insertError;
+
+      await loadOffers();
+      alert("Oferta a fost incarcata cu succes.");
+    } catch (error) {
+      alert(error.message || "Oferta nu a putut fi incarcata.");
+      console.error(error);
+    } finally {
+      setUploadingOffer(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleDeleteOffer(offer) {
+    const confirmDelete = window.confirm(
+      "Esti sigur ca vrei sa stergi aceasta oferta?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const { error: storageError } = await supabase.storage
+        .from("winarhi-offers")
+        .remove([offer.file_path]);
+
+      if (storageError) throw storageError;
+
+      const { error: dbError } = await supabase
+        .from("winarhi_offers")
+        .delete()
+        .eq("id", offer.id);
+
+      if (dbError) throw dbError;
+
+      await loadOffers();
+    } catch (error) {
+      alert(error.message || "Oferta nu a putut fi stearsa.");
+      console.error(error);
+    }
+  }
+
+  return (
+    <section className="w-full bg-white">
+      <div className="mb-4">
+        <h3 className="text-base font-semibold text-slate-900">
+          Oferte Winarhi
+        </h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Vizualizeaza si incarca PDF-urile exportate din Winarhi.
+        </p>
+      </div>
+
+      {isAdmin && (
+        <div className="mb-4">
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-700">
+              Incarca oferta PDF
+            </span>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleUploadOffer}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              disabled={uploadingOffer}
+            />
+          </label>
+
+          {uploadingOffer && (
+            <div className="mt-2 text-sm text-slate-500">
+              Se incarca oferta...
+            </div>
+          )}
+        </div>
+      )}
+
+      {loadingOffers ? (
+        <div className="text-sm text-slate-500">Se incarca ofertele...</div>
+      ) : offers.length > 0 ? (
+        <div className="space-y-3">
+          {offers.map((offer) => (
+            <div
+              key={offer.id}
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+            >
+              <div className="font-semibold text-slate-900">
+                {offer.file_name}
+              </div>
+
+              <div className="mt-1 text-sm text-slate-500">
+                Incarcata la: {formatDate(offer.created_at)}
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-3">
+                <a
+                  href={offer.public_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
+                >
+                  Deschide PDF
+                </a>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteOffer(offer)}
+                    className="rounded-2xl bg-red-500 px-4 py-3 text-sm font-semibold text-white"
+                  >
+                    Sterge
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-sm text-slate-500">
+          Nu exista oferte Winarhi incarcate.
+        </div>
+      )}
+    </section>
+
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
@@ -2517,6 +2729,7 @@ function Dashboard({ session }) {
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showClientsModal, setShowClientsModal] = useState(false);
+  const [showWinarhiOffersModal, setShowWinarhiOffersModal] = useState(false);
   const countNoua = tasks.filter((t) => t.status === "Noua").length;
   const countInLucru = tasks.filter((t) => t.status === "In lucru").length;
   const countFinalizata = tasks.filter((t) => t.status === "Finalizata").length;
@@ -2802,6 +3015,17 @@ const filteredTasks = tasks.filter((task) => {
       GESTIUNE COMENZI
     </button>
   </div>
+  
+  <div className="mb-4">
+  <button
+    type="button"
+    onClick={() => setShowWinarhiOffersModal(true)}
+    className="w-full rounded-2xl bg-slate-100 px-4 py-4 text-base font-semibold text-slate-900"
+  >
+    OFERTE WINARHI
+  </button>
+</div>
+  
 )}
 
 </section>
@@ -3009,6 +3233,22 @@ const filteredTasks = tasks.filter((task) => {
 
     <div className="mx-auto h-[100vh] w-full max-w-none overflow-y-auto bg-white px-3 pb-4 pt-6">
       <ClientsManagement profile={profile} />
+    </div>
+  </div>
+)}
+
+{showWinarhiOffersModal && (
+  <div className="fixed inset-0 z-50 bg-black/50">
+    <button
+      type="button"
+      onClick={() => setShowWinarhiOffersModal(false)}
+      className="absolute right-3 top-3 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-red-500 text-2xl font-bold text-white shadow-lg"
+    >
+      ×
+    </button>
+
+    <div className="mx-auto h-[100vh] w-full max-w-none overflow-y-auto bg-white px-3 pb-4 pt-6">
+      <WinarhiOffers profile={profile} />
     </div>
   </div>
 )}
