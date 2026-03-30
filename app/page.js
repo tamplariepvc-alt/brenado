@@ -1959,8 +1959,8 @@ const filteredClientsCount = filteredClients.length;
           }}
           className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
             selectedMonth === month.value
-              ? "bg-blue-600 text-white"
-              : "bg-blue-50 text-blue-700"
+          ? "bg-slate-900 text-white"
+          : "bg-slate-100 text-slate-700"
           }`}
         >
           {month.label}
@@ -2015,7 +2015,7 @@ const filteredClientsCount = filteredClients.length;
             <button
               type="button"
               onClick={() => setShowCreateClientForm((prev) => !prev)}
-              className="w-full rounded-2xl bg-slate-500 px-4 py-4 text-base font-semibold text-white"
+              className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
             >
               {showCreateClientForm ? "Ascunde formularul" : "+ Adauga comanda"}
             </button>
