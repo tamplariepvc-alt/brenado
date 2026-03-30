@@ -2997,10 +2997,10 @@ const filteredTasks = tasks.filter((task) => {
 </div>
         </header>
 
-        <section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
-		<section className="mb-4 rounded-3xl bg-[#009c5b] p-0 shadow-sm">
-<button
-     type="button"
+<section className="mb-4 rounded-[2rem] bg-[#009c5b] p-4 text-white shadow-sm">
+  <div className="space-y-3">
+    <button
+      type="button"
       onClick={() => setShowCalendarModal(true)}
       className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
     >
@@ -3025,9 +3025,34 @@ const filteredTasks = tasks.filter((task) => {
       OFERTE WINARHI
     </button>
   </div>
-</div>
-)}
 
+  <div className="mt-6">
+    <h2 className="text-3xl font-bold">Sarcini in timp real</h2>
+    <p className="mt-3 text-lg text-white/85">
+      Gestioneaza sarcinile, comenzile si membrii echipei.
+    </p>
+
+    <div className="mt-5 grid grid-cols-3 gap-3">
+      <div className="rounded-3xl bg-white/10 p-4 text-center">
+        <div className="text-3xl font-bold">{tasks.length}</div>
+        <div className="mt-2 text-sm text-white/85">Total</div>
+      </div>
+
+      <div className="rounded-3xl bg-white/10 p-4 text-center">
+        <div className="text-3xl font-bold">
+          {tasks.filter((t) => t.status === "In lucru").length}
+        </div>
+        <div className="mt-2 text-sm text-white/85">In lucru</div>
+      </div>
+
+      <div className="rounded-3xl bg-white/10 p-4 text-center">
+        <div className="text-3xl font-bold">
+          {tasks.filter((t) => t.status === "Finalizata").length}
+        </div>
+        <div className="mt-2 text-sm text-white/85">Finalizate</div>
+      </div>
+    </div>
+  </div>
 </section>
           <h2 className="text-2xl font-bold">Sarcini in timp real</h2>
           <p className="mt-2 text-sm text-slate-300">
