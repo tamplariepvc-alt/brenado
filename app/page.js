@@ -3478,13 +3478,21 @@ const filteredTasks = tasks.filter((task) => {
   <button
     type="button"
     onClick={() => setShowNotificationsPopup(true)}
-    className="relative flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700"
+    className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700"
   >
     🔔
     {hasUnreadNotifications && (
       <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
     )}
   </button>
+
+  <button
+    onClick={signOut}
+    className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+  >
+    Iesire
+  </button>
+</div>
 
 </div>
         </header>
