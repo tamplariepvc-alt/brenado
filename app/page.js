@@ -3214,7 +3214,7 @@ OFERTE WINARHI
 <button
   type="button"
   onClick={enablePushNotifications}
-  className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+  className="w-full rounded-2xl bg-slate-900 px-2 py-2 text-base font-semibold text-white"
 >
   ACTIVEAZA NOTIFICARI
 </button>
