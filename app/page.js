@@ -1647,6 +1647,12 @@ const profileOptions = [
       });
 
       if (error) throw error;
+	  
+	  await sendAdminPushNotification(
+  "Comanda noua",
+  `A fost creata comanda pentru ${clientName}`,
+  `/`
+);
 
       setClientName("");
       setQuantityMp("");
@@ -1673,6 +1679,12 @@ const profileOptions = [
  async function handleUpdateClient(e) {
   e.preventDefault();
   if (!selectedClient?.id) return;
+  const previousAdvance = Number(selectedClient?.advance_value || 0);
+  const nextAdvance = Number(editAdvanceValue || 0);
+
+  const previousRemaining = Number(selectedClient?.remaining_value || 0);
+  const nextRemaining = Number(editRemainingValue || 0);
+  
 
   setUpdatingClient(true);
 
@@ -1693,6 +1705,22 @@ const profileOptions = [
       .eq("id", selectedClient.id);
 
     if (error) throw error;
+	
+	if (nextAdvance > previousAdvance && nextAdvance > 0) {
+  await sendAdminPushNotification(
+    "Avans incasat",
+    `Comanda ${editClientName} a incasat avans`,
+    `/`
+  );
+}
+
+    if (previousRemaining > 0 && nextRemaining <= 0) {
+  await sendAdminPushNotification(
+    "Comanda achitata",
+    `Comanda ${editClientName} a fost achitata`,
+    `/`
+  );
+}
 
     setSelectedClient((prev) =>
       prev
@@ -2848,6 +2876,24 @@ function urlBase64ToUint8Array(base64String) {
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 }
 
+async function sendAdminPushNotification(title, message, url = "/") {
+  try {
+    await fetch("/api/send-push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        message,
+        url,
+      }),
+    });
+  } catch (error) {
+    console.error("Eroare trimitere push:", error);
+  }
+}
+
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
@@ -3049,6 +3095,7 @@ const { error } = await supabase.from("tasks").insert({
   }
 
   async function updateStatus(taskId, nextStatus) {
+	const currentTask = tasks.find((task) => task.id === taskId);
     if (!supabase) {
       setTasks((prev) =>
         prev.map((task) =>
@@ -3057,6 +3104,14 @@ const { error } = await supabase.from("tasks").insert({
       );
       return;
     }
+
+if (currentTask?.status === "In lucru" && nextStatus === "Finalizata") {
+  await sendAdminPushNotification(
+    "Sarcina finalizata",
+    `Sarcina "${currentTask.title}" a fost finalizata`,
+    `/`
+  );
+}
 
     const { error } = await supabase
       .from("tasks")

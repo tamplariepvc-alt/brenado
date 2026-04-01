@@ -17,9 +17,10 @@ export async function POST(request) {
     const body = await request.json();
     const { title, message, url = "/" } = body;
 
-    const { data: subscriptions, error } = await supabase
-      .from("push_subscriptions")
-      .select("*");
+const { data: subscriptions, error } = await supabase
+  .from("push_subscriptions")
+  .select("*, profiles:user_id(role)")
+  .eq("profiles.role", "admin");
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
@@ -55,9 +56,10 @@ export async function POST(request) {
 }
 export async function GET() {
   try {
-    const { data: subscriptions, error } = await supabase
-      .from("push_subscriptions")
-      .select("*");
+const { data: subscriptions, error } = await supabase
+  .from("push_subscriptions")
+  .select("*, profiles:user_id(role)")
+  .eq("profiles.role", "admin");
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
