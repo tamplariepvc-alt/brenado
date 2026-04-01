@@ -1716,8 +1716,15 @@ await sendAdminPushNotification(
   const previousAdvance = Number(selectedClient?.advance_value || 0);
   const nextAdvance = Number(editAdvanceValue || 0);
 
-  const previousRemaining = Number(selectedClient?.remaining_value || 0);
-  const nextRemaining = Number(editRemainingValue || 0);
+  const previousTotal = Number(selectedClient?.total_value || 0);
+  const nextAdvance = Number(editAdvanceValue || 0);
+
+// notificare ACHITAT doar dacă chiar e platit complet
+if (
+  previousRemaining > 0 &&
+  nextRemaining === 0 &&
+  nextAdvance >= previousTotal
+) {
   
 
   setUpdatingClient(true);
