@@ -3454,36 +3454,34 @@ const filteredTasks = tasks.filter((task) => {
   <div className="flex items-center justify-between">
     
     {/* STANGA - LOGO */}
-    <div className="flex justify-center flex-1">
-      <button
-        onClick={signOut}
-        className="rounded-2xl bg-red-500 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
-      >
-        Iesire
-      </button>
-    </div>
+<div className="flex items-center justify-between">
+  
+  {/* STANGA - IESIRE */}
+  <button
+    onClick={signOut}
+    className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+  >
+    Iesire
+  </button>
 
-    {/* MIJLOC - IESIRE */}
-    <div className="flex-1">
-      <img
-        src="/logo.png"
-        alt="Logo"
-        className="h-14 object-contain"
-      />
-    </div>
+  {/* MIJLOC - LOGO */}
+  <img
+    src="/logo.png"
+    alt="Logo"
+    className="h-10 w-auto object-contain"
+  />
 
-    {/* DREAPTA - CLOPOTEL */}
-    <div className="flex justify-end flex-1">
-      <button
-        type="button"
-        onClick={() => setShowNotificationsPopup(true)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700"
-      >
-        🔔
-        {hasUnreadNotifications && (
-          <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
-        )}
-      </button>
+  {/* DREAPTA - CLOPOTEL */}
+  <button
+    type="button"
+    onClick={() => setShowNotificationsPopup(true)}
+    className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700"
+  >
+    🔔
+    {hasUnreadNotifications && (
+      <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
+    )}
+  </button>
     </div>
 
   </div>
