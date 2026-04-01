@@ -3460,6 +3460,13 @@ const filteredTasks = tasks.filter((task) => {
       alt="Logo"
       className="h-8 w-auto object-contain"
     />
+	
+	  <button
+    onClick={signOut}
+    className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+  >
+    Iesire
+  </button>
 
     <div className="flex flex-col justify-center">
       <p className="text-base font-semibold text-slate-900 leading-tight">
@@ -3484,13 +3491,6 @@ const filteredTasks = tasks.filter((task) => {
     {hasUnreadNotifications && (
       <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
     )}
-  </button>
-
-  <button
-    onClick={signOut}
-    className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
-  >
-    Iesire
   </button>
 </div>
 
