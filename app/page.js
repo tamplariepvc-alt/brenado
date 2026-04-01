@@ -1723,10 +1723,6 @@ if (
   nextAdvance >= previousTotal
 ) {
 
-  const previousRemaining = Number(selectedClient?.remaining_value || 0);
-  const nextRemaining = Number(editRemainingValue || 0);
-  
-
   setUpdatingClient(true);
 
   try {
