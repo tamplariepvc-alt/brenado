@@ -3468,7 +3468,7 @@ const filteredTasks = tasks.filter((task) => {
       <img
         src="/logo.png"
         alt="Logo"
-        className="h-13 w-auto object-contain"
+        className="h-14 object-contain"
       />
     </div>
 
