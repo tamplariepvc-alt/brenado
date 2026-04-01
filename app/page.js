@@ -3451,9 +3451,6 @@ const filteredTasks = tasks.filter((task) => {
       <div className="mx-auto max-w-md px-4 pt-4">
 <header className="mb-4 border-b border-slate-200 bg-white p-5">
   {/* RAND SUS */}
-  <div className="flex items-center justify-between">
-    
-    {/* STANGA - LOGO */}
 <div className="flex items-center justify-between">
   
   {/* STANGA - IESIRE */}
@@ -3482,9 +3479,8 @@ const filteredTasks = tasks.filter((task) => {
       <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
     )}
   </button>
-    </div>
 
-  </div>
+</div>
 
   {/* RAND JOS - NUME + ROL */}
   <div className="mt-4 text-center">
