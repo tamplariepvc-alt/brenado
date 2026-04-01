@@ -2839,6 +2839,16 @@ const filteredOffers = offers.filter((offer) => {
   );
 }
 
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
+
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
@@ -2854,6 +2864,63 @@ function Dashboard({ session }) {
   const countNoua = tasks.filter((t) => t.status === "Noua").length;
   const countInLucru = tasks.filter((t) => t.status === "In lucru").length;
   const countFinalizata = tasks.filter((t) => t.status === "Finalizata").length;
+  
+  useEffect(() => {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then(() => {
+        console.log("Service worker inregistrat.");
+      })
+      .catch((error) => {
+        console.error("Service worker registration failed:", error);
+      });
+  }
+}, []);
+
+async function enablePushNotifications() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    alert("Browserul nu suporta notificari push.");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+
+  if (permission !== "granted") {
+    alert("Permisiunea pentru notificari nu a fost acordata.");
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+    ),
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const subscriptionJson = subscription.toJSON();
+
+  const { error } = await supabase.from("push_subscriptions").upsert({
+    user_id: user.id,
+    endpoint: subscription.endpoint,
+    p256dh: subscriptionJson.keys.p256dh,
+    auth: subscriptionJson.keys.auth,
+  });
+
+  if (error) {
+    console.error(error);
+    alert("Subscription-ul nu a putut fi salvat.");
+    return;
+  }
+
+  alert("Notificarile au fost activate.");
+}
 
   async function loadProfile() {
     if (!supabase || !session?.user?.id) return;
@@ -3141,10 +3208,19 @@ const filteredTasks = tasks.filter((task) => {
       onClick={() => setShowWinarhiOffersModal(true)}
       className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
     >
-      OFERTE WINARHI
+OFERTE WINARHI
+      </button>
+    )}
+
+    <button
+      type="button"
+      onClick={enablePushNotifications}
+      className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+    >
+      ACTIVEAZA NOTIFICARI
     </button>
-	    )}
   </div>
+</section>
 
   <div className="mt-6">
     <h2 className="text-xl font-semibold tracking-tight">Sarcini in timp real</h2>
