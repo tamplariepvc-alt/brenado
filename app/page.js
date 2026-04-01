@@ -3456,7 +3456,7 @@ const filteredTasks = tasks.filter((task) => {
   {/* STANGA - IESIRE */}
   <button
     onClick={signOut}
-    className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+    className="rounded-2xl bg-red-500 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
   >
     Iesire
   </button>
