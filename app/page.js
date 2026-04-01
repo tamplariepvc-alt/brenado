@@ -3462,7 +3462,7 @@ const filteredTasks = tasks.filter((task) => {
         <div className="flex items-center gap-2">
           <button
             onClick={signOut}
-            className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+            className="rounded-2xl bg-red-500 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
           >
             Iesire
           </button>
@@ -3481,7 +3481,7 @@ const filteredTasks = tasks.filter((task) => {
       </div>
 
       <div className="mt-3">
-        <p className="text-xl font-bold leading-tight text-slate-900">
+        <p className="text-xs font-bold leading-tight text-slate-900">
           {(profile?.full_name || "Utilizator") +
             " - " +
             (profile?.role === "admin" ? "Administrator" : "Utilizator")}
