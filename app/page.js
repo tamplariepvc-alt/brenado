@@ -2192,7 +2192,7 @@ const filteredClientsCount = filteredClients.length;
                   disabled={savingClient}
                   className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {savingClient ? "Se salveaza..." : "Salveaza client"}
+                  {savingClient ? "Se salveaza..." : "Salveaza comanda"}
                 </button>
               </form>
             )}
@@ -2427,7 +2427,7 @@ onClick={() => {
                       value={editAdvanceValue}
                       onChange={(e) => setEditAdvanceValue(e.target.value)}
                       className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
-                      placeholder="Valoare avans"
+                      placeholder="Avans"
                     />
                     <input
                       value={editRemainingValue}
@@ -2689,7 +2689,7 @@ const filteredOffers = offers.filter((offer) => {
           Oferte Winarhi
         </h3>
         <p className="mt-1 text-sm text-slate-500">
-          Vizualizeaza si incarca PDF-urile exportate din Winarhi.
+          Vizualizeaza ofertele exportate din Winarhi.
         </p>
       </div>
 	  
