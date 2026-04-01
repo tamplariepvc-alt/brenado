@@ -2912,11 +2912,11 @@ async function enablePushNotifications() {
     auth: subscriptionJson.keys.auth,
   });
 
-  if (error) {
-    console.error(error);
-    alert("Subscription-ul nu a putut fi salvat.");
-    return;
-  }
+if (error) {
+  console.error("Eroare salvare push subscription:", error);
+  alert(error.message || "Subscription-ul nu a putut fi salvat.");
+  return;
+}
 
   alert("Notificarile au fost activate.");
 }
