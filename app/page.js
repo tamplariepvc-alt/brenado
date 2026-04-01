@@ -3063,21 +3063,30 @@ function Dashboard({ session }) {
 
 useEffect(() => {
   if (typeof window === "undefined") return;
+  if (!profile) return;
 
   const params = new URLSearchParams(window.location.search);
   const openSection = params.get("openSection");
   const openClientId = params.get("openClientId");
   const openTaskIdParam = params.get("openTaskId");
 
-if (openSection === "clients" && openClientId) {
-  setShowClientsModal(true);
-  setAutoOpenClientId(Number(openClientId));
-}
+  if (
+    profile?.role === "admin" &&
+    openSection === "clients" &&
+    openClientId
+  ) {
+    setShowClientsModal(true);
+    setAutoOpenClientId(Number(openClientId));
+  }
 
   if (openTaskIdParam) {
     setAutoOpenTaskId(Number(openTaskIdParam));
   }
-}, []);
+
+  if (openClientId || openTaskIdParam || openSection) {
+    window.history.replaceState({}, "", window.location.pathname);
+  }
+}, [profile]);
 
 
 
