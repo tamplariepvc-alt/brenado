@@ -3450,44 +3450,51 @@ const filteredTasks = tasks.filter((task) => {
 )}
       <div className="mx-auto max-w-md px-4 pt-4">
 <header className="mb-4 border-b border-slate-200 bg-white p-5">
-  <div className="flex items-start justify-between gap-3">
-    <div className="flex-1">
-      <div className="flex items-center justify-between gap-3">
-        <img
-          src="/logo.png"
-          alt="Logo"
-          className="h-10 w-auto object-contain"
-        />
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={signOut}
-            className="rounded-2xl bg-red-500 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
-          >
-            Iesire
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowNotificationsPopup(true)}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700"
-          >
-            🔔
-            {hasUnreadNotifications && (
-              <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <p className="text-xs font-bold leading-tight text-slate-900">
-          {(profile?.full_name || "Utilizator") +
-            " " +
-            (profile?.role === "admin" ? "(Administrator)" : "(Utilizator)")}
-        </p>
-      </div>
+  {/* RAND SUS */}
+  <div className="flex items-center justify-between">
+    
+    {/* STANGA - LOGO */}
+    <div className="flex justify-center flex-1">
+      <button
+        onClick={signOut}
+        className="rounded-2xl bg-red-500 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+      >
+        Iesire
+      </button>
     </div>
+
+    {/* MIJLOC - IESIRE */}
+    <div className="flex-1">
+      <img
+        src="/logo.png"
+        alt="Logo"
+        className="h-10 w-auto object-contain"
+      />
+    </div>
+
+    {/* DREAPTA - CLOPOTEL */}
+    <div className="flex justify-end flex-1">
+      <button
+        type="button"
+        onClick={() => setShowNotificationsPopup(true)}
+        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-700"
+      >
+        🔔
+        {hasUnreadNotifications && (
+          <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-red-500" />
+        )}
+      </button>
+    </div>
+
+  </div>
+
+  {/* RAND JOS - NUME + ROL */}
+  <div className="mt-4 text-center">
+    <p className="text-lg font-semibold text-slate-900">
+      {(profile?.full_name || "Utilizator") +
+        " - " +
+        (profile?.role === "admin" ? "Administrator" : "Utilizator")}
+    </p>
   </div>
 </header>
 
