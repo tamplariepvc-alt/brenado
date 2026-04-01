@@ -1710,15 +1710,15 @@ await sendAdminPushNotification(
     }
   }
   
- async function handleUpdateClient(e) {
+async function handleUpdateClient(e) {
   e.preventDefault();
   if (!selectedClient?.id) return;
+
   const previousAdvance = Number(selectedClient?.advance_value || 0);
   const nextAdvance = Number(editAdvanceValue || 0);
 
   const previousRemaining = Number(selectedClient?.remaining_value || 0);
   const nextRemaining = Number(editRemainingValue || 0);
-  
 
   setUpdatingClient(true);
 
@@ -1739,23 +1739,22 @@ await sendAdminPushNotification(
       .eq("id", selectedClient.id);
 
     if (error) throw error;
-	
-	if (nextAdvance > previousAdvance && nextAdvance > 0) {
-if (nextAdvance > previousAdvance && nextAdvance > 0) {
-  await sendAdminPushNotification(
-    "Avans incasat",
-    `Comanda ${editClientName} a incasat avans`,
-    `/?openSection=clients&openClientId=${selectedClient.id}`
-  );
-}
 
-if (previousRemaining > 0 && nextRemaining === 0) {
-  await sendAdminPushNotification(
-    "Comanda achitata",
-    `Comanda ${editClientName} a fost achitata`,
-    `/?openSection=clients&openClientId=${selectedClient.id}`
-  );
-}
+    if (nextAdvance > previousAdvance && nextAdvance > 0) {
+      await sendAdminPushNotification(
+        "Avans incasat",
+        `Comanda ${editClientName} a incasat avans`,
+        `/?openSection=clients&openClientId=${selectedClient.id}`
+      );
+    }
+
+    if (previousRemaining > 0 && nextRemaining === 0) {
+      await sendAdminPushNotification(
+        "Comanda achitata",
+        `Comanda ${editClientName} a fost achitata`,
+        `/?openSection=clients&openClientId=${selectedClient.id}`
+      );
+    }
 
     setSelectedClient((prev) =>
       prev
@@ -1782,7 +1781,7 @@ if (previousRemaining > 0 && nextRemaining === 0) {
   } finally {
     setUpdatingClient(false);
   }
-} 
+}
 
 async function handleDeleteClient() {
   if (!selectedClient?.id) return;
