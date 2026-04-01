@@ -3457,7 +3457,7 @@ const filteredTasks = tasks.filter((task) => {
     <div className="flex justify-center flex-1">
       <button
         onClick={signOut}
-        className="rounded-2xl bg-red-500 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
+        className="rounded-2xl bg-red-500 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 active:scale-95 transition"
       >
         Iesire
       </button>
@@ -3490,7 +3490,7 @@ const filteredTasks = tasks.filter((task) => {
 
   {/* RAND JOS - NUME + ROL */}
   <div className="mt-4 text-center">
-    <p className="text-lg font-semibold text-slate-900">
+    <p className="text-xs font-semibold text-slate-900">
       {(profile?.full_name || "Utilizator") +
         " - " +
         (profile?.role === "admin" ? "Administrator" : "Utilizator")}
