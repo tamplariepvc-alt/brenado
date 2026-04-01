@@ -1480,7 +1480,7 @@ function TaskComments({ taskId, profile, taskStatus }) {
   );
 }
 
-function ClientsManagement({ profile }) {
+function ClientsManagement({ profile, autoOpenClientId }) {
   const [clients, setClients] = useState([]);
   const [loadingClients, setLoadingClients] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
@@ -1531,6 +1531,30 @@ useEffect(() => {
 
   setRemainingValue(remaining >= 0 ? remaining.toFixed(2) : "0.00");
 }, [totalValue, advanceValue]);
+
+useEffect(() => {
+  if (!autoOpenClientId || !clients.length) return;
+
+  const foundClient = clients.find(
+    (client) => Number(client.id) === Number(autoOpenClientId)
+  );
+
+  if (!foundClient) return;
+
+  setSelectedClient(foundClient);
+  setShowDetailsModal(true);
+  setIsEditingClient(false);
+
+  setEditClientName(foundClient.client_name || "");
+  setEditQuantityMp(foundClient.quantity_mp || "");
+  setEditProfileSeries(foundClient.profile_series || "");
+  setEditTotalValue(foundClient.total_value || "");
+  setEditAdvanceValue(foundClient.advance_value || "");
+  setEditRemainingValue(foundClient.remaining_value || "");
+  setEditRegistrationDate(foundClient.registration_date || "");
+  setEditDeliveryDate(foundClient.delivery_date || "");
+  setEditClientStatus(foundClient.status || "in asteptare");
+}, [autoOpenClientId, clients]);
 
 useEffect(() => {
   const total = Number(String(editTotalValue).replace(",", ".")) || 0;
@@ -1648,10 +1672,20 @@ const profileOptions = [
 
       if (error) throw error;
 	  
-	  await sendAdminPushNotification(
+const { data: latestClient } = await supabase
+  .from("clients_management")
+  .select("id")
+  .eq("client_name", clientName)
+  .order("created_at", { ascending: false })
+  .limit(1)
+  .single();
+
+await sendAdminPushNotification(
   "Comanda noua",
   `A fost creata comanda pentru ${clientName}`,
-  `/`
+  latestClient?.id
+    ? `/?openSection=clients&openClientId=${latestClient.id}`
+    : `/`
 );
 
       setClientName("");
@@ -1707,19 +1741,17 @@ const profileOptions = [
     if (error) throw error;
 	
 	if (nextAdvance > previousAdvance && nextAdvance > 0) {
-  await sendAdminPushNotification(
-    "Avans incasat",
-    `Comanda ${editClientName} a incasat avans`,
-    `/`
-  );
-}
+await sendAdminPushNotification(
+  "Avans incasat",
+  `Comanda ${editClientName} a incasat avans`,
+  `/?openSection=clients&openClientId=${selectedClient.id}`
+);
 
-    if (previousRemaining > 0 && nextRemaining <= 0) {
-  await sendAdminPushNotification(
-    "Comanda achitata",
-    `Comanda ${editClientName} a fost achitata`,
-    `/`
-  );
+await sendAdminPushNotification(
+  "Comanda achitata",
+  `Comanda ${editClientName} a fost achitata`,
+  `/?openSection=clients&openClientId=${selectedClient.id}`
+);
 }
 
     setSelectedClient((prev) =>
@@ -2909,6 +2941,8 @@ function Dashboard({ session }) {
   const countNoua = tasks.filter((t) => t.status === "Noua").length;
   const countInLucru = tasks.filter((t) => t.status === "In lucru").length;
   const countFinalizata = tasks.filter((t) => t.status === "Finalizata").length;
+  const [autoOpenTaskId, setAutoOpenTaskId] = useState(null);
+  const [autoOpenClientId, setAutoOpenClientId] = useState(null);
   
   useEffect(() => {
   if ("serviceWorker" in navigator) {
@@ -2922,6 +2956,26 @@ function Dashboard({ session }) {
       });
   }
 }, []);
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  const params = new URLSearchParams(window.location.search);
+  const openSection = params.get("openSection");
+  const openClientId = params.get("openClientId");
+  const openTaskIdParam = params.get("openTaskId");
+
+if (openSection === "clients" && openClientId) {
+  setShowClientsModal(true);
+  setAutoOpenClientId(Number(openClientId));
+}
+
+  if (openTaskIdParam) {
+    setAutoOpenTaskId(Number(openTaskIdParam));
+  }
+}, []);
+
+
 
 async function enablePushNotifications() {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -3106,11 +3160,11 @@ const { error } = await supabase.from("tasks").insert({
     }
 
 if (currentTask?.status === "In lucru" && nextStatus === "Finalizata") {
-  await sendAdminPushNotification(
-    "Sarcina finalizata",
-    `Sarcina "${currentTask.title}" a fost finalizata`,
-    `/`
-  );
+await sendAdminPushNotification(
+  "Sarcina finalizata",
+  `Sarcina "${currentTask.title}" a fost finalizata`,
+  `/?openTaskId=${currentTask.id}`
+);
 }
 
     const { error } = await supabase
@@ -3498,7 +3552,10 @@ OFERTE WINARHI
     </button>
 
     <div className="mx-auto h-[100vh] w-full max-w-none overflow-y-auto bg-white px-3 pb-4 pt-6">
-      <ClientsManagement profile={profile} />
+<ClientsManagement
+  profile={profile}
+  autoOpenClientId={autoOpenClientId}
+/>
     </div>
   </div>
 )}
