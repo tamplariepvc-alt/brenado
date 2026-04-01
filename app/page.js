@@ -3483,8 +3483,8 @@ const filteredTasks = tasks.filter((task) => {
       <div className="mt-3">
         <p className="text-xs font-bold leading-tight text-slate-900">
           {(profile?.full_name || "Utilizator") +
-            " - " +
-            (profile?.role === "admin" ? "Administrator" : "Utilizator")}
+            " " +
+            (profile?.role === "admin" ? "(Administrator)" : "(Utilizator)")}
         </p>
       </div>
     </div>
