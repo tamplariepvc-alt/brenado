@@ -3212,43 +3212,48 @@ OFERTE WINARHI
       </button>
     )}
 
-    <button
-      type="button"
-      onClick={enablePushNotifications}
-      className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
-    >
-      ACTIVEAZA NOTIFICARI
-    </button>
-  </div>
-</section>
+<button
+  type="button"
+  onClick={enablePushNotifications}
+  className="w-full rounded-2xl bg-slate-900 px-4 py-4 text-base font-semibold text-white"
+>
+  ACTIVEAZA NOTIFICARI
+</button>
+</div>
 
-  <div className="mt-6">
-    <h2 className="text-xl font-semibold tracking-tight">Sarcini in timp real</h2>
-    <p className="mt-2 text-sm text-white/80">
-      Gestioneaza sarcinile, comenzile si membrii echipei.
-    </p>
+{/* 🔽 NU mai închizi section aici */}
 
-    <div className="mt-4 grid grid-cols-3 gap-2">
-      <div className="rounded-2xl bg-white/10 p-3 text-center">
-        <div className="text-xl font-semibold">{tasks.length}</div>
-        <div className="mt-1 text-sm text-white/80">Total</div>
+<div className="mt-6">
+  <h2 className="text-xl font-semibold tracking-tight">
+    Sarcini in timp real
+  </h2>
+
+  <p className="mt-2 text-sm text-white/80">
+    Gestioneaza sarcinile, comenzile si membrii echipei.
+  </p>
+
+  <div className="mt-4 grid grid-cols-3 gap-2">
+    <div className="rounded-2xl bg-white/10 p-3 text-center">
+      <div className="text-xl font-semibold">{tasks.length}</div>
+      <div className="mt-1 text-sm text-white/80">Total</div>
+    </div>
+
+    <div className="rounded-2xl bg-white/10 p-3 text-center">
+      <div className="text-xl font-semibold">
+        {tasks.filter((t) => t.status === "In lucru").length}
       </div>
+      <div className="mt-1 text-sm text-white/80">In lucru</div>
+    </div>
 
-      <div className="rounded-2xl bg-white/10 p-3 text-center">
-        <div className="text-xl font-semibold">
-          {tasks.filter((t) => t.status === "In lucru").length}
-        </div>
-        <div className="mt-1 text-sm text-white/80">In lucru</div>
+    <div className="rounded-2xl bg-white/10 p-3 text-center">
+      <div className="text-xl font-semibold">
+        {tasks.filter((t) => t.status === "Finalizata").length}
       </div>
-
-      <div className="rounded-2xl bg-white/10 p-3 text-center">
-        <div className="text-xl font-semibold">
-          {tasks.filter((t) => t.status === "Finalizata").length}
-        </div>
-        <div className="mt-1 text-sm text-white/80">Finalizate</div>
-      </div>
+      <div className="mt-1 text-sm text-white/80">Finalizate</div>
     </div>
   </div>
+</div>
+
 </section>
 
         {profile?.role === "admin" && (
