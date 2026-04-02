@@ -576,7 +576,7 @@ const canUploadPhotos =
       {task.status}
     </span>
 
-    {profile?.role === "admin" && (
+    {profile?.role === "admin" || profile?.role === "manager" && (
       <button
         type="button"
         onClick={handleDeleteTask}
