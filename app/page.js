@@ -1526,7 +1526,7 @@ function ClientsManagement({
   
 
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = profile?.role === "admin" || profile?.role === "manager"
   
 useEffect(() => {
   const total = Number(String(totalValue).replace(",", ".")) || 0;
