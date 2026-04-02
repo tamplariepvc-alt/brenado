@@ -576,7 +576,7 @@ const canUploadPhotos =
       {task.status}
     </span>
 
-    {profile?.role === "admin" || profile?.role === "manager" && (
+    {profile?.role === "admin" && (
       <button
         type="button"
         onClick={handleDeleteTask}
@@ -959,7 +959,7 @@ function MontageCalendar({ profile }) {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "manager"
+  const isAdmin = profile?.role === "admin";
   const calendarDays = getCalendarDays(currentMonth);
 
   async function loadEntries() {
@@ -1526,7 +1526,7 @@ function ClientsManagement({
   
 
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "manager"
+  const isAdmin = profile?.role === "admin";
   
 useEffect(() => {
   const total = Number(String(totalValue).replace(",", ".")) || 0;
@@ -1537,7 +1537,7 @@ useEffect(() => {
 }, [totalValue, advanceValue]);
 
 useEffect(() => {
-  if (profile?.role === "admin" || profile?.role === "manager") return;
+  if (profile?.role !== "admin") return;
   if (!autoOpenClientId || !clients.length) return;
 
   const foundClient = clients.find(
@@ -2583,7 +2583,7 @@ function WinarhiOffers({ profile }) {
   const [selectedOfferMonth, setSelectedOfferMonth] = useState("");
   const [showOfferMonthFilter, setShowOfferMonthFilter] = useState(false);
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
+  const isAdmin = profile?.role === "admin";
   
   const months = [
   { value: "01", label: "Ianuarie" },
@@ -3502,13 +3502,9 @@ const filteredTasks = tasks.filter((task) => {
   {/* RAND JOS - NUME + ROL */}
   <div className="mt-4 text-center">
     <p className="text-xs font-semibold text-slate-900">
-{(profile?.full_name || "Utilizator") +
-    " - " +
-    (profile?.role === "admin"
-      ? "Administrator"
-      : profile?.role === "manager"
-      ? "Manager"
-      : "Utilizator")}
+      {(profile?.full_name || "Utilizator") +
+        " - " +
+        (profile?.role === "admin" ? "(Administrator)" : "(Utilizator)")}
     </p>
   </div>
 </header>
@@ -3523,7 +3519,7 @@ const filteredTasks = tasks.filter((task) => {
       CALENDAR MONTAJE
     </button>
 
-    {profile?.role === "admin" || profile?.role === "manager" && (
+    {profile?.role === "admin" && (
       <button
         type="button"
         onClick={() => {
@@ -3535,7 +3531,7 @@ const filteredTasks = tasks.filter((task) => {
         GESTIUNE COMENZI
       </button>
     )}
-    {profile?.role === "admin" || profile?.role === "manager" && (
+    {profile?.role === "admin" && (
     <button
       type="button"
       onClick={() => setShowWinarhiOffersModal(true)}
@@ -3581,7 +3577,7 @@ OFERTE WINARHI
 
 </section>
 
-        {profile?.role === "admin" || profile?.role === "manager" && (
+        {profile?.role === "admin" && (
           <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3602,15 +3598,56 @@ OFERTE WINARHI
               >
                 + Adaugă
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("useri")}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+                  activeTab === "useri" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                }`}
+              >
+                Membrii
+              </button>
             </div>
           </section>
         )}
 
-        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "adauga" && (
+        {profile?.role === "admin" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
+
+        {profile?.role === "admin" && activeTab === "useri" && (
+          <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
+            <div className="mb-3">
+              <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Vezi rolul fiecarui utilizator înregistrat.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {users.map((userItem) => (
+                <div key={userItem.id} className="rounded-2xl border border-slate-200 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="font-medium text-slate-900">{userItem.full_name || "Fara nume"}</div>
+                      <div className="text-xs uppercase tracking-wide text-slate-500">
+                        Rol curent: {userItem.role === "admin" ? "Admin" : "User"}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+<div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+  {userItem.role === "admin" ? "Admin" : "User"}
+</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {showTaskArea && (
           <>
             <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
