@@ -959,7 +959,8 @@ function MontageCalendar({ profile }) {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const isAdmin = profile?.role === "admin";
+    const isAdminOrManager =
+  profile?.role === "admin" || profile?.role === "manager";
   const calendarDays = getCalendarDays(currentMonth);
 
   async function loadEntries() {
