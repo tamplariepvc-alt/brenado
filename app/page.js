@@ -3667,54 +3667,32 @@ OFERTE WINARHI
                   placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
                 />
               </div>
-{isAdmin ? (
-  <div className="flex justify-center">
-    <button
-      type="button"
-      className="rounded-2xl bg-green-500 px-6 py-3 text-sm font-semibold text-white shadow-sm"
-    >
-      Finalizate
-    </button>
-  </div>
-) : (
-  <div className="grid grid-cols-3 gap-2">
-    <button
-      type="button"
-      onClick={() => setStatusFilter("Noua")}
-      className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-        statusFilter === "Noua"
-          ? "bg-slate-900 text-white"
-          : "bg-slate-100 text-slate-700"
-      }`}
-    >
-      Noua
-    </button>
+<div className="mt-4 flex flex-wrap justify-center gap-3 pb-1">
+ {["Noua", "In lucru", "Finalizata"].map((status) => {
+    const isActive = statusFilter === status;
 
-    <button
-      type="button"
-      onClick={() => setStatusFilter("In lucru")}
-      className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-        statusFilter === "In lucru"
-          ? "bg-slate-900 text-white"
-          : "bg-slate-100 text-slate-700"
-      }`}
-    >
-      In lucru
-    </button>
+    let activeClass = "bg-slate-900 text-white";
+    let inactiveClass = "bg-slate-100 text-slate-700";
 
-    <button
-      type="button"
-      onClick={() => setStatusFilter("Finalizata")}
-      className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-        statusFilter === "Finalizata"
-          ? "bg-green-500 text-white"
-          : "bg-slate-100 text-slate-700"
-      }`}
-    >
-      Finalizate
-    </button>
-  </div>
-)}
+    if (status === "Noua") {
+      activeClass = "bg-blue-600 text-white";
+      inactiveClass = "bg-blue-50 text-blue-700";
+    }
+
+    if (status === "In lucru") {
+      activeClass = "bg-orange-500 text-white";
+      inactiveClass = "bg-orange-50 text-orange-700";
+    }
+
+    if (status === "Finalizata") {
+      activeClass = "bg-green-600 text-white";
+      inactiveClass = "bg-green-50 text-green-700";
+    }
+
+    if (status === "Toate") {
+      activeClass = "bg-slate-900 text-white";
+      inactiveClass = "bg-slate-100 text-slate-700";
+    }
 
     return (
       <button
