@@ -2583,7 +2583,7 @@ function WinarhiOffers({ profile }) {
   const [selectedOfferMonth, setSelectedOfferMonth] = useState("");
   const [showOfferMonthFilter, setShowOfferMonthFilter] = useState(false);
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
   
   const months = [
   { value: "01", label: "Ianuarie" },
