@@ -3535,7 +3535,7 @@ const filteredTasks = tasks.filter((task) => {
         GESTIUNE COMENZI
       </button>
     )}
-    {profile?.role === "admin" && (
+    {profile?.role === "admin" || profile?.role === "manager" && (
     <button
       type="button"
       onClick={() => setShowWinarhiOffersModal(true)}
