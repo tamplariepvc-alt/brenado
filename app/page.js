@@ -1480,7 +1480,11 @@ function TaskComments({ taskId, profile, taskStatus }) {
   );
 }
 
-function ClientsManagement({ profile, autoOpenClientId }) {
+function ClientsManagement({
+  profile,
+  autoOpenClientId,
+  onAutoOpenHandled,
+}) {
   const [clients, setClients] = useState([]);
   const [loadingClients, setLoadingClients] = useState(false);
   const [savingClient, setSavingClient] = useState(false);
@@ -1533,6 +1537,7 @@ useEffect(() => {
 }, [totalValue, advanceValue]);
 
 useEffect(() => {
+  if (profile?.role !== "admin") return;
   if (!autoOpenClientId || !clients.length) return;
 
   const foundClient = clients.find(
@@ -1554,7 +1559,9 @@ useEffect(() => {
   setEditRegistrationDate(foundClient.registration_date || "");
   setEditDeliveryDate(foundClient.delivery_date || "");
   setEditClientStatus(foundClient.status || "in asteptare");
-}, [autoOpenClientId, clients]);
+
+  onAutoOpenHandled?.();
+}, [autoOpenClientId, clients, profile, onAutoOpenHandled]);
 
 useEffect(() => {
   const total = Number(String(editTotalValue).replace(",", ".")) || 0;
@@ -2366,10 +2373,11 @@ onClick={() => {
           <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
             <button
               type="button"
-              onClick={() => {
-                setShowDetailsModal(false);
-                setIsEditingClient(false);
-              }}
+onClick={() => {
+  setShowDetailsModal(false);
+  setIsEditingClient(false);
+  setSelectedClient(null);
+}}
               className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-2 text-sm font-semibold text-white"
             >
               ✕
@@ -3514,7 +3522,10 @@ const filteredTasks = tasks.filter((task) => {
     {profile?.role === "admin" && (
       <button
         type="button"
-        onClick={() => setShowClientsModal(true)}
+        onClick={() => {
+  setAutoOpenClientId(null);
+  setShowClientsModal(true);
+}}
         className="w-full rounded-2xl bg-white px-4 py-4 text-base font-semibold text-slate-900"
       >
         GESTIUNE COMENZI
@@ -3758,6 +3769,7 @@ OFERTE WINARHI
 <ClientsManagement
   profile={profile}
   autoOpenClientId={autoOpenClientId}
+  onAutoOpenHandled={() => setAutoOpenClientId(null)}
 />
     </div>
   </div>
