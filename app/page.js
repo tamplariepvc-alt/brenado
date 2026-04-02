@@ -427,6 +427,7 @@ function TaskCard({
   const [notes, setNotes] = useState(task.notes || "");
   const [photoUrl, setPhotoUrl] = useState(task.photo_url || "");
   const [saving, setSaving] = useState(false);
+  const isManager = profile?.role === "manager";
 
   const [newPhotoFile, setNewPhotoFile] = useState(null);
   const [newPhotoName, setNewPhotoName] = useState("");
@@ -769,20 +770,20 @@ const canUploadPhotos =
           </button>
         )}
 
-        {task.status === "Finalizata" && (
-          <button
-            type="button"
-onClick={() => {
-  const confirmAction = window.confirm("Esti sigur ca vrei sa redeschizi sarcina?");
-  if (!confirmAction) return;
+ {task.status === "Finalizata" && isManager && (
+  <button
+    type="button"
+    onClick={() => {
+      const confirmAction = window.confirm("Esti sigur ca vrei sa redeschizi sarcina?");
+      if (!confirmAction) return;
 
-  onUpdateStatus(task.id, "In lucru");
-}}
-            className="col-span-3 rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
-          >
-            Redeschide sarcina
-          </button>
-        )}
+      onUpdateStatus(task.id, "In lucru");
+    }}
+    className="col-span-3 rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white"
+  >
+    Redeschide sarcina
+  </button>
+)}
       </div>
 
 {task.status === "In lucru" && canUploadPhotos && (
