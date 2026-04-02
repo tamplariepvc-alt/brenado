@@ -3615,13 +3615,13 @@ OFERTE WINARHI
           </section>
         )}
 
-        {profile?.role === "manager" && activeTab === "adauga" && (
+        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
 
-        {profile?.role === "manager" && activeTab === "useri" && (
+        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
@@ -3637,12 +3637,12 @@ OFERTE WINARHI
                     <div>
                       <div className="font-medium text-slate-900">{userItem.full_name || "Fara nume"}</div>
                       <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Rol curent: {userItem.role === "manager" ? "Admin" : "User"}
+                        Rol curent: {userItem.role === "admin" ? "Admin" : "Manager " : "User"}
                       </div>
                     </div>
                     <div className="flex gap-2">
 <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
-  {userItem.role === "manager" ? "Admin" : "User"}
+  {userItem.role === "admin" ? "Admin" : "Manager" : "User"}
 </div>
                     </div>
                   </div>
