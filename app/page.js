@@ -576,7 +576,7 @@ const canUploadPhotos =
       {task.status}
     </span>
 
-    {profile?.role === "admin" || profile?.role === "manager" && (
+    profile?.role === "admin" || profile?.role === "manager" && (
       <button
         type="button"
         onClick={handleDeleteTask}
@@ -3504,15 +3504,7 @@ const filteredTasks = tasks.filter((task) => {
     <p className="text-xs font-semibold text-slate-900">
       {(profile?.full_name || "Utilizator") +
         " - " +
-<p className="text-lg font-semibold text-slate-900">
-  {(profile?.full_name || "Utilizator") +
-    " - " +
-    (profile?.role === "admin"
-      ? "Administrator"
-      : profile?.role === "manager"
-      ? "Manager"
-      : "Utilizator")}
-</p>
+        (profile?.role === "admin" || profile?.role === "manager" ? "(Administrator)" : "(Manager)" : "(Utilizator)")}
     </p>
   </div>
 </header>
