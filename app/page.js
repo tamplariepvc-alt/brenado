@@ -3671,7 +3671,7 @@ OFERTE WINARHI
   <div className="mt-4 flex justify-center pb-1">
     <button
       type="button"
-      className="rounded-2xl bg-green-600 px-14 py-2 text-base font-semibold text-white shadow-sm"
+      className="rounded-2xl bg-green-600 px-20 py-2 text-base font-semibold text-white shadow-sm"
     >
       Finalizate
     </button>
