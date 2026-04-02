@@ -3458,7 +3458,7 @@ const filteredTasks = tasks.filter((task) => {
   return matchesStatus && matchesSearch;
 });
 
-  const showTaskArea = !(profile?.role === "admin" && activeTab === "useri");
+  const showTaskArea = activeTab !== "useri";
   
   const hasUnreadNotifications = notifications.some((item) => !item.is_read);
 
@@ -3618,13 +3618,13 @@ OFERTE WINARHI
           </section>
         )}
 
-        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "adauga" && (
+        {isManager && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
 
-        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "useri" && (
+        {isManager && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
@@ -3667,47 +3667,53 @@ OFERTE WINARHI
                   placeholder="Cauta dupa lucrare, descriere, responsabil sau notite"
                 />
               </div>
-<div className="mt-4 flex flex-wrap justify-center gap-3 pb-1">
- {["Noua", "In lucru", "Finalizata"].map((status) => {
-    const isActive = statusFilter === status;
+{isAdmin ? (
+  <div className="mt-4 flex justify-center pb-1">
+    <button
+      type="button"
+      className="rounded-2xl bg-green-600 px-6 py-2 text-base font-semibold text-white shadow-sm"
+    >
+      Finalizate
+    </button>
+  </div>
+) : (
+  <div className="mt-4 flex flex-wrap justify-center gap-3 pb-1">
+    {["Noua", "In lucru", "Finalizata"].map((status) => {
+      const isActive = statusFilter === status;
 
-    let activeClass = "bg-slate-900 text-white";
-    let inactiveClass = "bg-slate-100 text-slate-700";
+      let activeClass = "bg-slate-900 text-white";
+      let inactiveClass = "bg-slate-100 text-slate-700";
 
-    if (status === "Noua") {
-      activeClass = "bg-blue-600 text-white";
-      inactiveClass = "bg-blue-50 text-blue-700";
-    }
+      if (status === "Noua") {
+        activeClass = "bg-blue-600 text-white";
+        inactiveClass = "bg-blue-50 text-blue-700";
+      }
 
-    if (status === "In lucru") {
-      activeClass = "bg-orange-500 text-white";
-      inactiveClass = "bg-orange-50 text-orange-700";
-    }
+      if (status === "In lucru") {
+        activeClass = "bg-orange-500 text-white";
+        inactiveClass = "bg-orange-50 text-orange-700";
+      }
 
-    if (status === "Finalizata") {
-      activeClass = "bg-green-600 text-white";
-      inactiveClass = "bg-green-50 text-green-700";
-    }
+      if (status === "Finalizata") {
+        activeClass = "bg-green-600 text-white";
+        inactiveClass = "bg-green-50 text-green-700";
+      }
 
-    if (status === "Toate") {
-      activeClass = "bg-slate-900 text-white";
-      inactiveClass = "bg-slate-100 text-slate-700";
-    }
-
-    return (
-      <button
-        key={status}
-        type="button"
-        onClick={() => setStatusFilter(status)}
-        className={`whitespace-nowrap rounded-2xl px-4 py-2 text-base font-semibold shadow-sm ${
-          isActive ? activeClass : inactiveClass
-        }`}
-      >
-        {status}
-      </button>
-    );
-  })}
-</div>
+      return (
+        <button
+          key={status}
+          type="button"
+          onClick={() => setStatusFilter(status)}
+          className={`whitespace-nowrap rounded-2xl px-4 py-2 text-base font-semibold shadow-sm ${
+            isActive ? activeClass : inactiveClass
+          }`}
+        >
+          {status}
+        </button>
+      );
+    })}
+  </div>
+)}
             </section>
 
             <section className="space-y-3">
