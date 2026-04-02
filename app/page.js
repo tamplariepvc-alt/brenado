@@ -3581,7 +3581,7 @@ OFERTE WINARHI
 
 </section>
 
-        {profile?.role === "manager" && (
+        {profile?.role === "admin" || profile?.role === "manager" && (
           <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3606,7 +3606,7 @@ OFERTE WINARHI
           </section>
         )}
 
-        {profile?.role === "manager" && activeTab === "adauga" && (
+        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
