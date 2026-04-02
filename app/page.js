@@ -1688,7 +1688,7 @@ const { data: latestClient } = await supabase
   .single();
 
 await sendAdminPushNotification(
-  "Comanda noua",
+  "Comanda nouă",
   `A fost creata comanda pentru ${clientName}`,
   latestClient?.id
     ? `/?openSection=clients&openClientId=${latestClient.id}`
@@ -1749,7 +1749,7 @@ async function handleUpdateClient(e) {
 
     if (nextAdvance > previousAdvance && nextAdvance > 0) {
       await sendAdminPushNotification(
-        "Avans incasat",
+        "Avans încasat",
         `Comanda ${editClientName} a incasat avans`,
         `/?openSection=clients&openClientId=${selectedClient.id}`
       );
@@ -1757,7 +1757,7 @@ async function handleUpdateClient(e) {
 
     if (previousRemaining > 0 && nextRemaining === 0) {
       await sendAdminPushNotification(
-        "Comanda achitata",
+        "Comandă achitată",
         `Comanda ${editClientName} a fost achitata`,
         `/?openSection=clients&openClientId=${selectedClient.id}`
       );
