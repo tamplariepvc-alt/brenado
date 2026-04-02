@@ -3540,14 +3540,6 @@ const filteredTasks = tasks.filter((task) => {
 OFERTE WINARHI
       </button>
     )}
-
-<button
-  type="button"
-  onClick={enablePushNotifications}
-  className="w-full rounded-2xl bg-slate-900 px-2 py-2 text-base font-semibold text-white"
->
-  ACTIVEAZA NOTIFICARI
-</button>
 </div>
 
 {/* 🔽 NU mai închizi section aici */}
