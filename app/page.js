@@ -3581,7 +3581,7 @@ OFERTE WINARHI
 
 </section>
 
-        {profile?.role === "admin" && (
+        {profile?.role === "admin" || profile?.role === "manager" && (
           <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3593,6 +3593,7 @@ OFERTE WINARHI
               >
                 Sarcini
               </button>
+		{profile?.role === "manager" && (
               <button
                 type="button"
                 onClick={() => setActiveTab("adauga")}
@@ -3602,6 +3603,7 @@ OFERTE WINARHI
               >
                 + Adaugă
               </button>
+		{profile?.role === "admin" || profile?.role === "manager" && (	  
               <button
                 type="button"
                 onClick={() => setActiveTab("useri")}
@@ -3615,13 +3617,13 @@ OFERTE WINARHI
           </section>
         )}
 
-        {profile?.role === "admin" && activeTab === "adauga" && (
+        {profile?.role === "manager" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
 
-        {profile?.role === "admin" && activeTab === "useri" && (
+        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
