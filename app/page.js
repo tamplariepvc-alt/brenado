@@ -558,7 +558,7 @@ const hasFinalPhotos =
 const isWorkInProgress = task.status === "In lucru";
 const isCompleted = task.status === "Finalizata";
 const canUploadPhotos =
-  profile?.role === "admin" || profile?.role === "manager" || task.status !== "Noua";
+  profile?.role === "admin" || task.status !== "Noua";
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
@@ -576,7 +576,7 @@ const canUploadPhotos =
       {task.status}
     </span>
 
-    profile?.role === "admin" || profile?.role === "manager" && (
+    {profile?.role === "admin" && (
       <button
         type="button"
         onClick={handleDeleteTask}
@@ -959,7 +959,7 @@ function MontageCalendar({ profile }) {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
+  const isAdmin = profile?.role === "admin";
   const calendarDays = getCalendarDays(currentMonth);
 
   async function loadEntries() {
@@ -1526,7 +1526,7 @@ function ClientsManagement({
   
 
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
+  const isAdmin = profile?.role === "admin";
   
 useEffect(() => {
   const total = Number(String(totalValue).replace(",", ".")) || 0;
@@ -2583,7 +2583,7 @@ function WinarhiOffers({ profile }) {
   const [selectedOfferMonth, setSelectedOfferMonth] = useState("");
   const [showOfferMonthFilter, setShowOfferMonthFilter] = useState(false);
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
+  const isAdmin = profile?.role === "admin";
   
   const months = [
   { value: "01", label: "Ianuarie" },
@@ -3079,7 +3079,7 @@ useEffect(() => {
   const openTaskIdParam = params.get("openTaskId");
 
   if (
-    profile?.role === "admin" || profile?.role === "manager" &&
+    profile?.role === "admin" &&
     openSection === "clients" &&
     openClientId
   ) {
@@ -3451,7 +3451,7 @@ const filteredTasks = tasks.filter((task) => {
   return matchesStatus && matchesSearch;
 });
 
-  const showTaskArea = !(profile?.role === "admin" || profile?.role === "manager" && activeTab === "useri");
+  const showTaskArea = !(profile?.role === "admin" && activeTab === "useri");
   
   const hasUnreadNotifications = notifications.some((item) => !item.is_read);
 
@@ -3504,7 +3504,7 @@ const filteredTasks = tasks.filter((task) => {
     <p className="text-xs font-semibold text-slate-900">
       {(profile?.full_name || "Utilizator") +
         " - " +
-        (profile?.role === "admin" || profile?.role === "manager" ? "(Administrator)" : "(Manager)" : "(Utilizator)")}
+        (profile?.role === "admin" ? "(Administrator)" : "(Utilizator)")}
     </p>
   </div>
 </header>
@@ -3519,7 +3519,7 @@ const filteredTasks = tasks.filter((task) => {
       CALENDAR MONTAJE
     </button>
 
-    {profile?.role === "admin" || profile?.role === "manager" && (
+    {profile?.role === "admin" && (
       <button
         type="button"
         onClick={() => {
@@ -3531,7 +3531,7 @@ const filteredTasks = tasks.filter((task) => {
         GESTIUNE COMENZI
       </button>
     )}
-    {profile?.role === "admin" || profile?.role === "manager" && (
+    {profile?.role === "admin" && (
     <button
       type="button"
       onClick={() => setShowWinarhiOffersModal(true)}
@@ -3577,7 +3577,7 @@ OFERTE WINARHI
 
 </section>
 
-        {profile?.role === "admin" || profile?.role === "manager" && (
+        {profile?.role === "admin" && (
           <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3611,13 +3611,13 @@ OFERTE WINARHI
           </section>
         )}
 
-        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "adauga" && (
+        {profile?.role === "admin" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
 
-        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "useri" && (
+        {profile?.role === "admin" && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
