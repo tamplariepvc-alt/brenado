@@ -1537,7 +1537,7 @@ useEffect(() => {
 }, [totalValue, advanceValue]);
 
 useEffect(() => {
-  if (profile?.role !== "admin") return;
+  if (profile?.role === "admin" || profile?.role === "manager") return;
   if (!autoOpenClientId || !clients.length) return;
 
   const foundClient = clients.find(
@@ -3504,7 +3504,7 @@ const filteredTasks = tasks.filter((task) => {
     <p className="text-xs font-semibold text-slate-900">
       {(profile?.full_name || "Utilizator") +
         " - " +
-        (profile?.role === "admin" ? "(Administrator)" : "(Utilizator)")}
+        (profile?.role === "admin" || profile?.role === "manager" ? "(Administrator)" : "(Manager)" : "(Utilizator)")}
     </p>
   </div>
 </header>
@@ -3519,7 +3519,7 @@ const filteredTasks = tasks.filter((task) => {
       CALENDAR MONTAJE
     </button>
 
-    {profile?.role === "admin" && (
+    {profile?.role === "admin" || profile?.role === "manager" && (
       <button
         type="button"
         onClick={() => {
