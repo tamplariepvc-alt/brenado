@@ -1778,21 +1778,23 @@ async function handleUpdateClient(e) {
 
     if (error) throw error;
 
-    if (nextAdvance > previousAdvance && nextAdvance > 0) {
-      await sendAdminPushNotification(
-        "Avans încasat",
-        `Comanda ${editClientName} a încasat avans`,
-        `/?openSection=clients&openClientId=${selectedClient.id}`
-      );
-    }
+// 🔥 PRIORITATE: ACHITARE COMPLETA
+if (previousRemaining > 0 && nextRemaining === 0) {
+  await sendAdminPushNotification(
+    "Comanda achitata",
+    Comanda ${editClientName} a fost achitata,
+    /?openSection=clients&openClientId=${selectedClient.id}
+  );
+}
 
-    if (previousRemaining > 0 && nextRemaining === 0) {
-      await sendAdminPushNotification(
-        "Comandă achitată",
-        `Comanda ${editClientName} a fost achitată`,
-        `/?openSection=clients&openClientId=${selectedClient.id}`
-      );
-    }
+// 🔹 AVANS DOAR DACA NU ESTE ACHITATA COMPLET
+else if (nextAdvance > previousAdvance && nextAdvance > 0) {
+  await sendAdminPushNotification(
+    "Avans incasat",
+    Comanda ${editClientName} a incasat avans,
+    /?openSection=clients&openClientId=${selectedClient.id}
+  );
+}
 
     setSelectedClient((prev) =>
       prev
