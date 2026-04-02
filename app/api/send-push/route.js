@@ -25,22 +25,22 @@ export async function POST(request) {
     const body = await request.json();
     const { title, message, url = "/" } = body;
 
-    const { data: admins, error: adminsError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("role", "admin");
+const { data: privilegedUsers, error: adminsError } = await supabase
+  .from("profiles")
+  .select("id, role")
+  .in("role", ["admin", "manager"]);
 
     if (adminsError) {
       return Response.json({ error: adminsError.message }, { status: 500 });
     }
 
-    const adminIds = (admins || []).map((item) => item.id);
+const adminIds = (privilegedUsers || []).map((item) => item.id);
 
-    if (!adminIds.length) {
-      return Response.json({ ok: true, sent: 0 });
-    }
+if (!adminIds.length) {
+  return Response.json({ ok: true, sent: 0 });
+}
 
-    const notificationRows = adminIds.map((userId) => ({
+const notificationRows = adminIds.map((userId) => ({
       user_id: userId,
       title,
       message,
