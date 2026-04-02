@@ -558,7 +558,7 @@ const hasFinalPhotos =
 const isWorkInProgress = task.status === "In lucru";
 const isCompleted = task.status === "Finalizata";
 const canUploadPhotos =
-  profile?.role === "admin" || task.status !== "Noua";
+  profile?.role === "manager" || task.status !== "Noua";
 
   return (
     <article className="rounded-3xl bg-white p-4 shadow-sm">
@@ -576,7 +576,7 @@ const canUploadPhotos =
       {task.status}
     </span>
 
-    {profile?.role === "admin" && (
+    {profile?.role === "manager" && (
       <button
         type="button"
         onClick={handleDeleteTask}
@@ -959,7 +959,7 @@ function MontageCalendar({ profile }) {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
   const calendarDays = getCalendarDays(currentMonth);
 
   async function loadEntries() {
@@ -1526,7 +1526,7 @@ function ClientsManagement({
   
 
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = profile?.role === "admin" || profile?.role === "manager";
   
 useEffect(() => {
   const total = Number(String(totalValue).replace(",", ".")) || 0;
@@ -3012,6 +3012,9 @@ function NotificationsPopup({
 
 function Dashboard({ session }) {
   const [profile, setProfile] = useState(null);
+  const isAdmin = profile?.role === "admin";
+  const isManager = profile?.role === "manager";
+  const isAdminOrManager = isAdmin || isManager;
   const [tasks, setTasks] = useState(isSupabaseConfigured ? [] : demoTasks);
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("taskuri");
@@ -3436,6 +3439,10 @@ async function handleNotificationClick(notification) {
 
 
 const filteredTasks = tasks.filter((task) => {
+  if (isAdmin) {
+    return task.status === "Finalizata";
+  }
+
   const matchesStatus = task.status === statusFilter;
 
   const haystack = `
@@ -3504,7 +3511,11 @@ const filteredTasks = tasks.filter((task) => {
     <p className="text-xs font-semibold text-slate-900">
       {(profile?.full_name || "Utilizator") +
         " - " +
-        (profile?.role === "admin" ? "(Administrator)" : "(Utilizator)")}
+     profile?.role === "admin"
+  ? "(Administrator)"
+  : profile?.role === "manager"
+  ? "(Manager)"
+  : "(Utilizator)"}
     </p>
   </div>
 </header>
@@ -3519,7 +3530,7 @@ const filteredTasks = tasks.filter((task) => {
       CALENDAR MONTAJE
     </button>
 
-    {profile?.role === "admin" && (
+    {isAdminOrManager && (
       <button
         type="button"
         onClick={() => {
@@ -3531,7 +3542,7 @@ const filteredTasks = tasks.filter((task) => {
         GESTIUNE COMENZI
       </button>
     )}
-    {profile?.role === "admin" && (
+    {isAdminOrManager && (
     <button
       type="button"
       onClick={() => setShowWinarhiOffersModal(true)}
@@ -3577,7 +3588,7 @@ OFERTE WINARHI
 
 </section>
 
-        {profile?.role === "admin" && (
+        {isManager && (
           <section className="mb-4 rounded-3xl bg-white p-2 shadow-sm">
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3611,13 +3622,13 @@ OFERTE WINARHI
           </section>
         )}
 
-        {profile?.role === "admin" && activeTab === "adauga" && (
+        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "adauga" && (
           <div className="mb-4">
             <TaskForm onCreate={createTask} creating={creating} users={users} />
           </div>
         )}
 
-        {profile?.role === "admin" && activeTab === "useri" && (
+        {profile?.role === "admin" || profile?.role === "manager" && activeTab === "useri" && (
           <section className="mb-4 rounded-3xl bg-white p-4 shadow-sm">
             <div className="mb-3">
               <h3 className="text-base font-semibold text-slate-900">Utilizatori</h3>
