@@ -1782,8 +1782,8 @@ async function handleUpdateClient(e) {
 if (previousRemaining > 0 && nextRemaining === 0) {
   await sendAdminPushNotification(
     "Comanda achitata",
-    Comanda ${editClientName} a fost achitata,
-    /?openSection=clients&openClientId=${selectedClient.id}
+    `Comanda ${editClientName} a fost achitata`,
+    `/?openSection=clients&openClientId=${selectedClient.id}`
   );
 }
 
@@ -1791,8 +1791,8 @@ if (previousRemaining > 0 && nextRemaining === 0) {
 else if (nextAdvance > previousAdvance && nextAdvance > 0) {
   await sendAdminPushNotification(
     "Avans incasat",
-    Comanda ${editClientName} a incasat avans,
-    /?openSection=clients&openClientId=${selectedClient.id}
+    `Comanda ${editClientName} a incasat avans`,
+    `/?openSection=clients&openClientId=${selectedClient.id}`
   );
 }
 
