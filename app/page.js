@@ -3504,7 +3504,7 @@ const filteredTasks = tasks.filter((task) => {
     <p className="text-xs font-semibold text-slate-900">
       {(profile?.full_name || "Utilizator") +
         " - " +
-        (profile?.role === "admin" || profile?.role === "manager" ? "(Administrator)" : "(Manager)" : "(Utilizator)")}
+        (profile?.role === "admin" || profile?.role === "manager" ? "(Administrator)" : "(Utilizator)")}
     </p>
   </div>
 </header>
