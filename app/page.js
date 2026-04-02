@@ -3637,12 +3637,12 @@ OFERTE WINARHI
                     <div>
                       <div className="font-medium text-slate-900">{userItem.full_name || "Fara nume"}</div>
                       <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Rol curent: {userItem.role === "admin" ? "Admin" : profile?.role === "manager" ? "Manager" : "User"}
+                        Rol curent: {userItem.role === "admin" ? "Admin" : profile?.role === "manager" ? "Manager" : profile?.role === "user" ? "User"}
                       </div>
                     </div>
                     <div className="flex gap-2">
 <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
-  {userItem.role === "admin" ? "Admin" : profile?.role === "manager" ? "Manager" : "User"}
+  {userItem.role === "admin" ? "Admin" : profile?.role === "manager" ? "Manager" : profile?.role === "user" ? "User"} 
 </div>
                     </div>
                   </div>
