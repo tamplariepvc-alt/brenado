@@ -435,6 +435,8 @@ function TaskCard({
   const [completionNames, setCompletionNames] = useState([]);
   const [uploadingCompletion, setUploadingCompletion] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState("");
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
 
   function openGallery(startIndex = 0) {
     setGalleryIndex(startIndex);
@@ -456,6 +458,31 @@ function TaskCard({
       prev === galleryImages.length - 1 ? 0 : prev + 1
     );
   }
+  
+  function handleTouchStart(e) {
+  setTouchStartX(e.targetTouches[0].clientX);
+}
+
+function handleTouchMove(e) {
+  setTouchEndX(e.targetTouches[0].clientX);
+}
+
+function handleTouchEnd() {
+  if (!touchStartX || !touchEndX) return;
+
+  const distance = touchStartX - touchEndX;
+
+  if (distance > 50) {
+    showNextImage();
+  }
+
+  if (distance < -50) {
+    showPrevImage();
+  }
+
+  setTouchStartX(0);
+  setTouchEndX(0);
+}
 
   useEffect(() => {
     setNotes(task.notes || "");
@@ -929,11 +956,14 @@ onClick={() => {
             </div>
 
             <div className="overflow-auto rounded-3xl bg-black/20 p-2">
-              <img
-                src={galleryImages[galleryIndex]?.url}
-                alt={galleryImages[galleryIndex]?.label || "Poza"}
-                className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl object-contain"
-              />
+<img
+  src={galleryImages[galleryIndex]?.url}
+  alt={galleryImages[galleryIndex]?.label || "Poza"}
+  className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl object-contain"
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+/>
             </div>
 
             <p className="mt-3 text-xs text-slate-300">
