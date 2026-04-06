@@ -3273,10 +3273,10 @@ if (error) {
   }, [session?.user?.id]);
 
   async function createTask(payload) {
-    if (profile?.role !== "admin") {
-      alert("Doar administratorul poate crea sarcini.");
-      return;
-    }
+if (!isAdmin && !isManager) {
+  alert("Nu ai permisiunea sa creezi sarcini");
+  return;
+}
 
     if (!supabase) {
       setTasks((prev) => [
